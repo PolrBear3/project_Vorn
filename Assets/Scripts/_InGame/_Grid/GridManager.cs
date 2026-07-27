@@ -18,6 +18,9 @@ public class GridManager : MonoBehaviour
     private List<Grid> _grids = new();
     public List<Grid> grids => _grids;
 
+    private Grid _hoveringGrid;
+    public Grid hoveringGrid => _hoveringGrid;
+
 
     // MonoBehaviour
     private void Awake()
@@ -64,5 +67,18 @@ public class GridManager : MonoBehaviour
 
             if (xWorldPos < _generateXPos * -1f) break;
         }
+    }
+
+
+    // Current Grids
+    public void Update_HoveringGrid(Grid hoveringGrid)
+    {
+        _hoveringGrid = hoveringGrid;
+    }
+
+    public bool HoveringGrid_Empty()
+    {
+        if (_hoveringGrid == null) return false;
+        return _hoveringGrid.currentPlaceable == null;
     }
 }

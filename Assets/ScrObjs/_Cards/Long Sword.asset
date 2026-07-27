@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ab6d7b62706f44cf85f91250d6d2ee0, type: 3}
   m_Name: Long Sword
   m_EditorClassIdentifier: 
-  _contentSprite: {fileID: -1634482492, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
+  _contentSprite: {fileID: 31158166, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
   _interactionData:
     _health: 0
     _damage: 0

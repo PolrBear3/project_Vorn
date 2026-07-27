@@ -188,5 +188,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c52f085093844c81a3ced41da013178, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _hoverDetector: {fileID: 7985673038764711976}
   _spriteRenderer: {fileID: 5717695321224334666}
-  _eventSystems: {fileID: 7985673038764711976}

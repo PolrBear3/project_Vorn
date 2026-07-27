@@ -1,6 +1,31 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+public class HandInventory_DragDropData
+{
+    private CardData _draggingCardData;
+    public CardData draggingCardData => _draggingCardData;
+
+    private int _handCardsIndex;
+    public int handCardsIndex => _handCardsIndex;
+
+    private bool _draggedOnClick;
+    public bool draggedOnClick => _draggedOnClick;
+
+    public HandInventory_DragDropData(CardData draggingCardData, int cardIndex)
+    {
+        _draggingCardData = draggingCardData;
+        _handCardsIndex = cardIndex;
+        _draggedOnClick = true;
+    }
+
+    public void DragComplete()
+    {
+        _draggedOnClick = false;
+    }
+}
 
 public class HandInventory : MonoBehaviour
 {
@@ -26,21 +51,46 @@ public class HandInventory : MonoBehaviour
     public List<HandCard> handCards => _handCards;
 
 
+    private HandCard _hoveringCard;
+    public HandCard hovaringCard => _hoveringCard;
+
+    private HandInventory_DragDropData _dragDropData;
+
+
     // MonoBehaviour
     private void Awake()
     {
         EventBus_GlobalController.Register(EventBus.AwakeLoad, LoadCards_toDeck);
-
-        Input_Controller.instance.OnHoldInteract += _addCardEventBus.Run_BusEvents;
-        _addCardEventBus.Register(EventBus.AwakeLoad, Draw_Card);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
     }
 
     private void OnDestroy()
     {
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, LoadCards_toDeck);
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
 
-        Input_Controller.instance.OnHoldInteract -= _addCardEventBus.Run_BusEvents;
+
+        // from Set_Data
+        Input_Controller input = Input_Controller.instance;
+
+        input.OnHoldInteract -= _addCardEventBus.Run_BusEvents;
         _addCardEventBus.UnRegister(EventBus.AwakeLoad, Draw_Card);
+
+        input.OnLeftClickPressed -= Drag_HoveringCard;
+        input.OnLeftClickPressed += Drop_DraggingCard;
+    }
+
+
+    // Data
+    private void Set_Data()
+    {
+        Input_Controller input = Input_Controller.instance;
+
+        input.OnHoldInteract += _addCardEventBus.Run_BusEvents;
+        _addCardEventBus.Register(EventBus.AwakeLoad, Draw_Card);
+
+        input.OnLeftClickPressed += Drag_HoveringCard;
+        input.OnLeftClickPressed += Drop_DraggingCard;
     }
 
 
@@ -73,32 +123,35 @@ public class HandInventory : MonoBehaviour
 
 
     // Hand
-    public void AddCard_toHand(CardData addCardData)
+    public HandCard AddCard_toHand(CardData addCardData)
     {
-        if (_handCards.Count >= _maxHandCardCount) return;
+        if (_handCards.Count >= _maxHandCardCount) return null;
 
         GameObject addCardObject = Instantiate(_handCardPrefab, _allHandCards);
-        if (addCardObject.TryGetComponent(out HandCard addCard) == false) return;
+        if (addCardObject.TryGetComponent(out HandCard addCard) == false) return null;
 
         addCard.Load(addCardData);
 
         _handCards.Add(addCard);
         _data.handCardDatas.Add(addCard.data);
 
-        Update_HandCardPositions();
+        return addCard;
     }
-    private void RemoveCard_fromHand(int removeIndex)
+    private void RemoveCard_fromHand(HandCard removeCard)
     {
         if (_handCards == null || _handCards.Count <= 0) return;
 
-        removeIndex = Mathf.Clamp(removeIndex, 0, _handCards.Count - 1);
-        HandCard removeCard = _handCards[removeIndex];
+        for (int i = 0; i < _handCards.Count; i++)
+        {
+            HandCard cardToRemove = _handCards[i];
+            if (removeCard != cardToRemove) continue;
 
-        _handCards.RemoveAt(removeIndex);
-        _data.handCardDatas.Remove(removeCard.data);
+            _handCards.RemoveAt(i);
+            _data.handCardDatas.Remove(cardToRemove.data);
 
-        Destroy(removeCard.gameObject);
-        Update_HandCardPositions();
+            Destroy(cardToRemove.gameObject);
+            break;
+        }
     }
 
     private void Update_HandCardPositions()
@@ -128,9 +181,86 @@ public class HandInventory : MonoBehaviour
             deckCardDatas.RemoveAt(drawCardIndex);
             AddCard_toHand(drawCardData);
         }
+        Update_HandCardPositions();
     }
     private void Draw_Card()
     {
         Draw_Card(1);
+    }
+
+
+    // HandCard Hover
+    public void Update_HoveringCard(HandCard hoveringCard)
+    {
+        _hoveringCard = hoveringCard;
+    }
+
+    private void Drag_HoveringCard(bool isHolding)
+    {
+        if (_hoveringCard == null) return;
+        if (isHolding == false) return;
+
+        CardData hoveringCardData = _hoveringCard.data;
+        if (GameManager.instance.cursor.Drag_Card(hoveringCardData, _hoveringCard.transform) == false) return;
+
+        for (int i = 0; i < handCards.Count; i++)
+        {
+            if (_hoveringCard != handCards[i]) continue;
+
+            _dragDropData = new(hoveringCardData, i);
+            break;
+        }
+        RemoveCard_fromHand(_hoveringCard);
+        Update_HandCardPositions();
+    }
+    private void Drop_DraggingCard(bool isHolding)
+    {
+        if (_dragDropData == null) return;
+
+        GameManager manager = GameManager.instance;
+        Cursor cursor = manager.cursor;
+
+        GridManager gridManager = manager.gridManager;
+        bool hoveringEmptyGrid = gridManager.HoveringGrid_Empty();
+
+        if (_dragDropData.draggedOnClick)
+        {
+            if (isHolding) return;
+
+            if (hoveringEmptyGrid)
+            {
+                cursor.Drop_Card();
+                // set card on hovering grid
+                return;
+            }
+
+            _dragDropData.DragComplete();
+            return;
+        }
+
+        if (isHolding == false) return;
+
+        if (hoveringEmptyGrid)
+        {
+            cursor.Drop_Card();
+            // set card on hovering grid
+            return;
+        }
+        Return_DraggingCard();
+    }
+
+    private void Return_DraggingCard()
+    {
+        if (_dragDropData == null) return;
+
+        GameManager.instance.cursor.Drop_Card();
+        HandCard addedCard = AddCard_toHand(_dragDropData.draggingCardData);
+
+        _handCards.Remove(addedCard);
+        _handCards.Insert(_dragDropData.handCardsIndex, addedCard);
+
+        _dragDropData = null;
+
+        Update_HandCardPositions();
     }
 }

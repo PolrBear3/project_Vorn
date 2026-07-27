@@ -11,6 +11,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GridManager _gridManager;
     public GridManager gridManager => _gridManager;
 
+    [SerializeField] private Cursor _cursor;
+    public Cursor cursor => _cursor;
+
     [SerializeField] private HandInventory _handInventory;
     public HandInventory handInventory => _handInventory;
 

@@ -8,8 +8,8 @@ public class GameManager : MonoBehaviour
 
 
     [Space(20)]
-    [SerializeField] private GridManager _gridManager;
-    public GridManager gridManager => _gridManager;
+    [SerializeField] private TileManager _tileManager;
+    public TileManager tileManager => _tileManager;
 
     [SerializeField] private Cursor _cursor;
     public Cursor cursor => _cursor;

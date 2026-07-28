@@ -10,16 +10,11 @@ public class CardData
     private InteractionData _currentData;
     public InteractionData currentData => _currentData;
 
-    private int _currentMana;
-    public int currentMana => _currentMana;
-
 
     // New
     public CardData(Card_ScrObj setCard)
     {
         _cardScrObj = setCard;
-
         _currentData = setCard.interactionData;
-        _currentMana = setCard.mana;
     }
 }

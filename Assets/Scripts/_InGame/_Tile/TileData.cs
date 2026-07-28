@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class GridData
+public class TileData
 {
     private Vector2 _position;
     public Vector2 position => _position;
 
-    public GridData(Vector2 generatedPos)
+    public TileData(Vector2 generatedPos)
     {
         _position = generatedPos;
     }

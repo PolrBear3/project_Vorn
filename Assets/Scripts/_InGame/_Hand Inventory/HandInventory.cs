@@ -77,7 +77,9 @@ public class HandInventory : MonoBehaviour
         _addCardEventBus.UnRegister(EventBus.AwakeLoad, Draw_Card);
 
         input.OnLeftClickPressed -= Drag_HoveringCard;
-        input.OnLeftClickPressed += Drop_DraggingCard;
+        input.OnLeftClickPressed -= Drop_DraggingCard;
+
+        input.OnRightClickPressed -= Return_DraggingCard;
     }
 
 
@@ -91,6 +93,8 @@ public class HandInventory : MonoBehaviour
 
         input.OnLeftClickPressed += Drag_HoveringCard;
         input.OnLeftClickPressed += Drop_DraggingCard;
+
+        input.OnRightClickPressed += Return_DraggingCard;
     }
 
 
@@ -220,8 +224,8 @@ public class HandInventory : MonoBehaviour
         GameManager manager = GameManager.instance;
         Cursor cursor = manager.cursor;
 
-        GridManager gridManager = manager.gridManager;
-        bool hoveringEmptyGrid = gridManager.HoveringGrid_Empty();
+        TileManager tileManager = manager.tileManager;
+        bool hoveringEmptyGrid = tileManager.HoveringTile_Empty();
 
         if (_dragDropData.draggedOnClick)
         {
@@ -262,5 +266,9 @@ public class HandInventory : MonoBehaviour
         _dragDropData = null;
 
         Update_HandCardPositions();
+    }
+    private void Return_DraggingCard(bool _)
+    {
+        Return_DraggingCard();
     }
 }

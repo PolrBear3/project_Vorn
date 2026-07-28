@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Grid : MonoBehaviour
+public class Tile : MonoBehaviour
 {
     [Space(20)]
     [SerializeField] private EventSystems_Controller _hoverDetector;
@@ -12,8 +12,8 @@ public class Grid : MonoBehaviour
     public SpriteRenderer spriteRenderer => _spriteRenderer;
 
 
-    private GridData _data;
-    public GridData data => _data;
+    private TileData _data;
+    public TileData data => _data;
 
     private GameObject _currentPlaceable;
     public GameObject currentPlaceable => _currentPlaceable;
@@ -52,6 +52,6 @@ public class Grid : MonoBehaviour
     // Hover
     private void Update_OnHover(bool isHovering)
     {
-        GameManager.instance.gridManager.Update_HoveringGrid(isHovering ? this : null);
+        GameManager.instance.tileManager.Update_hoveringTile(isHovering ? this : null);
     }
 }

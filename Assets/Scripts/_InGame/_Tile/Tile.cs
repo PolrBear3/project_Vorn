@@ -41,11 +41,18 @@ public class Tile : MonoBehaviour
     // Card & Enemy Placeable
     public void Set_Placeable(GameObject placeableObject)
     {
+        if (placeableObject == null)
+        {
+            Destroy(_currentPlaceable);
+            _currentPlaceable = null;
+            
+            return;
+        }
         if (_currentPlaceable != null) return;
+        
         _currentPlaceable = placeableObject;
-
         _currentPlaceable.transform.SetParent(transform);
-        _currentPlaceable.transform.position = Vector2.zero;
+        _currentPlaceable.transform.localPosition = Vector2.zero;
     }
 
 

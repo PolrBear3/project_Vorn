@@ -94,14 +94,6 @@ public class TileManager : MonoBehaviour
         _hoveringTile = hoveringTile;
     }
 
-    public bool HoveringTile_Empty()
-    {
-        if (_hoveringTile == null) return false;
-
-        return _hoveringTile.currentPlaceable == null;
-    }
-
-
     private void Select_HoveringTile()
     {
         if (_hoveringTile == null) return;

@@ -40,6 +40,8 @@ public class HandCard : MonoBehaviour
         if (loadCardData.cardScrObj == null) return;
 
         _data = loadCardData;
+
+        _rectTransform.localScale = new(1, 1, 1);
         _contentImage.sprite = _data.cardScrObj.contentSprite;
     }
     public void Load(Card_ScrObj setCard)

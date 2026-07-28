@@ -14,6 +14,8 @@ public class HandInventory_DragDropData
     private bool _draggedOnClick;
     public bool draggedOnClick => _draggedOnClick;
 
+
+    // New
     public HandInventory_DragDropData(CardData draggingCardData, int cardIndex)
     {
         _draggingCardData = draggingCardData;
@@ -21,6 +23,7 @@ public class HandInventory_DragDropData
         _draggedOnClick = true;
     }
 
+    // Data
     public void DragComplete()
     {
         _draggedOnClick = false;
@@ -41,14 +44,14 @@ public class HandInventory : MonoBehaviour
     [SerializeField] private List<Card_ScrObj> _startingDeckCards = new();
 
 
-    private EventBus_Controller _addCardEventBus = new();
-    public EventBus_Controller addCardEventBus => _addCardEventBus;
-
     private HandInventory_Data _data;
     public HandInventory_Data data => _data;
 
     private List<HandCard> _handCards = new();
     public List<HandCard> handCards => _handCards;
+
+    private EventBus_Controller _addCardEventBus = new();
+    public EventBus_Controller addCardEventBus => _addCardEventBus;
 
 
     private HandCard _hoveringCard;
@@ -97,8 +100,6 @@ public class HandInventory : MonoBehaviour
         input.OnRightClickPressed += Return_DraggingCard;
     }
 
-
-    // Deck
     private void LoadCards_toDeck()
     {
         _data = new(new()); // load saved data
@@ -109,6 +110,8 @@ public class HandInventory : MonoBehaviour
         AddCards_toDeck(startingDeckCardDatas); // load new with shuffle
     }
 
+
+    // Deck
     private void AddCard_toDeck(CardData addCardData)
     {
         if (addCardData == null) return;
@@ -198,7 +201,6 @@ public class HandInventory : MonoBehaviour
     {
         _hoveringCard = hoveringCard;
     }
-
     private void Drag_HoveringCard(bool isHolding)
     {
         if (_hoveringCard == null) return;
@@ -217,39 +219,37 @@ public class HandInventory : MonoBehaviour
         RemoveCard_fromHand(_hoveringCard);
         Update_HandCardPositions();
     }
+    
+    private bool Place_DraggingCard()
+    {
+        if (_dragDropData == null) return false;
+
+        GameManager manager = GameManager.instance;
+        bool cardPlaced = manager.cardManager.PlaceCard_OnTile(_dragDropData.draggingCardData, manager.tileManager.hoveringTile);
+
+        if (cardPlaced == false) return false;
+
+        manager.cursor.Drop_Card();
+        _dragDropData = null;
+
+        return true;
+    }
     private void Drop_DraggingCard(bool isHolding)
     {
         if (_dragDropData == null) return;
 
-        GameManager manager = GameManager.instance;
-        Cursor cursor = manager.cursor;
-
-        TileManager tileManager = manager.tileManager;
-        bool hoveringEmptyGrid = tileManager.HoveringTile_Empty();
-
         if (_dragDropData.draggedOnClick)
         {
             if (isHolding) return;
-
-            if (hoveringEmptyGrid)
-            {
-                cursor.Drop_Card();
-                // set card on hovering grid
-                return;
-            }
+            if (Place_DraggingCard()) return;
 
             _dragDropData.DragComplete();
             return;
         }
 
         if (isHolding == false) return;
+        if (Place_DraggingCard()) return;
 
-        if (hoveringEmptyGrid)
-        {
-            cursor.Drop_Card();
-            // set card on hovering grid
-            return;
-        }
         Return_DraggingCard();
     }
 

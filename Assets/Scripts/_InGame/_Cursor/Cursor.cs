@@ -8,6 +8,8 @@ public class Cursor : MonoBehaviour
 {
     [Space(10)]
     [SerializeField] private RectTransform _pointerIconRect;
+    public RectTransform pointerIconRect => _pointerIconRect;
+
     [SerializeField] private Image _pointerIconImage;
 
     [Space(20)]

@@ -51,17 +51,13 @@ public class CardManager : MonoBehaviour
     private void OnDestroy()
     {
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
-
-
-        // from Set_Data
-        GameManager.instance.tileManager.tileSelectBus.UnRegister(EventBus.AwakeLoad, DragCard_FromTile);
     }
 
 
     // Data
     private void Set_Data()
     {
-        GameManager.instance.tileManager.tileSelectBus.Register(EventBus.AwakeLoad, DragCard_FromTile);
+
     }
 
 
@@ -80,26 +76,5 @@ public class CardManager : MonoBehaviour
         _data.Add_PlacedData(placeCard);
 
         return true;
-    }
-
-    private void DragCard_FromTile()
-    {
-        if (_dragDropData != null) return;
-        
-        GameManager manager = GameManager.instance;
-        
-        Tile hoveringTile = manager.tileManager.hoveringTile;
-        if (hoveringTile == null) return;
-
-        Vector2 dragTilePos = hoveringTile.data.position;
-
-        CardData dragCardData = _data.PositionPlaced_CardData(dragTilePos);
-        if (dragCardData == null) return;
-
-        _dragDropData = new(dragCardData, dragTilePos);
-        hoveringTile.Set_Placeable(null);
-
-        manager.cursor.Drag_Card(dragCardData, manager.cursor.pointerIconRect);
-        _data.placedCardDatas.Remove(dragCardData);
     }
 }

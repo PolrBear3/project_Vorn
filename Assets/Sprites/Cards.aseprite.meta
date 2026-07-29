@@ -124,14 +124,14 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: Cards
     originalName: 
-    pivot: {x: 0.6666667, y: -3.5000002}
+    pivot: {x: 0.5, y: -3.5000002}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     rect:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 45
+      width: 60
       height: 14
     spriteID: c4c8c09a3879648bd9d7aebd693a612f
     spriteBone: []
@@ -162,7 +162,7 @@ ScriptedImporter:
       cellRect:
         x: 2
         y: 49
-        width: 45
+        width: 60
         height: 14
       spriteId: c4c8c09a3879648bd9d7aebd693a612f
     linkedCells: []
@@ -184,4 +184,4 @@ ScriptedImporter:
   secondarySpriteTextures: []
   spritePackingTag: 
   canvasSize: {x: 64, y: 64}
-  previousTextureSize: {x: 64, y: 32}
+  previousTextureSize: {x: 128, y: 32}

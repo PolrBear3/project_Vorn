@@ -50,8 +50,12 @@ public class HandInventory : MonoBehaviour
     private List<HandCard> _handCards = new();
     public List<HandCard> handCards => _handCards;
 
-    private EventBus_Controller _addCardEventBus = new();
-    public EventBus_Controller addCardEventBus => _addCardEventBus;
+
+    private EventBus_Controller _addCardToDeckBus;
+    public EventBus_Controller addCardToDeckBus => _addCardToDeckBus;
+
+    private EventBus_Controller _drawCardFromDeck = new();
+    public EventBus_Controller drawCardFromDeck => _drawCardFromDeck;
 
 
     private HandCard _hoveringCard;
@@ -76,12 +80,10 @@ public class HandInventory : MonoBehaviour
         // from Set_Data
         Input_Controller input = Input_Controller.instance;
 
-        input.OnHoldInteract -= _addCardEventBus.Run_BusEvents;
-        _addCardEventBus.UnRegister(EventBus.AwakeLoad, Draw_Card);
+        input.OnInteract -= Draw_Card;
 
         input.OnLeftClickPressed -= Drag_HoveringCard;
         input.OnLeftClickPressed -= Drop_DraggingCard;
-
         input.OnRightClickPressed -= Return_DraggingCard;
     }
 
@@ -91,12 +93,10 @@ public class HandInventory : MonoBehaviour
     {
         Input_Controller input = Input_Controller.instance;
 
-        input.OnHoldInteract += _addCardEventBus.Run_BusEvents;
-        _addCardEventBus.Register(EventBus.AwakeLoad, Draw_Card);
+        input.OnInteract += Draw_Card;
 
         input.OnLeftClickPressed += Drag_HoveringCard;
         input.OnLeftClickPressed += Drop_DraggingCard;
-
         input.OnRightClickPressed += Return_DraggingCard;
     }
 
@@ -187,6 +187,8 @@ public class HandInventory : MonoBehaviour
 
             deckCardDatas.RemoveAt(drawCardIndex);
             AddCard_toHand(drawCardData);
+
+            _drawCardFromDeck.Run_BusEvents();
         }
         Update_HandCardPositions();
     }
@@ -225,9 +227,7 @@ public class HandInventory : MonoBehaviour
         if (_dragDropData == null) return false;
 
         GameManager manager = GameManager.instance;
-        bool cardPlaced = manager.cardManager.PlaceCard_OnTile(_dragDropData.draggingCardData, manager.tileManager.hoveringTile);
-
-        if (cardPlaced == false) return false;
+        if (manager.cardManager.PlaceCard_OnTile(_dragDropData.draggingCardData, manager.tileManager.hoveringTile) == false) return false;
 
         manager.cursor.Drop_Card();
         _dragDropData = null;

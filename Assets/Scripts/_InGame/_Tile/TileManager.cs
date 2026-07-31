@@ -7,8 +7,8 @@ public class TileManager : MonoBehaviour
 {
     private const float _tileSpacing = 1.0625f;
 
-    private const float _generateXPos = 5.3125f;
-    private const float _generateYPos = -2.125f;
+    private const float _generateXPos = 5.3125f; // -5.3125 to 5.3125 x
+    private const float _generateYPos = 2.125f; // -2.125 to 2.125 y
 
 
     [Space(20)]
@@ -55,8 +55,8 @@ public class TileManager : MonoBehaviour
     // Generate
     private void Generate_Tile()
     {
-        float xWorldPos = _generateXPos;
-        float yWorldPos = _generateYPos;
+        float xWorldPos = -_generateXPos;
+        float yWorldPos = -_generateYPos;
 
         int xPos = 0;
         int yPos = 0;
@@ -80,10 +80,10 @@ public class TileManager : MonoBehaviour
             yWorldPos = _generateYPos;
             yPos = 0;
 
-            xWorldPos -= _tileSpacing;
+            xWorldPos += _tileSpacing;
             xPos++;
 
-            if (xWorldPos < _generateXPos * -1f) break;
+            if (xWorldPos > _generateXPos * -1f) break;
         }
     }
 

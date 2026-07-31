@@ -4,19 +4,18 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    [Space(20)]
-    [SerializeField] private EventSystems_Controller _hoverDetector;
-
-    [Space(20)]
     [SerializeField] private SpriteRenderer _spriteRenderer;
     public SpriteRenderer spriteRenderer => _spriteRenderer;
+
+    [Space(20)]
+    [SerializeField] private EventSystems_Controller _hoverDetector;
 
 
     private TileData _data;
     public TileData data => _data;
 
-    private GameObject _currentPlaceable;
-    public GameObject currentPlaceable => _currentPlaceable;
+    private GameObject _currentOccupant;
+    public GameObject currentOccupant => _currentOccupant;
 
 
     // MonoBehaviour
@@ -39,20 +38,20 @@ public class Tile : MonoBehaviour
 
 
     // Card & Enemy Placeable
-    public void Set_Placeable(GameObject placeableObject)
+    public void Set_Occupant(GameObject occupantObject)
     {
-        if (placeableObject == null)
+        if (occupantObject == null)
         {
-            Destroy(_currentPlaceable);
-            _currentPlaceable = null;
+            Destroy(_currentOccupant);
+            _currentOccupant = null;
             
             return;
         }
-        if (_currentPlaceable != null) return;
+        if (_currentOccupant != null) return;
         
-        _currentPlaceable = placeableObject;
-        _currentPlaceable.transform.SetParent(transform);
-        _currentPlaceable.transform.localPosition = Vector2.zero;
+        _currentOccupant = occupantObject;
+        _currentOccupant.transform.SetParent(transform);
+        _currentOccupant.transform.localPosition = Vector2.zero;
     }
 
 

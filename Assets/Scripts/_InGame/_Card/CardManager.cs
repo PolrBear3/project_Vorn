@@ -65,10 +65,10 @@ public class CardManager : MonoBehaviour
     public bool PlaceCard_OnTile(CardData placeCardData, Tile placeTile)
     {
         if (placeCardData == null || placeCardData.cardScrObj == null) return false;
-        if (placeTile == null || placeTile.currentPlaceable != null) return false;
+        if (placeTile == null || placeTile.currentOccupant != null) return false;
 
         GameObject placeCardObj = Instantiate(_cardPrefab);
-        placeTile.Set_Placeable(placeCardObj);
+        placeTile.Set_Occupant(placeCardObj);
 
         if (placeCardObj.TryGetComponent(out Card placeCard) == false) return false;
 

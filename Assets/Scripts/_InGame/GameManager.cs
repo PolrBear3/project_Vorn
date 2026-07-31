@@ -14,6 +14,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CardManager _cardManager;
     public CardManager cardManager => _cardManager;
 
+    [SerializeField] private EnemyManager _enemyManager;
+    public EnemyManager enemyManager => _enemyManager;
+
+    [Space(10)]
     [SerializeField] private Cursor _cursor;
     public Cursor cursor => _cursor;
 

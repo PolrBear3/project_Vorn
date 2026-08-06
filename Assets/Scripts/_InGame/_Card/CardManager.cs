@@ -33,7 +33,10 @@ public class CardManager : MonoBehaviour
 {
     [Space(20)]
     [SerializeField] private GameObject _cardPrefab;
-    
+
+
+    private List<Card> _placedCards = new();
+    public List<Card> placedCards => _placedCards;
 
     private CardManager_Data _data = new();
     public CardManager_Data data => _data;
@@ -47,7 +50,7 @@ public class CardManager : MonoBehaviour
     {
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
     }
-    
+
     private void OnDestroy()
     {
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
@@ -60,6 +63,43 @@ public class CardManager : MonoBehaviour
 
     }
 
+    public List<Card> TileClosest_PlacedCards(Tile pivotTile)
+    {
+        List<Card> placedCards = new(_placedCards);
+        Vector2 pivotTilePos = pivotTile.data.position;
+
+        placedCards.Sort((cardA, cardB) =>
+        {
+            int distanceA = Utility.Chebyshev_Distance(pivotTilePos, cardA.placedTile.data.position);
+            int distanceB = Utility.Chebyshev_Distance(pivotTilePos, cardB.placedTile.data.position);
+
+            return distanceA.CompareTo(distanceB);
+        });
+        return placedCards;
+    }
+    public Card TileClosest_PlacedCard(Tile pivotTile)
+    {
+        if (_placedCards.Count <= 0) return null;
+
+        Vector2 targetTilePos = pivotTile.data.position;
+
+        int closestDistance = int.MaxValue;
+        Card closestCard = null;
+
+        for (int i = 0; i < _placedCards.Count; i++)
+        {
+            Card placedCard = _placedCards[i];
+            Vector2 placedCardPos = placedCard.placedTile.data.position;
+
+            int distance = Utility.Chebyshev_Distance(targetTilePos, placedCardPos);
+            if (distance >= closestDistance) continue;
+
+            closestDistance = distance;
+            closestCard = placedCard;
+        }
+        return closestCard;
+    }
+
 
     // Cards
     public bool PlaceCard_OnTile(CardData placeCardData, Tile placeTile)
@@ -67,12 +107,15 @@ public class CardManager : MonoBehaviour
         if (placeCardData == null || placeCardData.cardScrObj == null) return false;
         if (placeTile == null || placeTile.currentOccupant != null) return false;
 
-        GameObject placeCardObj = Instantiate(_cardPrefab);
+        GameObject placeCardObj = Instantiate(_cardPrefab, placeTile.transform.position, Quaternion.identity);
+        placeCardObj.transform.SetParent(transform);
+
         placeTile.Set_Occupant(placeCardObj);
 
         if (placeCardObj.TryGetComponent(out Card placeCard) == false) return false;
-
         placeCard.Load(placeCardData, placeTile);
+
+        _placedCards.Add(placeCard);
         _data.Add_PlacedData(placeCard);
 
         return true;

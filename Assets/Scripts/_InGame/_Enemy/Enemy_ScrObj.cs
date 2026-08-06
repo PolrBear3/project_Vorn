@@ -9,7 +9,11 @@ public class Enemy_ScrObj : ScriptableObject
     [SerializeField] private Vector2 _spawnOffset;
     public Vector2 spawnOffset => _spawnOffset;
 
-    [Space(20)]
+    [Space(10)]
     [SerializeField] private InteractionData _interactionData;
     public InteractionData interactionData => _interactionData;
+
+    [Space(10)]
+    [SerializeField][Range(0, 10)] private int _movementRange;
+    public int movementRange => _movementRange;
 }

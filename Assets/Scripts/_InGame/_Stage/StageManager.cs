@@ -1,0 +1,55 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class StageManager : MonoBehaviour
+{
+    [Space(20)]
+    [SerializeField] private Stage_ScrObj _newGameStage;
+
+
+    private StageData _currentData;
+    public StageData currentData => _currentData;
+
+
+    private EventBus_Controller _stageSetEventBus = new();
+    public EventBus_Controller stageSetEventBus => _stageSetEventBus;
+
+    private EventBus_Controller _endTurnEventBus = new();
+    public EventBus_Controller endTurnEventBus => _endTurnEventBus;
+
+
+    // MonoBehaviour
+    private void Awake()
+    {
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
+    }
+
+    private void OnDestroy()
+    {
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
+
+
+        // from Set_Data
+        GameManager.instance.tileManager.generateEventBus.UnRegister(EventBus.AwakeLoad, Set_Stage);
+        Input_Controller.instance.OnInteract -= _endTurnEventBus.RunSequential_BusEvents;
+    }
+
+
+    // Data
+    private void Set_Data()
+    {
+        GameManager.instance.tileManager.generateEventBus.Register(EventBus.AwakeLoad, Set_Stage);
+        Input_Controller.instance.OnInteract += _endTurnEventBus.RunSequential_BusEvents;
+    }
+
+    private void Set_Stage(Stage_ScrObj stage)
+    {
+        _currentData = new(stage);
+        _stageSetEventBus.Run_BusEvents();
+    }
+    private void Set_Stage()
+    {
+        Set_Stage(_newGameStage);
+    }
+}

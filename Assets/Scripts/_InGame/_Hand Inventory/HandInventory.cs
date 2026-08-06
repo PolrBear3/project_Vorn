@@ -80,11 +80,11 @@ public class HandInventory : MonoBehaviour
         // from Set_Data
         Input_Controller input = Input_Controller.instance;
 
-        input.OnInteract -= Draw_Card;
-
         input.OnLeftClickPressed -= Drag_HoveringCard;
         input.OnLeftClickPressed -= Drop_DraggingCard;
         input.OnRightClickPressed -= Return_DraggingCard;
+
+        GameManager.instance.stageManager.endTurnEventBus.UnRegister(Draw_Card);
     }
 
 
@@ -93,11 +93,11 @@ public class HandInventory : MonoBehaviour
     {
         Input_Controller input = Input_Controller.instance;
 
-        input.OnInteract += Draw_Card;
-
         input.OnLeftClickPressed += Drag_HoveringCard;
         input.OnLeftClickPressed += Drop_DraggingCard;
         input.OnRightClickPressed += Return_DraggingCard;
+
+        GameManager.instance.stageManager.endTurnEventBus.Register(0, Draw_Card);
     }
 
     private void LoadCards_toDeck()
@@ -221,7 +221,7 @@ public class HandInventory : MonoBehaviour
         RemoveCard_fromHand(_hoveringCard);
         Update_HandCardPositions();
     }
-    
+
     private bool Place_DraggingCard()
     {
         if (_dragDropData == null) return false;

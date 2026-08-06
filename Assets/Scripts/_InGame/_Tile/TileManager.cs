@@ -22,33 +22,92 @@ public class TileManager : MonoBehaviour
     private Tile _hoveringTile;
     public Tile hoveringTile => _hoveringTile;
 
-
-    private EventBus_Controller _tileSelectBus = new();
-    public EventBus_Controller tileSelectBus => _tileSelectBus;
+    private EventBus_Controller _generateEventBus = new();
+    public EventBus_Controller generateEventBus => _generateEventBus;
 
 
     // MonoBehaviour
     private void Awake()
     {
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Generate_Tile);
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
     }
 
     private void OnDestroy()
     {
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Generate_Tile);
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
-
-
-        // from Set_Data
-        Input_Controller.instance.OnLeftClick -= Select_HoveringTile;
     }
 
 
-    // Data
-    private void Set_Data()
+    // Generated Data
+    private Tile Positioned_Tile(Vector2 position)
     {
-        Input_Controller.instance.OnLeftClick += Select_HoveringTile;
+        for (int i = 0; i < _tiles.Count; i++)
+        {
+            Tile currentTile = _tiles[i];
+
+            if (currentTile.data.position != position) continue;
+            return currentTile;
+        }
+        return null;
+    }
+
+    public List<Tile> CloseSorted_Tiles(Tile pivotTile, List<Tile> sortingTiles)
+    {
+        List<Tile> sortedTiles = new(sortingTiles);
+        Vector2 pivotTilePos = pivotTile.data.position;
+
+        sortingTiles.Sort((tileA, tileB) =>
+        {
+            int distanceA = Utility.Chebyshev_Distance(pivotTilePos, tileA.data.position);
+            int distanceB = Utility.Chebyshev_Distance(pivotTilePos, tileB.data.position);
+
+            return distanceA.CompareTo(distanceB);
+        });
+
+        return sortedTiles;
+    }
+    public List<Tile> PivotSurrounding_Tiles(Tile pivotTile)
+    {
+        Vector2 pivotTilePos = pivotTile.data.position;
+
+        List<Vector2> surroundingPositions = Utility.Surrounding_Positions(pivotTilePos);
+        List<Tile> surroundingTiles = new();
+
+        for (int i = 0; i < surroundingPositions.Count; i++)
+        {
+            Tile surroundingTile = Positioned_Tile(surroundingPositions[i]);
+
+            if (surroundingTile == null) continue;
+            surroundingTiles.Add(surroundingTile);
+        }
+        return surroundingTiles;
+    }
+    public List<Tile> Distance_Tiles(Tile pivotTile, int distance)
+    {
+        List<Tile> distanceTiles = new(_tiles);
+
+        for (int i = distanceTiles.Count - 1; i >= 0; i--)
+        {
+            Vector2 tilePos = distanceTiles[i].data.position;
+            int checkDistance = Utility.Chebyshev_Distance(pivotTile.data.position, tilePos);
+
+            if (checkDistance <= distance) continue;
+            distanceTiles.RemoveAt(i);
+        }
+        return distanceTiles;
+    }
+    public List<Tile> Edged_Tiles()
+    {
+        List<Tile> edgedTiles = new();
+
+        for (int i = 0; i < _tiles.Count; i++)
+        {
+            Tile tile = _tiles[i];
+
+            if (PivotSurrounding_Tiles(tile).Count >= 8) continue;
+            edgedTiles.Add(tile);
+        }
+        return edgedTiles;
     }
 
 
@@ -75,29 +134,23 @@ public class TileManager : MonoBehaviour
             yWorldPos += _tileSpacing;
             yPos++;
 
-            if (yWorldPos <= _generateYPos * -1f) continue;
+            if (yWorldPos <= _generateYPos) continue;
 
-            yWorldPos = _generateYPos;
+            yWorldPos = -_generateYPos;
             yPos = 0;
 
             xWorldPos += _tileSpacing;
             xPos++;
 
-            if (xWorldPos > _generateXPos * -1f) break;
+            if (xWorldPos > _generateXPos) break;
         }
+        _generateEventBus.Run_BusEvents();
     }
 
 
-    // Current Grids
+    // Interaction
     public void Update_hoveringTile(Tile hoveringTile)
     {
         _hoveringTile = hoveringTile;
-    }
-
-    private void Select_HoveringTile()
-    {
-        if (_hoveringTile == null) return;
-
-        _tileSelectBus.Run_BusEvents();
     }
 }

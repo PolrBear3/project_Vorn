@@ -7,10 +7,10 @@ public class TileMovement_Controller : MonoBehaviour
     [Space(20)]
     [SerializeField] private LeanTweenType _movementTweenType;
     [SerializeField][Range(0, 10)] private float _singleTileMovementTime;
-    
+
     private Tile _currentTile;
     public Tile currentTile => _currentTile;
-    
+
     private Coroutine _movementCoroutine;
     public Coroutine movementCoroutine => _movementCoroutine;
 
@@ -28,12 +28,17 @@ public class TileMovement_Controller : MonoBehaviour
     // Movement
     public void Moveto_Tile(Tile destinationTile, Vector2 offset)
     {
+        if (destinationTile != null && destinationTile.currentOccupant != null) return;
+
         Tile previousTile = _currentTile;
 
         if (Set_CurrentTile(destinationTile) == false) return;
+        _currentTile.Set_Occupant(gameObject);
 
         if (_movementCoroutine != null)
         {
+            LeanTween.cancel(gameObject);
+
             StopCoroutine(_movementCoroutine);
             _movementCoroutine = null;
         }
@@ -42,6 +47,8 @@ public class TileMovement_Controller : MonoBehaviour
             transform.position = (Vector2)_currentTile.transform.position + offset;
             return;
         }
+        previousTile.Set_Occupant(null);
+
         _movementCoroutine = StartCoroutine(Movement_Update(previousTile, _currentTile, offset));
     }
     public void Moveto_Tile(Tile destination)
@@ -56,7 +63,7 @@ public class TileMovement_Controller : MonoBehaviour
 
         LeanTween.move(gameObject, (Vector2)destinationTile.transform.position + offset, movementTime).setEase(_movementTweenType);
         while (LeanTween.isTweening(gameObject)) yield return null;
-        
+
         _movementCoroutine = null;
         yield break;
     }

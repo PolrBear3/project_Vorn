@@ -38,20 +38,18 @@ public class Tile : MonoBehaviour
 
 
     // Card & Enemy Placeable
-    public void Set_Occupant(GameObject occupantObject)
+    public bool Set_Occupant(GameObject occupantObject)
     {
         if (occupantObject == null)
         {
-            Destroy(_currentOccupant);
             _currentOccupant = null;
-            
-            return;
+            return true;
         }
-        if (_currentOccupant != null) return;
-        
+
+        if (_currentOccupant != null) return false;
+
         _currentOccupant = occupantObject;
-        _currentOccupant.transform.SetParent(transform);
-        _currentOccupant.transform.localPosition = Vector2.zero;
+        return true;
     }
 
 

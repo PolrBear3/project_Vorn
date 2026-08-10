@@ -51,6 +51,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "HoldRightClick",
+                    "type": "Button",
+                    "id": "c9c3b1dc-b33d-43e7-99bb-570e00dbaca5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "RightClick",
                     "type": "Button",
                     "id": "82d96b06-fabb-4930-baf9-27a6dc35bfc6",
@@ -113,6 +122,17 @@
                     "processors": "",
                     "groups": ";PC",
                     "action": "HoldLeftClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "beb611f1-97e5-4aa7-a6c7-67dcf11520d9",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "Tap,Hold(duration=0.5)",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "HoldRightClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

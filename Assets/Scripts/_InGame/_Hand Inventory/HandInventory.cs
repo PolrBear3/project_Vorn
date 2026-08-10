@@ -188,7 +188,7 @@ public class HandInventory : MonoBehaviour
             deckCardDatas.RemoveAt(drawCardIndex);
             AddCard_toHand(drawCardData);
 
-            _drawCardFromDeck.Run_BusEvents();
+            _drawCardFromDeck.RunSequential_BusEvents();
         }
         Update_HandCardPositions();
     }

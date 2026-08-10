@@ -31,15 +31,11 @@ public class CardManager_DragDropData
 
 public class CardManager : MonoBehaviour
 {
-    [Space(20)]
-    [SerializeField] private GameObject _cardPrefab;
-
+    private CardManager_Data _data = new();
+    public CardManager_Data data => _data;
 
     private List<Card> _placedCards = new();
     public List<Card> placedCards => _placedCards;
-
-    private CardManager_Data _data = new();
-    public CardManager_Data data => _data;
 
     private CardManager_DragDropData _dragDropData;
     public CardManager_DragDropData dragDropData => _dragDropData;
@@ -54,13 +50,30 @@ public class CardManager : MonoBehaviour
     private void OnDestroy()
     {
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
+
+
+        // Set_Data
+        GameManager.instance.tileManager.tileSelectEventBus.UnRegister(Toggle_TileTargeting);
     }
 
 
     // Data
     private void Set_Data()
     {
+        GameManager.instance.tileManager.tileSelectEventBus.Register(0, Toggle_TileTargeting);
+    }
 
+
+    public Card PlacedCard(Tile placedTile)
+    {
+        for (int i = 0; i < _placedCards.Count; i++)
+        {
+            Card card = _placedCards[i];
+
+            if (card.placedTile != placedTile) continue;
+            return card;
+        }
+        return null;
     }
 
     public List<Card> TileClosest_PlacedCards(Tile pivotTile)
@@ -107,17 +120,43 @@ public class CardManager : MonoBehaviour
         if (placeCardData == null || placeCardData.cardScrObj == null) return false;
         if (placeTile == null || placeTile.currentOccupant != null) return false;
 
-        GameObject placeCardObj = Instantiate(_cardPrefab, placeTile.transform.position, Quaternion.identity);
+        GameObject cardPrefab = placeCardData.cardScrObj.placePrefab;
+        if (cardPrefab == null) return false;
+
+        GameObject placeCardObj = Instantiate(cardPrefab, placeTile.transform.position, Quaternion.identity);
         placeCardObj.transform.SetParent(transform);
 
         placeTile.Set_Occupant(placeCardObj);
 
         if (placeCardObj.TryGetComponent(out Card placeCard) == false) return false;
-        placeCard.Load(placeCardData, placeTile);
-
         _placedCards.Add(placeCard);
-        _data.Add_PlacedData(placeCard);
 
+        placeCard.Load(placeCardData, placeTile);
         return true;
+    }
+
+
+    // Tile Targeting
+    private void UnToggle_TileTargetings()
+    {
+        foreach (Card card in _placedCards)
+        {
+            card.tileTargeting.Toggle_Targeting(false);
+        }
+    }
+
+    private void Toggle_TileTargeting()
+    {
+        TileManager tileManager = GameManager.instance.tileManager;
+
+        Tile selectedTile = tileManager.hoveringTile;
+        if (selectedTile == null) return;
+
+        Card toggleCard = PlacedCard(selectedTile);
+        if (toggleCard == null || toggleCard.tileTargeting.targetingToggled)
+        {
+            UnToggle_TileTargetings();
+            return;
+        }
     }
 }

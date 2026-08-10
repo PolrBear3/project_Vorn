@@ -22,24 +22,50 @@ public class TileManager : MonoBehaviour
     private Tile _hoveringTile;
     public Tile hoveringTile => _hoveringTile;
 
+
     private EventBus_Controller _generateEventBus = new();
     public EventBus_Controller generateEventBus => _generateEventBus;
+
+    private EventBus_Controller _tileSelectEventBus = new();
+    public EventBus_Controller tileSelectEventBus => _tileSelectEventBus;
 
 
     // MonoBehaviour
     private void Awake()
     {
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Generate_Tile);
     }
 
     private void OnDestroy()
     {
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Generate_Tile);
+
+
+        // from Set_Data
+        Input_Controller.instance.OnLeftClick -= Select_HoveringTile;
+    }
+
+
+    // Data
+    private void Set_Data()
+    {
+        Input_Controller.instance.OnLeftClick += Select_HoveringTile;
+    }
+
+    public int Tile_Index(Tile tile)
+    {
+        for (int i = 0; i < _tiles.Count; i++)
+        {
+            if (tile == _tiles[i]) return i;
+        }
+        return -1;
     }
 
 
     // Generated Data
-    private Tile Positioned_Tile(Vector2 position)
+    public Tile Positioned_Tile(Vector2 position)
     {
         for (int i = 0; i < _tiles.Count; i++)
         {
@@ -56,7 +82,7 @@ public class TileManager : MonoBehaviour
         List<Tile> sortedTiles = new(sortingTiles);
         Vector2 pivotTilePos = pivotTile.data.position;
 
-        sortingTiles.Sort((tileA, tileB) =>
+        sortedTiles.Sort((tileA, tileB) =>
         {
             int distanceA = Utility.Chebyshev_Distance(pivotTilePos, tileA.data.position);
             int distanceB = Utility.Chebyshev_Distance(pivotTilePos, tileB.data.position);
@@ -144,7 +170,7 @@ public class TileManager : MonoBehaviour
 
             if (xWorldPos > _generateXPos) break;
         }
-        _generateEventBus.Run_BusEvents();
+        _generateEventBus.RunSequential_BusEvents();
     }
 
 
@@ -152,5 +178,12 @@ public class TileManager : MonoBehaviour
     public void Update_hoveringTile(Tile hoveringTile)
     {
         _hoveringTile = hoveringTile;
+    }
+
+    public void Select_HoveringTile()
+    {
+        if (_hoveringTile == null) return;
+
+        _tileSelectEventBus.RunSequential_BusEvents();
     }
 }

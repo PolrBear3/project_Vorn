@@ -8,27 +8,13 @@ public class CardManager_Data
     public Dictionary<CardData, Vector2> placedCardDatas => _placedCardDatas;
 
 
-    public bool Add_PlacedData(Card placedCard)
+    // Data
+    public void Save_PlacedCardDatas(List<Card> placedCards)
     {
-        Vector2 placedCardPos = placedCard.placedTile.data.position;
-
-        foreach (var cardData in _placedCardDatas)
+        for (int i = 0; i < placedCards.Count; i++)
         {
-            if (cardData.Value != placedCardPos) continue;
-            return false;
+            Card card = placedCards[i];
+            _placedCardDatas.Add(card.data, card.placedTile.data.position);
         }
-
-        _placedCardDatas.Add(placedCard.data, placedCardPos);
-        return true;
-    }
-
-    public CardData PositionPlaced_CardData(Vector2 placedTilePosition)
-    {
-        foreach (var cardData in _placedCardDatas)
-        {
-            if (placedTilePosition != cardData.Value) continue;
-            return cardData.Key;
-        }
-        return null;
     }
 }

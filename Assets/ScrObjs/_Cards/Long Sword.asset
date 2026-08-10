@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: Long Sword
   m_EditorClassIdentifier: 
   _contentSprite: {fileID: 31158166, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
+  _placePrefab: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
   _interactionData:
+    _mana: 0
     _health: 0
     _damage: 0
-    _interactPositions: []
-  _mana: 0
+    _interactRange: 0
+    _targetSelectCount: 0

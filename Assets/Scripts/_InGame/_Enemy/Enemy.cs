@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class Enemy : MonoBehaviour
 {
@@ -45,21 +44,6 @@ public class Enemy : MonoBehaviour
         enemyManager.OnEnemyTurn += Activate_Effects;
     }
 
-    private List<Tile> MovementRange_Tiles()
-    {
-        Tile currentTile = _movement.currentTile;
-        int movementRange = _data.enemyScrObj.movementRange;
-
-        List<Tile> rangeTiles = GameManager.instance.tileManager.Distance_Tiles(currentTile, movementRange);
-
-        for (int i = rangeTiles.Count - 1; i >= 0; i--)
-        {
-            if (rangeTiles[i].currentOccupant == null) continue;
-            rangeTiles.RemoveAt(i);
-        }
-        return rangeTiles;
-    }
-
 
     // Target Card
     private void Update_TargetCard()
@@ -73,7 +57,7 @@ public class Enemy : MonoBehaviour
         if (updateCards.Count <= 0) return;
 
         TileManager tileManager = manager.tileManager;
-        int interactRange = _data.enemyScrObj.interactionData.interactRange;
+        int interactRange = Mathf.Max(1, _data.enemyScrObj.interactionData.interactRange);
 
         for (int i = 0; i < updateCards.Count; i++)
         {
@@ -99,30 +83,51 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private List<Tile> MovementRoute_Tiles(Tile startingTile)
+    private Tile TargetCard_DestinationTile(Tile pivotTile)
     {
+        if (_targetCard == null) return null;
+
+        TileManager tileManager = GameManager.instance.tileManager;
+        int interactRange = Mathf.Max(1, _data.enemyScrObj.interactionData.interactRange);
+
+        for (int i = 0; i < interactRange; i++)
+        {
+            int checkRange = i + 1;
+
+            List<Tile> rangeTiles = tileManager.Distance_Tiles(_targetCard.placedTile, checkRange);
+            List<Tile> closeSortedTiles = tileManager.CloseSorted_Tiles(pivotTile, rangeTiles);
+
+            for (int j = 0; j < closeSortedTiles.Count; j++)
+            {
+                Tile destinationTile = closeSortedTiles[j];
+
+                if (pivotTile == destinationTile) return destinationTile;
+                if (destinationTile.currentOccupant != null) continue;
+
+                return destinationTile;
+            }
+        }
         return null;
     }
-    private List<Tile> MovementRoute_Tiles()
+
+    private List<Tile> MovementRoute_toTargetCard(Tile startingTile)
     {
         List<Tile> routeTiles = new();
-        if (_targetCard == null) return routeTiles;
 
-        Tile targetCardTile = _targetCard.placedTile;
-        Vector2 targetCardPos = targetCardTile.data.position;
+        Tile destinationTile = TargetCard_DestinationTile(startingTile);
+        if (destinationTile == null) return routeTiles;
 
         TileManager tileManager = GameManager.instance.tileManager;
         int maxRouteCount = tileManager.tiles.Count;
 
-        Tile routeTile = _movement.currentTile;
+        Tile routeTile = startingTile;
 
         for (int i = 0; i < maxRouteCount; i++)
         {
-            int shortestDistance = int.MaxValue;
-            // int shortestRouteCount = routeTiles.Count
-
             List<Tile> moveTiles = tileManager.Distance_Tiles(routeTile, 1);
-            if (moveTiles.Contains(targetCardTile)) break;
+
+            Tile nextRouteTile = null;
+            int shortestDistance = int.MaxValue;
 
             for (int j = 0; j < moveTiles.Count; j++)
             {
@@ -131,15 +136,66 @@ public class Enemy : MonoBehaviour
                 if (routeTiles.Contains(moveTile)) continue;
                 if (moveTile.currentOccupant != null) continue;
 
-                int distance = Utility.Chebyshev_Distance(moveTile.data.position, targetCardPos);
+                int distance = Utility.Chebyshev_Distance(moveTile.data.position, destinationTile.data.position);
                 if (distance >= shortestDistance) continue;
 
+                nextRouteTile = moveTile;
                 shortestDistance = distance;
-                routeTile = moveTile;
             }
 
-            if (routeTile == null) return routeTiles;
+            if (nextRouteTile == null) break;
+
+            routeTile = nextRouteTile;
             routeTiles.Add(routeTile);
+
+            if (routeTile == destinationTile) break;
+        }
+        return routeTiles;
+    }
+    private List<Tile> MovementRoute_toTargetCard()
+    {
+        List<Tile> routeTiles = new();
+
+        Tile destinationTile = TargetCard_DestinationTile(_movement.currentTile);
+        if (destinationTile == null) return routeTiles;
+
+        TileManager tileManager = GameManager.instance.tileManager;
+        int maxRouteCount = tileManager.tiles.Count;
+
+        Tile routeTile = _movement.currentTile;
+
+        for (int i = 0; i < maxRouteCount; i++)
+        {
+            List<Tile> moveTiles = tileManager.Distance_Tiles(routeTile, 1);
+
+            Tile nextRouteTile = null;
+            int lowestScore = int.MaxValue;
+
+            for (int j = 0; j < moveTiles.Count; j++)
+            {
+                Tile moveTile = moveTiles[j];
+
+                if (routeTiles.Contains(moveTile)) continue;
+                if (moveTile.currentOccupant != null) continue;
+
+                List<Tile> possibleRouteTiles = MovementRoute_toTargetCard(moveTile);
+                if (possibleRouteTiles.Contains(destinationTile) == false) continue;
+
+                int distance = Utility.Chebyshev_Distance(moveTile.data.position, destinationTile.data.position);
+                int totalScore = distance + possibleRouteTiles.Count;
+
+                if (totalScore >= lowestScore) continue;
+
+                nextRouteTile = moveTile;
+                lowestScore = totalScore;
+            }
+
+            if (nextRouteTile == null) break;
+
+            routeTile = nextRouteTile;
+            routeTiles.Add(routeTile);
+
+            if (routeTile == destinationTile) break;
         }
         return routeTiles;
     }
@@ -148,13 +204,11 @@ public class Enemy : MonoBehaviour
     {
         if (_targetCard == null) return;
 
-        List<Tile> routeTiles = MovementRoute_Tiles();
+        Tile currentTile = _movement.currentTile;
+        if (currentTile == TargetCard_DestinationTile(currentTile)) return;
+
+        List<Tile> routeTiles = MovementRoute_toTargetCard();
         if (routeTiles.Count <= 0) return;
-
-        if (GameManager.instance.enemyManager.enemyMoved) return;
-        GameManager.instance.enemyManager.enemyMoved = true;
-
-        Debug.Log(routeTiles.Count);
 
         Tile moveTile = routeTiles[0];
         _movement.Moveto_Tile(moveTile, _data.enemyScrObj.spawnOffset);

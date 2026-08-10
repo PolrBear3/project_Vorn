@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,12 +11,15 @@ public class Cursor : MonoBehaviour
     [SerializeField] private RectTransform _pointerIconRect;
     public RectTransform pointerIconRect => _pointerIconRect;
 
+    [Space(20)]
     [SerializeField] private Image _pointerIconImage;
+    [SerializeField] private TextMeshProUGUI _infoText;
 
     [Space(20)]
     [SerializeField] private GameObject _handCardPrefab;
-    [SerializeField] private RectTransform _draggingCardFollowPoint;
 
+    [Space(20)]
+    [SerializeField] private RectTransform _draggingCardFollowPoint;
     [SerializeField][Range(0, 100)] private float _draggingCardMovementSpeed;
 
 
@@ -29,9 +33,10 @@ public class Cursor : MonoBehaviour
     private void Awake()
     {
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
-        
+
         Hide_Cursor();
         Toggle_PointerIcon(true);
+        Update_InfoText(null);
     }
 
     private void Update()
@@ -89,6 +94,17 @@ public class Cursor : MonoBehaviour
     }
 
 
+    // Info Text
+    public void Update_InfoText(string infoString)
+    {
+        bool toggle = infoString != null;
+        _infoText.gameObject.SetActive(toggle);
+
+        if (toggle == false) return;
+        _infoText.text = infoString;
+    }
+
+
     // Card
     public bool Drag_Card(CardData dragCardData, Transform dragStartPosition)
     {
@@ -98,7 +114,7 @@ public class Cursor : MonoBehaviour
         dragCardObj.transform.SetParent(_draggingCardFollowPoint);
 
         if (dragCardObj.TryGetComponent(out HandCard dragCard) == false) return false;
-        
+
         _draggingCard = dragCard;
         dragCard.Load(dragCardData);
 

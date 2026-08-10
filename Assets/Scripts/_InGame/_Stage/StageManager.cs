@@ -31,7 +31,7 @@ public class StageManager : MonoBehaviour
 
 
         // from Set_Data
-        GameManager.instance.tileManager.generateEventBus.UnRegister(EventBus.AwakeLoad, Set_Stage);
+        GameManager.instance.tileManager.generateEventBus.UnRegister(Set_Stage);
         Input_Controller.instance.OnInteract -= _endTurnEventBus.RunSequential_BusEvents;
     }
 
@@ -39,14 +39,14 @@ public class StageManager : MonoBehaviour
     // Data
     private void Set_Data()
     {
-        GameManager.instance.tileManager.generateEventBus.Register(EventBus.AwakeLoad, Set_Stage);
+        GameManager.instance.tileManager.generateEventBus.Register(0, Set_Stage);
         Input_Controller.instance.OnInteract += _endTurnEventBus.RunSequential_BusEvents;
     }
 
     private void Set_Stage(Stage_ScrObj stage)
     {
         _currentData = new(stage);
-        _stageSetEventBus.Run_BusEvents();
+        _stageSetEventBus.RunSequential_BusEvents();
     }
     private void Set_Stage()
     {

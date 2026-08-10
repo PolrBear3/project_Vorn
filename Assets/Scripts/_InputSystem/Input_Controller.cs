@@ -55,6 +55,7 @@ public class Input_Controller : MonoBehaviour
     public Action OnHoldLeftClick;
 
     public Action<bool> OnRightClickPressed;
+    public Action OnRightClick;
     public Action OnHoldRightClick;
 
 
@@ -276,6 +277,17 @@ public class Input_Controller : MonoBehaviour
         if (context.canceled == false) return;
 
         OnRightClickPressed?.Invoke(false);
+    }
+    public void HoldRightClick(InputAction.CallbackContext context)
+    {
+        if (context.performed == false) return;
+
+        if (context.interaction is UnityEngine.InputSystem.Interactions.HoldInteraction == false)
+        {
+            OnRightClick?.Invoke();
+            return;
+        }
+        OnHoldRightClick?.Invoke();
     }
 }
 

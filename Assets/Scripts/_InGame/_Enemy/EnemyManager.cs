@@ -8,13 +8,14 @@ public class EnemyManager : MonoBehaviour
     [Space(20)]
     [SerializeField] private GameObject _enemyPrefab;
 
+
+    private EnemyManager_Data _data = new();
+    public EnemyManager_Data data => _data;
+
     private List<Enemy> _spawnedEnemies = new();
     public List<Enemy> spawnedEnemies => _spawnedEnemies;
 
     public Action OnEnemyTurn;
-
-
-    public bool enemyMoved;
 
 
     // MonoBehaviour
@@ -31,7 +32,7 @@ public class EnemyManager : MonoBehaviour
         // Set_Data
         StageManager stageManager = GameManager.instance.stageManager;
 
-        stageManager.stageSetEventBus.UnRegister(EventBus.AwakeLoad, Spawn);
+        stageManager.stageSetEventBus.UnRegister(Spawn);
         stageManager.endTurnEventBus.UnRegister(Run_EnemyTurnActions);
     }
 
@@ -41,7 +42,7 @@ public class EnemyManager : MonoBehaviour
     {
         StageManager stageManager = GameManager.instance.stageManager;
 
-        stageManager.stageSetEventBus.Register(EventBus.AwakeLoad, Spawn);
+        stageManager.stageSetEventBus.Register(0, Spawn);
         stageManager.endTurnEventBus.Register(1, Run_EnemyTurnActions);
     }
 
@@ -86,8 +87,5 @@ public class EnemyManager : MonoBehaviour
     private void Run_EnemyTurnActions() // change this to sequential animation delay ?
     {
         OnEnemyTurn?.Invoke();
-
-
-        enemyMoved = false;
     }
 }

@@ -9,6 +9,9 @@ public class Card_ScrObj : ScriptableObject
     [SerializeField] private Sprite _contentSprite;
     public Sprite contentSprite => _contentSprite;
 
+    [SerializeField] private GameObject _placePrefab;
+    public GameObject placePrefab => _placePrefab;
+
     [Space(20)]
     [SerializeField] private InteractionData _interactionData;
     public InteractionData interactionData => _interactionData;

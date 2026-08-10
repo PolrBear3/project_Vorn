@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileTargeting_Controller : MonoBehaviour
+[System.Serializable]
+public class TileTargeting_Data
 {
     private bool _targetingToggled;
     public bool targetingToggled => _targetingToggled;
@@ -18,6 +19,11 @@ public class TileTargeting_Controller : MonoBehaviour
 
         if (_targetingToggled == false) return;
         _targetingTiles.Clear();
+    }
+    public bool Toggle_Targeting()
+    {
+        Toggle_Targeting(!_targetingToggled);
+        return _targetingToggled;
     }
 
     public void Target_Tile(Tile tileToTarget)

@@ -54,6 +54,12 @@ public class CardManager : MonoBehaviour
 
         // Set_Data
         GameManager.instance.tileManager.tileSelectEventBus.UnRegister(Toggle_TileTargeting);
+        
+        Input_Controller input = Input_Controller.instance;
+
+        input.OnLeftClickPressed -= UnToggle_TileTargeting_onMissClick;
+        input.OnRightClickPressed -= UnToggle_TileTargeting;
+        input.OnLeftClickPressed -= Target_Tile;
     }
 
 
@@ -61,6 +67,12 @@ public class CardManager : MonoBehaviour
     private void Set_Data()
     {
         GameManager.instance.tileManager.tileSelectEventBus.Register(0, Toggle_TileTargeting);
+
+        Input_Controller input = Input_Controller.instance;
+
+        input.OnLeftClickPressed += UnToggle_TileTargeting_onMissClick;
+        input.OnRightClickPressed += UnToggle_TileTargeting;
+        input.OnLeftClickPressed += Target_Tile;
     }
 
 
@@ -137,26 +149,93 @@ public class CardManager : MonoBehaviour
 
 
     // Tile Targeting
-    private void UnToggle_TileTargetings()
+    private Card TileTargeting_ToggledCard()
     {
-        foreach (Card card in _placedCards)
+        for (int i = 0; i < _placedCards.Count; i++)
         {
-            card.tileTargeting.Toggle_Targeting(false);
+            Card card = _placedCards[i];
+
+            if (card.tileTargeting.targetingToggled == false) continue;
+            return card;
         }
+        return null;
+    }
+    private bool TileTargeting_Complete(Card tileTargetingCard)
+    {
+        if (tileTargetingCard == null) return false;
+        return tileTargetingCard.tileTargeting.targetingTiles.Count >= tileTargetingCard.data.currentData.targetSelectCount;
+    }
+
+    private void Update_TileTargeting_InfoText()
+    {
+        Cursor cursor = GameManager.instance.cursor;
+        Card toggledCard = TileTargeting_ToggledCard();
+
+        if (toggledCard == null)
+        {
+            cursor.Update_InfoText(null);
+            return;
+        }
+
+        int maxTargetingCount = toggledCard.data.currentData.targetSelectCount;
+
+        TileTargeting_Data tileTargeting = toggledCard.tileTargeting;
+        int targetingTileCount = tileTargeting.targetingTiles.Count;
+
+        string updateInfo = targetingTileCount < maxTargetingCount ? targetingTileCount + "/" + maxTargetingCount : null;
+        cursor.Update_InfoText(updateInfo);
+    }
+
+    private void UnToggle_TileTargeting(bool _)
+    {
+        Card unToggleCard = TileTargeting_ToggledCard();
+        if (unToggleCard == null) return;
+
+        unToggleCard.tileTargeting.Toggle_Targeting(false);
+        Update_TileTargeting_InfoText();
+    }
+    private void UnToggle_TileTargeting_onMissClick(bool _)
+    {
+        if (GameManager.instance.tileManager.hoveringTile != null) return;
+
+        UnToggle_TileTargeting(true);
     }
 
     private void Toggle_TileTargeting()
     {
-        TileManager tileManager = GameManager.instance.tileManager;
-
-        Tile selectedTile = tileManager.hoveringTile;
+        GameManager manager = GameManager.instance;
+        
+        Tile selectedTile = manager.tileManager.hoveringTile;
         if (selectedTile == null) return;
 
-        Card toggleCard = PlacedCard(selectedTile);
-        if (toggleCard == null || toggleCard.tileTargeting.targetingToggled)
-        {
-            UnToggle_TileTargetings();
-            return;
-        }
+        Card toggledCard = TileTargeting_ToggledCard();
+        if (toggledCard != null && toggledCard.placedTile != selectedTile) return; // target selecting
+
+        Card selectedCard = PlacedCard(selectedTile);
+        if (selectedCard == null) return;
+
+        InteractionData data = selectedCard.data.currentData;
+        if (data.targetSelectCount <= 0) return;
+
+        selectedCard.tileTargeting.Toggle_Targeting();
+        Update_TileTargeting_InfoText();
+    }
+    private void Target_Tile(bool _)
+    {
+        Card toggledCard = TileTargeting_ToggledCard();
+        if (toggledCard == null) return;
+
+        GameManager manager = GameManager.instance;
+
+        Tile selectedTile = manager.tileManager.hoveringTile;
+        if (selectedTile == null || selectedTile == toggledCard.placedTile) return;
+
+        TileTargeting_Data tileTargeting = toggledCard.tileTargeting;
+
+        tileTargeting.Target_Tile(selectedTile);
+        Update_TileTargeting_InfoText();
+
+        if (TileTargeting_Complete(toggledCard) == false) return;
+        tileTargeting.Toggle_Targeting(false);
     }
 }

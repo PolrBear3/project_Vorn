@@ -8,16 +8,15 @@ public class Card : MonoBehaviour
     [SerializeField] private SpriteRenderer _baseSpriteRenderer;
     [SerializeField] private SpriteRenderer _contentSpriteRenderer;
 
-    [Space(20)]
-    [SerializeField] private TileTargeting_Controller _tileTargeting;
-    public TileTargeting_Controller tileTargeting => _tileTargeting;
-
 
     private CardData _data;
     public CardData data => _data;
 
     private Tile _placedTile;
     public Tile placedTile => _placedTile;
+
+    private TileTargeting_Data _tileTargeting = new();
+    public TileTargeting_Data tileTargeting => _tileTargeting;
 
 
     // Data

@@ -19,4 +19,4 @@ MonoBehaviour:
     _health: 0
     _damage: 0
     _interactRange: 0
-    _targetSelectCount: 0
+    _targetSelectCount: 1

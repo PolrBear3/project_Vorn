@@ -57,7 +57,7 @@ public class Enemy : MonoBehaviour
         if (updateCards.Count <= 0) return;
 
         TileManager tileManager = manager.tileManager;
-        int interactRange = Mathf.Max(1, _data.enemyScrObj.interactionData.interactRange);
+        int interactRange = Mathf.Max(1, _data.currentData.interactRange);
 
         for (int i = 0; i < updateCards.Count; i++)
         {
@@ -88,7 +88,7 @@ public class Enemy : MonoBehaviour
         if (_targetCard == null) return null;
 
         TileManager tileManager = GameManager.instance.tileManager;
-        int interactRange = Mathf.Max(1, _data.enemyScrObj.interactionData.interactRange);
+        int interactRange = Mathf.Max(1, _data.currentData.interactRange);
 
         for (int i = 0; i < interactRange; i++)
         {

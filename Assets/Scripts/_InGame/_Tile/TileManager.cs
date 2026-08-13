@@ -54,6 +54,8 @@ public class TileManager : MonoBehaviour
         Input_Controller.instance.OnLeftClick += Select_HoveringTile;
     }
 
+
+    // Debugs
     public int Tile_Index(Tile tile)
     {
         for (int i = 0; i < _tiles.Count; i++)
@@ -61,6 +63,20 @@ public class TileManager : MonoBehaviour
             if (tile == _tiles[i]) return i;
         }
         return -1;
+    }
+
+    public string Tile_Indexes(List<Tile> tiles)
+    {
+        string indexString = "";
+
+        for (int i = 0; i < tiles.Count; i++)
+        {
+            indexString += Tile_Index(tiles[i]);
+
+            if (i >= tiles.Count - 1) continue;
+            indexString += ", ";
+        }
+        return indexString;
     }
 
 
@@ -137,6 +153,93 @@ public class TileManager : MonoBehaviour
     }
 
 
+    // Path Finding
+    private TilePath_Data TargetTile_PathData(List<TilePath_Data> pathTiles, Tile targetTile)
+    {
+        for (int i = 0; i < pathTiles.Count; i++)
+        {
+            TilePath_Data data = pathTiles[i];
+
+            if (targetTile != pathTiles[i].tile) continue;
+            return data;
+        }
+        return null;
+    }
+    public List<Tile> PathFind_RouteTiles(Tile startingTile, Tile destinationTile)
+    {
+        List<Tile> routeTiles = new();
+        if (startingTile == null || destinationTile == null) return routeTiles;
+
+        int maxTileCount = _tiles.Count;
+
+        List<TilePath_Data> openPaths = new();
+        List<TilePath_Data> closedPaths = new();
+
+        int startingHCost = Utility.Chebyshev_Distance(startingTile.data.position, destinationTile.data.position);
+        openPaths.Add(new(startingTile, null, 0, startingHCost));
+
+        for (int i = 0; i < maxTileCount; i++)
+        {
+            if (openPaths.Count <= 0) break;
+            TilePath_Data currentPath = openPaths[0];
+
+            for (int j = 0; j < openPaths.Count; j++) // comparing open paths
+            {
+                TilePath_Data openPath = openPaths[j];
+
+                if (openPath == currentPath) continue;
+                if (openPath.F_Cost() > currentPath.F_Cost()) continue;
+                if (openPath.F_Cost() == currentPath.F_Cost() && openPath.hCost >= currentPath.hCost) continue;
+
+                currentPath = openPath;
+            }
+
+            openPaths.Remove(currentPath);
+            closedPaths.Add(currentPath);
+
+            if (currentPath.tile == destinationTile) // destination reached
+            {
+                while (currentPath.previousPathData != null)
+                {
+                    routeTiles.Add(currentPath.tile);
+                    currentPath = currentPath.previousPathData;
+                }
+                routeTiles.Reverse();
+                return routeTiles;
+            }
+
+            List<Tile> surroundingTiles = PivotSurrounding_Tiles(currentPath.tile);
+
+            for (int j = 0; j < surroundingTiles.Count; j++) // add open paths
+            {
+                Tile surroundingTile = surroundingTiles[j];
+
+                if (surroundingTile.currentOccupant != null) continue;
+                if (TargetTile_PathData(closedPaths, surroundingTile) != null) continue;
+
+                int distanceToSurroundingTile = Utility.Chebyshev_Distance(currentPath.tile.data.position, surroundingTile.data.position);
+                int gCost = currentPath.gCost + distanceToSurroundingTile;
+
+                TilePath_Data openPathData = TargetTile_PathData(openPaths, surroundingTile);
+
+                if (openPathData == null)
+                {
+                    int hCost = Utility.Chebyshev_Distance(surroundingTile.data.position, destinationTile.data.position);
+                    openPaths.Add(new(surroundingTile, currentPath, gCost, hCost));
+
+                    continue;
+                }
+
+                if (gCost >= openPathData.gCost) continue;
+
+                openPathData.Update_PreviousPathData(currentPath);
+                openPathData.UpdateG_Cost(gCost);
+            }
+        }
+        return routeTiles;
+    }
+
+
     // Generate
     private void Generate_Tile()
     {
@@ -149,7 +252,9 @@ public class TileManager : MonoBehaviour
         for (int i = 0; i < 9999; i++)
         {
             GameObject spawnTile = Instantiate(_generateTilePrefab, new(xWorldPos, yWorldPos), Quaternion.identity);
+
             spawnTile.transform.SetParent(transform);
+            spawnTile.name = spawnTile.name + " " + i;
 
             if (spawnTile.TryGetComponent(out Tile tile) == false) break;
             _tiles.Add(tile);

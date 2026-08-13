@@ -97,7 +97,7 @@ public class HandInventory : MonoBehaviour
         input.OnLeftClickPressed += Drop_DraggingCard;
         input.OnRightClickPressed += Return_DraggingCard;
 
-        GameManager.instance.stageManager.endTurnEventBus.Register(0, Draw_Card);
+        GameManager.instance.stageManager.endTurnEventBus.Register(2, Draw_Card);
     }
 
     private void LoadCards_toDeck()

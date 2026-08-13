@@ -44,14 +44,14 @@ public class TileManager : MonoBehaviour
 
 
         // from Set_Data
-        Input_Controller.instance.OnLeftClick -= Select_HoveringTile;
+        Input_Controller.instance.OnLeftClickPressed -= Select_HoveringTile;
     }
 
 
     // Data
     private void Set_Data()
     {
-        Input_Controller.instance.OnLeftClick += Select_HoveringTile;
+        Input_Controller.instance.OnLeftClickPressed += Select_HoveringTile;
     }
 
 
@@ -285,8 +285,9 @@ public class TileManager : MonoBehaviour
         _hoveringTile = hoveringTile;
     }
 
-    public void Select_HoveringTile()
+    public void Select_HoveringTile(bool isPressed)
     {
+        if (isPressed == false) return;
         if (_hoveringTile == null) return;
 
         _tileSelectEventBus.RunSequential_BusEvents();

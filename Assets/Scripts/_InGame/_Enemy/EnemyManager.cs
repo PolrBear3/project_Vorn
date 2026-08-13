@@ -15,7 +15,7 @@ public class EnemyManager : MonoBehaviour
     private List<Enemy> _spawnedEnemies = new();
     public List<Enemy> spawnedEnemies => _spawnedEnemies;
 
-    public Action OnEnemyTurn;
+    public Action OnEnemyAction;
 
 
     // MonoBehaviour
@@ -33,7 +33,7 @@ public class EnemyManager : MonoBehaviour
         StageManager stageManager = GameManager.instance.stageManager;
 
         stageManager.stageSetEventBus.UnRegister(Spawn);
-        stageManager.endTurnEventBus.UnRegister(Run_EnemyTurnActions);
+        stageManager.endTurnEventBus.UnRegister(Run_EnemyActions);
     }
 
 
@@ -43,7 +43,7 @@ public class EnemyManager : MonoBehaviour
         StageManager stageManager = GameManager.instance.stageManager;
 
         stageManager.stageSetEventBus.Register(0, Spawn);
-        stageManager.endTurnEventBus.Register(1, Run_EnemyTurnActions);
+        stageManager.endTurnEventBus.Register(1, Run_EnemyActions);
     }
 
     // Spawn
@@ -84,8 +84,8 @@ public class EnemyManager : MonoBehaviour
 
 
     // Spawned
-    private void Run_EnemyTurnActions() // change this to sequential animation delay ?
+    private void Run_EnemyActions() // change this to sequential animation delay ?
     {
-        OnEnemyTurn?.Invoke();
+        OnEnemyAction?.Invoke();
     }
 }

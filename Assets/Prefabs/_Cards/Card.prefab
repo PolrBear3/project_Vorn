@@ -132,6 +132,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _baseSpriteRenderer: {fileID: 2336701234444246454}
   _contentSpriteRenderer: {fileID: 2496871960968193111}
+  _targetingTileModifyData:
+    _mana: 0
+    _health: 0
+    _damage: 0
+    _interactRange: 0
+    _targetSelectCount: 0
 --- !u!1 &7244696009784959202
 GameObject:
   m_ObjectHideFlags: 0

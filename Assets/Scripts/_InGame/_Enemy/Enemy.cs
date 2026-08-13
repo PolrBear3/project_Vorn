@@ -3,15 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IInteractable
 {
     [Space(20)]
     [SerializeField] private TileMovement_Controller _movement;
     public TileMovement_Controller movement => _movement;
 
+    [SerializeField] private Animator_Controller _animator;
+
 
     private EnemyData _data;
     public EnemyData data => _data;
+
+    // IInteractable
+    public InteractionData interactionData => _data.currentData;
 
     private Card _targetCard;
     public Card targetCard => _targetCard;
@@ -23,11 +28,12 @@ public class Enemy : MonoBehaviour
     private void OnDestroy()
     {
         // from Set_Data
+        _data.currentData.OnCurrentHealthUpdate -= Update_OnDamaged;
+
         EnemyManager enemyManager = GameManager.instance.enemyManager;
 
-        enemyManager.OnEnemyTurn -= Update_TargetCard;
-        enemyManager.OnEnemyTurn -= Moveto_TargetCard;
-        enemyManager.OnEnemyTurn -= Activate_Effects;
+        enemyManager.OnEnemyAction -= Update_TargetCard;
+        enemyManager.OnEnemyAction -= Moveto_TargetCard;
     }
 
 
@@ -35,13 +41,12 @@ public class Enemy : MonoBehaviour
     public void Set_Data(Enemy_ScrObj setEnemy)
     {
         _data = new(setEnemy);
-
+        _data.currentData.OnCurrentHealthUpdate += Update_OnDamaged;
 
         EnemyManager enemyManager = GameManager.instance.enemyManager;
 
-        enemyManager.OnEnemyTurn += Update_TargetCard;
-        enemyManager.OnEnemyTurn += Moveto_TargetCard;
-        enemyManager.OnEnemyTurn += Activate_Effects;
+        enemyManager.OnEnemyAction += Update_TargetCard;
+        enemyManager.OnEnemyAction += Moveto_TargetCard;
     }
 
 
@@ -125,9 +130,12 @@ public class Enemy : MonoBehaviour
     }
 
 
-    // Effect
-    private void Activate_Effects()
+    // Interaction
+    private void Update_OnDamaged(int healthUpdateValue)
     {
-        OnEffectActivation?.Invoke();
+        if (healthUpdateValue >= 0) return;
+
+        Debug.Log(healthUpdateValue);
+        _animator.Play_State(0);
     }
 }

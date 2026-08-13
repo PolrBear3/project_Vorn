@@ -16,7 +16,7 @@ MonoBehaviour:
   _interactionData:
     _mana: 0
     _health: 3
-    _damage: 1
+    _healthModifyValue: 0
     _interactRange: 1
     _targetSelectCount: 0
   _movementRange: 1

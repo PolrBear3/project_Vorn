@@ -16,6 +16,6 @@ public class EnemyData
     public EnemyData(Enemy_ScrObj setEnemy)
     {
         _enemyScrObj = setEnemy;
-        _currentData = setEnemy.interactionData;
+        _currentData = new(setEnemy.interactionData);
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -40,6 +41,8 @@ public class CardManager : MonoBehaviour
     private CardManager_DragDropData _dragDropData;
     public CardManager_DragDropData dragDropData => _dragDropData;
 
+    public Action OnCardAction;
+
 
     // MonoBehaviour
     private void Awake()
@@ -52,9 +55,12 @@ public class CardManager : MonoBehaviour
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
 
 
-        // Set_Data
-        GameManager.instance.tileManager.tileSelectEventBus.UnRegister(Toggle_TileTargeting);
-        
+        // from Set_Data
+        GameManager manager = GameManager.instance;
+
+        manager.tileManager.tileSelectEventBus.UnRegister(Toggle_TileTargeting);
+        manager.stageManager.endTurnEventBus.UnRegister(Run_CardActions);
+
         Input_Controller input = Input_Controller.instance;
 
         input.OnLeftClickPressed -= UnToggle_TileTargeting_onMissClick;
@@ -66,7 +72,10 @@ public class CardManager : MonoBehaviour
     // Data
     private void Set_Data()
     {
-        GameManager.instance.tileManager.tileSelectEventBus.Register(0, Toggle_TileTargeting);
+        GameManager manager = GameManager.instance;
+
+        manager.tileManager.tileSelectEventBus.Register(0, Toggle_TileTargeting);
+        manager.stageManager.endTurnEventBus.Register(0, Run_CardActions);
 
         Input_Controller input = Input_Controller.instance;
 
@@ -143,8 +152,13 @@ public class CardManager : MonoBehaviour
         if (placeCardObj.TryGetComponent(out Card placeCard) == false) return false;
         _placedCards.Add(placeCard);
 
-        placeCard.Load(placeCardData, placeTile);
+        placeCard.Set_Data(placeCardData, placeTile);
         return true;
+    }
+
+    private void Run_CardActions()
+    {
+        OnCardAction?.Invoke();
     }
 
 
@@ -186,16 +200,19 @@ public class CardManager : MonoBehaviour
         cursor.Update_InfoText(updateInfo);
     }
 
-    private void UnToggle_TileTargeting(bool _)
+    private void UnToggle_TileTargeting(bool isPressed)
     {
+        if (isPressed == false) return;
+
         Card unToggleCard = TileTargeting_ToggledCard();
         if (unToggleCard == null) return;
 
         unToggleCard.tileTargeting.Toggle_Targeting(false);
         Update_TileTargeting_InfoText();
     }
-    private void UnToggle_TileTargeting_onMissClick(bool _)
+    private void UnToggle_TileTargeting_onMissClick(bool isPressed)
     {
+        if (isPressed == false) return;
         if (GameManager.instance.tileManager.hoveringTile != null) return;
 
         UnToggle_TileTargeting(true);
@@ -220,8 +237,10 @@ public class CardManager : MonoBehaviour
         selectedCard.tileTargeting.Toggle_Targeting();
         Update_TileTargeting_InfoText();
     }
-    private void Target_Tile(bool _)
+    private void Target_Tile(bool isPressed)
     {
+        if (isPressed == false) return;
+        
         Card toggledCard = TileTargeting_ToggledCard();
         if (toggledCard == null) return;
 
@@ -229,6 +248,9 @@ public class CardManager : MonoBehaviour
 
         Tile selectedTile = manager.tileManager.hoveringTile;
         if (selectedTile == null || selectedTile == toggledCard.placedTile) return;
+
+        int interactRange = toggledCard.data.currentData.interactRange;
+        if (Utility.Chebyshev_Distance(toggledCard.placedTile.data.position, selectedTile.data.position) > interactRange) return;
 
         TileTargeting_Data tileTargeting = toggledCard.tileTargeting;
 

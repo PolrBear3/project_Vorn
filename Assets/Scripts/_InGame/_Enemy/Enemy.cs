@@ -135,7 +135,6 @@ public class Enemy : MonoBehaviour, IInteractable
     {
         if (healthUpdateValue >= 0) return;
 
-        Debug.Log(healthUpdateValue);
         _animator.Play_State(0);
     }
 }

@@ -221,7 +221,7 @@ public class CardManager : MonoBehaviour
     private void Toggle_TileTargeting()
     {
         GameManager manager = GameManager.instance;
-        
+
         Tile selectedTile = manager.tileManager.hoveringTile;
         if (selectedTile == null) return;
 
@@ -240,7 +240,7 @@ public class CardManager : MonoBehaviour
     private void Target_Tile(bool isPressed)
     {
         if (isPressed == false) return;
-        
+
         Card toggledCard = TileTargeting_ToggledCard();
         if (toggledCard == null) return;
 

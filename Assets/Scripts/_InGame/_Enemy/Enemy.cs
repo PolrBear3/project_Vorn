@@ -10,18 +10,23 @@ public class Enemy : MonoBehaviour, IInteractable
     public TileMovement_Controller movement => _movement;
 
     [SerializeField] private Animator_Controller _animator;
+    public Animator_Controller animator => _animator;
 
 
     private EnemyData _data;
     public EnemyData data => _data;
 
-    // IInteractable
-    public InteractionData interactionData => _data.currentData;
-
     private Card _targetCard;
     public Card targetCard => _targetCard;
 
     public Action OnEffectActivation;
+
+
+    // IInteractable
+    public InteractionData interactionData => _data.currentData;
+
+    private bool _healthUpdating;
+    public bool healthUpdating => _healthUpdating;
 
 
     // MonoBehaviour
@@ -31,9 +36,7 @@ public class Enemy : MonoBehaviour, IInteractable
         _data.currentData.OnCurrentHealthUpdate -= Update_OnDamaged;
 
         EnemyManager enemyManager = GameManager.instance.enemyManager;
-
-        enemyManager.OnEnemyAction -= Update_TargetCard;
-        enemyManager.OnEnemyAction -= Moveto_TargetCard;
+        enemyManager.enemyActionBus.UnRegister(TargetCard_MovementUpdate);
     }
 
 
@@ -44,13 +47,11 @@ public class Enemy : MonoBehaviour, IInteractable
         _data.currentData.OnCurrentHealthUpdate += Update_OnDamaged;
 
         EnemyManager enemyManager = GameManager.instance.enemyManager;
-
-        enemyManager.OnEnemyAction += Update_TargetCard;
-        enemyManager.OnEnemyAction += Moveto_TargetCard;
+        enemyManager.enemyActionBus.Register(0, TargetCard_MovementUpdate);
     }
 
 
-    // Target Card
+    // Movement
     private void Update_TargetCard()
     {
         GameManager manager = GameManager.instance;
@@ -128,6 +129,14 @@ public class Enemy : MonoBehaviour, IInteractable
 
         _movement.Moveto_Tile(routeTiles[0], _data.enemyScrObj.spawnOffset);
     }
+    private IEnumerator TargetCard_MovementUpdate()
+    {
+        Update_TargetCard();
+        Moveto_TargetCard();
+
+        while (_movement.movementCoroutine != null) yield return null;
+        yield break;
+    }
 
 
     // Interaction
@@ -135,6 +144,17 @@ public class Enemy : MonoBehaviour, IInteractable
     {
         if (healthUpdateValue >= 0) return;
 
-        _animator.Play_State(0);
+        _animator.Play_State(1);
+
+        _healthUpdating = true;
+        StartCoroutine(OnDamaged_AnimationUpdate());
+    }
+    private IEnumerator OnDamaged_AnimationUpdate()
+    {
+        yield return null;
+        while (_animator.CurrentState_Playing()) yield return null;
+
+        _healthUpdating = false;
+        yield break;
     }
 }

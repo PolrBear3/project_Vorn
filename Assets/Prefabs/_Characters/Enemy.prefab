@@ -64,6 +64,7 @@ MonoBehaviour:
   _animator: {fileID: 4076180943445881456}
   _stopStateName: Stop
   _stateNames:
+  - Spawn
   - Damage
 --- !u!114 &955546610830207206
 MonoBehaviour:

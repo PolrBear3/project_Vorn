@@ -23,10 +23,10 @@ public class Card : MonoBehaviour
     private void OnDestroy()
     {
         // from Set_Data
-        CardManager cardManager = GameManager.instance.cardManager;
+        EventBus_Controller cardActionBus = GameManager.instance.cardManager.cardActionBus;
 
-        cardManager.OnCardAction -= Damage_TargetingTiles_Interactables;
-        cardManager.OnCardAction -= _tileTargeting.targetingTiles.Clear;
+        cardActionBus.UnRegister(UpdateHealth_TargetingInteractables);
+        // cardActionBus.UnRegister(UpdateSkills_TargetingTiles);
     }
 
 
@@ -43,10 +43,10 @@ public class Card : MonoBehaviour
         _contentSpriteRenderer.sprite = loadCard.contentSprite;
 
 
-        CardManager cardManager = GameManager.instance.cardManager;
+        EventBus_Controller cardActionBus = GameManager.instance.cardManager.cardActionBus;
 
-        cardManager.OnCardAction += Damage_TargetingTiles_Interactables;
-        cardManager.OnCardAction += _tileTargeting.targetingTiles.Clear;
+        cardActionBus.Register(0, UpdateHealth_TargetingInteractables);
+        // cardActionBus.Register(0, UpdateSkills_TargetingTiles);
     }
     public void Set_Data(Card_ScrObj setData, Tile placeTile)
     {
@@ -55,21 +55,35 @@ public class Card : MonoBehaviour
 
 
     // Tile Targeting
-    private void Damage_TargetingTiles_Interactables()
+    private IEnumerator UpdateHealth_TargetingInteractables()
     {
         List<Tile> targetingTiles = new(_tileTargeting.targetingTiles);
 
         for (int i = 0; i < targetingTiles.Count; i++)
         {
             Tile tile = targetingTiles[i];
+            GameObject tileOccupant = tile.currentOccupant;
 
-            if (tile.currentOccupant == null) continue;
-            if (tile.currentOccupant.TryGetComponent(out IInteractable interactable) == false) continue;
+            if (tileOccupant == null) continue;
+            if (tileOccupant.TryGetComponent(out IInteractable interactable) == false) continue;
 
             InteractionData targetData = interactable.interactionData;
-            int updateData = targetData.health + _data.currentData.healthModifyValue;
+            if (targetData == null) continue;
 
+            int updateData = targetData.health + _data.currentData.healthModifyValue;
             interactable.interactionData.Update_CurrentHealth(updateData);
+
+            yield return null;
+            while (interactable.healthUpdating) yield return null;
         }
+
+        _tileTargeting.targetingTiles.Clear();
+        yield break;
+    }
+
+    private IEnumerator UpdateSkills_TargetingTiles()
+    {
+        Debug.Log("UpdateSkills_TargetingTiles");
+        yield break;
     }
 }

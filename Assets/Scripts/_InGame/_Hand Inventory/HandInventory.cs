@@ -84,7 +84,10 @@ public class HandInventory : MonoBehaviour
         input.OnLeftClickPressed -= Drop_DraggingCard;
         input.OnRightClickPressed -= Return_DraggingCard;
 
-        GameManager.instance.stageManager.endTurnEventBus.UnRegister(Draw_Card);
+        StageManager stageManager = GameManager.instance.stageManager;
+
+        stageManager.stageSetEventBus.UnRegister(DrawCard_Delay);
+        stageManager.endTurnEventBus.UnRegister(DrawCard_Delay);
     }
 
 
@@ -97,7 +100,10 @@ public class HandInventory : MonoBehaviour
         input.OnLeftClickPressed += Drop_DraggingCard;
         input.OnRightClickPressed += Return_DraggingCard;
 
-        GameManager.instance.stageManager.endTurnEventBus.Register(2, Draw_Card);
+        StageManager stageManager = GameManager.instance.stageManager;
+
+        stageManager.stageSetEventBus.Register(1, DrawCard_Delay);
+        stageManager.endTurnEventBus.Register(2, DrawCard_Delay);
     }
 
     private void LoadCards_toDeck()
@@ -130,6 +136,20 @@ public class HandInventory : MonoBehaviour
 
 
     // Hand
+    private void Update_HandCardPositions()
+    {
+        if (_handCards == null || _handCards.Count <= 0) return;
+
+        float totalWidth = (_handCards.Count - 1) * _handCardsSpacingValue;
+        float startX = -totalWidth * 0.5f;
+
+        for (int i = 0; i < _handCards.Count; i++)
+        {
+            float xPos = startX + (i * _handCardsSpacingValue);
+            _handCards[i].rectTransform.anchoredPosition = new Vector2(xPos, 0f);
+        }
+    }
+
     public HandCard AddCard_toHand(CardData addCardData)
     {
         if (_handCards.Count >= _maxHandCardCount) return null;
@@ -161,20 +181,6 @@ public class HandInventory : MonoBehaviour
         }
     }
 
-    private void Update_HandCardPositions()
-    {
-        if (_handCards == null || _handCards.Count <= 0) return;
-
-        float totalWidth = (_handCards.Count - 1) * _handCardsSpacingValue;
-        float startX = -totalWidth * 0.5f;
-
-        for (int i = 0; i < _handCards.Count; i++)
-        {
-            float xPos = startX + (i * _handCardsSpacingValue);
-            _handCards[i].rectTransform.anchoredPosition = new Vector2(xPos, 0f);
-        }
-    }
-
     public void Draw_Card(int drawCount)
     {
         List<CardData> deckCardDatas = _data.deckCardDatas;
@@ -195,6 +201,14 @@ public class HandInventory : MonoBehaviour
     private void Draw_Card()
     {
         Draw_Card(1);
+    }
+
+    private IEnumerator DrawCard_Delay()
+    {
+        // draw card lean tween effect ?
+
+        Draw_Card();
+        yield break;
     }
 
 

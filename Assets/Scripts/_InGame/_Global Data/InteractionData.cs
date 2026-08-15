@@ -6,6 +6,7 @@ using UnityEngine;
 public interface IInteractable
 {
     InteractionData interactionData { get; }
+    bool healthUpdating { get; }
 }
 
 [System.Serializable]

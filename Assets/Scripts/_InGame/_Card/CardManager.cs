@@ -41,7 +41,9 @@ public class CardManager : MonoBehaviour
     private CardManager_DragDropData _dragDropData;
     public CardManager_DragDropData dragDropData => _dragDropData;
 
-    public Action OnCardAction;
+
+    private EventBus_Controller _cardActionBus = new();
+    public EventBus_Controller cardActionBus => _cardActionBus;
 
 
     // MonoBehaviour
@@ -156,9 +158,12 @@ public class CardManager : MonoBehaviour
         return true;
     }
 
-    private void Run_CardActions()
+    private IEnumerator Run_CardActions()
     {
-        OnCardAction?.Invoke();
+        StartCoroutine(_cardActionBus.SequentialDelayBus_RunUpdate());
+
+        while (_cardActionBus.delayBusRunning) yield return null;
+        yield break;
     }
 
 

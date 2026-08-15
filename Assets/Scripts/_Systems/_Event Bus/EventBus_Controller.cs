@@ -6,6 +6,10 @@ using UnityEngine;
 public class EventBus_Controller
 {
     private readonly Dictionary<int, Action> _eventSequentialBus = new();
+    private readonly Dictionary<int, Func<IEnumerator>> _eventSequentialDelayBus = new();
+
+    private bool _delayBusRunning;
+    public bool delayBusRunning => _delayBusRunning;
 
 
     // Sequential Bus
@@ -52,5 +56,62 @@ public class EventBus_Controller
             if (_eventSequentialBus.TryGetValue(i, out Action runAction) == false) continue;
             runAction?.Invoke();
         }
+    }
+
+
+    // Delay Bus
+    public void Register(int sequentialIndex, Func<IEnumerator> targetAction)
+    {
+        sequentialIndex = Mathf.Max(0, sequentialIndex);
+
+        if (_eventSequentialDelayBus.ContainsKey(sequentialIndex) == false)
+        {
+            _eventSequentialDelayBus.Add(sequentialIndex, targetAction);
+            return;
+        }
+
+        _eventSequentialDelayBus[sequentialIndex] += targetAction;
+    }
+    public void UnRegister(Func<IEnumerator> removeAction)
+    {
+        List<int> keys = new(_eventSequentialDelayBus.Keys);
+
+        for (int i = 0; i < keys.Count; i++)
+        {
+            int key = keys[i];
+
+            _eventSequentialDelayBus[key] -= removeAction;
+
+            if (_eventSequentialDelayBus[key] != null) continue;
+            _eventSequentialDelayBus.Remove(key);
+        }
+    }
+
+    public IEnumerator SequentialDelayBus_RunUpdate()
+    {
+        if (_eventSequentialDelayBus.Count <= 0) yield break;
+        _delayBusRunning = true;
+
+        int highestIndex = 0;
+
+        foreach (var eventBus in _eventSequentialDelayBus)
+        {
+            if (eventBus.Key <= highestIndex) continue;
+            highestIndex = eventBus.Key;
+        }
+
+        for (int i = 0; i <= highestIndex; i++)
+        {
+            if (_eventSequentialDelayBus.TryGetValue(i, out Func<IEnumerator> runAction) == false) continue;
+
+            Delegate[] delegates = runAction.GetInvocationList();
+
+            for (int j = 0; j < delegates.Length; j++)
+            {
+                Func<IEnumerator> action = (Func<IEnumerator>)delegates[j];
+                yield return action();
+            }
+        }
+        _delayBusRunning = false;
     }
 }

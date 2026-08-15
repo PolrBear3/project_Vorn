@@ -46,10 +46,16 @@ public class StageManager : MonoBehaviour
     private void Set_Stage(Stage_ScrObj stage)
     {
         _currentData = new(stage);
-        _stageSetEventBus.RunSequential_BusEvents();
+        StartCoroutine(_stageSetEventBus.SequentialDelayBus_RunUpdate());
     }
+
     private void Set_Stage()
     {
+        StartCoroutine(RegisterDelay_SetStage());
+    }
+    private IEnumerator RegisterDelay_SetStage()
+    {
+        yield return null;
         Set_Stage(_newGameStage);
     }
 
@@ -58,6 +64,10 @@ public class StageManager : MonoBehaviour
     private void End_Turn(bool isPressed)
     {
         if (isPressed == false) return;
-        _endTurnEventBus.RunSequential_BusEvents();
+
+        if (_stageSetEventBus.delayBusRunning) return;
+        if (_endTurnEventBus.delayBusRunning) return;
+
+        StartCoroutine(_endTurnEventBus.SequentialDelayBus_RunUpdate());
     }
 }

@@ -15,13 +15,17 @@ public class InteractionData
     [SerializeField][Range(0, 10)] private int _mana;
     public int mana => _mana;
 
-    [SerializeField][Range(0, 100)] private int _health;
-    public int health => _health;
+    [SerializeField][Range(0, 10)] private int _maxHealth;
+    public int maxHealth => _maxHealth;
+
+    private int _currentHealth;
+    public int currentHealth => _currentHealth;
 
     [SerializeField][Range(-100, 100)] private int _healthModifyValue;
     public int healthModifyValue => _healthModifyValue;
 
 
+    public Action<int> OnMaxHealthUpdate;
     public Action<int> OnCurrentHealthUpdate;
 
 
@@ -37,7 +41,8 @@ public class InteractionData
     public InteractionData(InteractionData newData)
     {
         _mana = newData._mana;
-        _health = newData._health;
+        _maxHealth = newData._maxHealth;
+        _currentHealth = _maxHealth;
         _healthModifyValue = newData._healthModifyValue;
 
         _interactRange = newData._interactRange;
@@ -46,12 +51,25 @@ public class InteractionData
 
 
     // Data
+    public void Update_MaxHealth(int newValue)
+    {
+        newValue = Mathf.Max(_currentHealth, newValue);
+
+        int updateValue = newValue - _maxHealth;
+        if (updateValue == 0) return;
+
+        _maxHealth = newValue;
+        OnMaxHealthUpdate?.Invoke(updateValue);
+    }
+
     public void Update_CurrentHealth(int newValue)
     {
-        newValue = Mathf.Max(0, newValue);
-        int updateValue = newValue - _health;
+        newValue = Mathf.Clamp(newValue, 0, _maxHealth);
+        
+        int updateValue = newValue - _currentHealth;
+        if (updateValue == 0) return;
 
-        _health = newValue;
+        _currentHealth = newValue;
         OnCurrentHealthUpdate?.Invoke(updateValue);
     }
 }

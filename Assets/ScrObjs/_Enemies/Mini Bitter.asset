@@ -15,7 +15,7 @@ MonoBehaviour:
   _spawnOffset: {x: 0, y: 0.625}
   _interactionData:
     _mana: 0
-    _health: 3
+    _maxHealth: 5
     _healthModifyValue: 0
     _interactRange: 1
     _targetSelectCount: 0

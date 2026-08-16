@@ -67,6 +67,7 @@ public class StageManager : MonoBehaviour
 
         if (_stageSetEventBus.delayBusRunning) return;
         if (_endTurnEventBus.delayBusRunning) return;
+        if (GameManager.instance.cardManager.CardPlace_ActionRunning()) return;
 
         StartCoroutine(_endTurnEventBus.SequentialDelayBus_RunUpdate());
     }

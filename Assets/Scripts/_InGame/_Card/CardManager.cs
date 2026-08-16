@@ -42,10 +42,6 @@ public class CardManager : MonoBehaviour
     public CardManager_DragDropData dragDropData => _dragDropData;
 
 
-    private EventBus_Controller _cardActionBus = new();
-    public EventBus_Controller cardActionBus => _cardActionBus;
-
-
     // MonoBehaviour
     private void Awake()
     {
@@ -146,6 +142,8 @@ public class CardManager : MonoBehaviour
         GameObject cardPrefab = placeCardData.cardScrObj.placePrefab;
         if (cardPrefab == null) return false;
 
+        if (CardPlace_ActionRunning()) return false;
+
         GameObject placeCardObj = Instantiate(cardPrefab, placeTile.transform.position, Quaternion.identity);
         placeCardObj.transform.SetParent(transform);
 
@@ -155,14 +153,42 @@ public class CardManager : MonoBehaviour
         _placedCards.Add(placeCard);
 
         placeCard.Set_Data(placeCardData, placeTile);
+        StartCoroutine(placeCard.placeUpdateActionBus.SequentialDelayBus_RunUpdate());
+
         return true;
+    }
+
+    public bool CardPlace_ActionRunning()
+    {
+        for (int i = 0; i < _placedCards.Count; i++)
+        {
+            if (_placedCards[i].placeUpdateActionBus.delayBusRunning) return true;
+        }
+        return false;
+    }
+    public Tile ActionRunningCard_TargetingTile()
+    {
+        for (int i = 0; i < _placedCards.Count; i++)
+        {
+            Card placedCard = _placedCards[i];
+
+            if (placedCard.actionsRunning == false) continue;
+            return placedCard.targetingTile;
+        }
+        return null;
     }
 
     private IEnumerator Run_CardActions()
     {
-        StartCoroutine(_cardActionBus.SequentialDelayBus_RunUpdate());
+        List<Card> runActionCards = new(_placedCards);
 
-        while (_cardActionBus.delayBusRunning) yield return null;
+        for (int i = 0; i < runActionCards.Count; i++)
+        {
+            Card card = runActionCards[i];
+
+            StartCoroutine(card.RunActions_TargetingTiles());
+            while (card.actionsRunning) yield return null;
+        }
         yield break;
     }
 
@@ -239,8 +265,13 @@ public class CardManager : MonoBehaviour
         InteractionData data = selectedCard.data.currentData;
         if (data.targetSelectCount <= 0) return;
 
-        selectedCard.tileTargeting.Toggle_Targeting();
+        bool toggled = selectedCard.tileTargeting.Toggle_Targeting();
         Update_TileTargeting_InfoText();
+
+        if (toggled == false) return;
+        
+        _placedCards.Remove(selectedCard);
+        _placedCards.Add(selectedCard);
     }
     private void Target_Tile(bool isPressed)
     {

@@ -33,7 +33,7 @@ public class Enemy : MonoBehaviour, IInteractable
     private void OnDestroy()
     {
         // from Set_Data
-        _data.currentData.OnCurrentHealthUpdate -= Update_OnDamaged;
+        _data.currentData.OnCurrentHealthUpdate -= Handle_HealthUpdate;
 
         EnemyManager enemyManager = GameManager.instance.enemyManager;
         enemyManager.enemyActionBus.UnRegister(TargetCard_MovementUpdate);
@@ -44,7 +44,7 @@ public class Enemy : MonoBehaviour, IInteractable
     public void Set_Data(Enemy_ScrObj setEnemy)
     {
         _data = new(setEnemy);
-        _data.currentData.OnCurrentHealthUpdate += Update_OnDamaged;
+        _data.currentData.OnCurrentHealthUpdate += Handle_HealthUpdate;
 
         EnemyManager enemyManager = GameManager.instance.enemyManager;
         enemyManager.enemyActionBus.Register(0, TargetCard_MovementUpdate);
@@ -140,19 +140,19 @@ public class Enemy : MonoBehaviour, IInteractable
 
 
     // Interaction
-    private void Update_OnDamaged(int healthUpdateValue)
+    private void Handle_HealthUpdate(int healthUpdateValue)
     {
-        if (healthUpdateValue >= 0) return;
-
-        _animator.Play_State(1);
+        _animator.Play_State(healthUpdateValue < 0 ? 1 : 2);
 
         _healthUpdating = true;
-        StartCoroutine(OnDamaged_AnimationUpdate());
+        StartCoroutine(HealthUpdate_HandleDelay(healthUpdateValue));
     }
-    private IEnumerator OnDamaged_AnimationUpdate()
+    private IEnumerator HealthUpdate_HandleDelay(int healthUpdateValue)
     {
         yield return null;
+
         while (_animator.CurrentState_Playing()) yield return null;
+        // while health updated skills running (healthUpdateValue) ?
 
         _healthUpdating = false;
         yield break;

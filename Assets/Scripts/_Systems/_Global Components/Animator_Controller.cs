@@ -15,6 +15,13 @@ public class Animator_Controller : MonoBehaviour
 
 
     // Main
+    public bool CurrentState_Playing(int stateIndex)
+    {
+        if (stateIndex < 0 || stateIndex >= _stateNames.Length) return false;
+
+        AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+        return stateInfo.IsName(_stateNames[stateIndex]);
+    }
     public bool CurrentState_Playing()
     {
         if (_currentState == null) return false;

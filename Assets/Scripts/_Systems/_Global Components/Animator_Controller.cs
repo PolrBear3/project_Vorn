@@ -7,20 +7,15 @@ public class Animator_Controller : MonoBehaviour
     [Space(10)]
     [SerializeField] private Animator _animator;
 
-    [Space(20)]
-    [SerializeField] private string _stopStateName;
-    [SerializeField] private string[] _stateNames;
-
+    private const string None = "None";
     private string _currentState;
 
 
     // Main
-    public bool CurrentState_Playing(int stateIndex)
+    public bool CurrentState_Playing(string stateName)
     {
-        if (stateIndex < 0 || stateIndex >= _stateNames.Length) return false;
-
         AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
-        return stateInfo.IsName(_stateNames[stateIndex]);
+        return stateInfo.IsName(stateName);
     }
     public bool CurrentState_Playing()
     {
@@ -36,15 +31,12 @@ public class Animator_Controller : MonoBehaviour
     public void StopCurrent_PlayingState()
     {
         _currentState = null;
-        _animator.Play(_stopStateName, 0, 0f);
+        _animator.Play(None, 0, 0f);
     }
 
-    public void Play_State(int stateIndex)
+    public void Play_State(string stateName)
     {
-        if (stateIndex < 0 || stateIndex >= _stateNames.Length) return;
-        string stateToPlay = _stateNames[stateIndex];
-
-        _currentState = stateToPlay;
-        _animator.Play(stateToPlay, 0, 0f);
+        _currentState = stateName;
+        _animator.Play(stateName, 0, 0f);
     }
 }

@@ -19,10 +19,23 @@ public class Enemy : MonoBehaviour, IInteractable
     private Card _targetCard;
     public Card targetCard => _targetCard;
 
-    public Action OnEffectActivation;
+
+    private bool _actionRunning;
+    public bool actionRunning => _actionRunning;
+
+    private EventBus_Controller _preMovementActionBus = new();
+    public EventBus_Controller preMovementActionBus => _preMovementActionBus;
+
+    private EventBus_Controller _afterMovementActionBus = new();
+    public EventBus_Controller afterMovementActionBus => _afterMovementActionBus;
+
+    private EventBus_Controller _healthUpdateActionBus = new();
+    public EventBus_Controller healthUpdateActionBus => _healthUpdateActionBus;
+
+    private EventBus_Controller _deathUpdateActionBus = new();
+    public EventBus_Controller deathUpdateActionBus => _deathUpdateActionBus;
 
 
-    // IInteractable
     public InteractionData interactionData => _data.currentData;
 
     private bool _healthUpdating;
@@ -34,9 +47,6 @@ public class Enemy : MonoBehaviour, IInteractable
     {
         // from Set_Data
         _data.currentData.OnCurrentHealthUpdate -= Handle_HealthUpdate;
-
-        EnemyManager enemyManager = GameManager.instance.enemyManager;
-        enemyManager.enemyActionBus.UnRegister(TargetCard_MovementUpdate);
     }
 
 
@@ -45,13 +55,10 @@ public class Enemy : MonoBehaviour, IInteractable
     {
         _data = new(setEnemy);
         _data.currentData.OnCurrentHealthUpdate += Handle_HealthUpdate;
-
-        EnemyManager enemyManager = GameManager.instance.enemyManager;
-        enemyManager.enemyActionBus.Register(0, TargetCard_MovementUpdate);
     }
 
 
-    // Movement
+    // Actions
     private void Update_TargetCard()
     {
         GameManager manager = GameManager.instance;
@@ -129,12 +136,20 @@ public class Enemy : MonoBehaviour, IInteractable
 
         _movement.Moveto_Tile(routeTiles[0], _data.enemyScrObj.spawnOffset);
     }
-    private IEnumerator TargetCard_MovementUpdate()
+
+    public IEnumerator Run_EndTurnActions()
     {
+        _actionRunning = true;
+
+        yield return _preMovementActionBus.SequentialDelayBus_RunUpdate();
+
         Update_TargetCard();
         Moveto_TargetCard();
-
         while (_movement.movementCoroutine != null) yield return null;
+
+        yield return _afterMovementActionBus.SequentialDelayBus_RunUpdate();
+
+        _actionRunning = false;
         yield break;
     }
 
@@ -142,17 +157,42 @@ public class Enemy : MonoBehaviour, IInteractable
     // Interaction
     private void Handle_HealthUpdate(int healthUpdateValue)
     {
-        _animator.Play_State(healthUpdateValue < 0 ? 1 : 2);
+        string animState = healthUpdateValue < 0 ? EnemyAnimation.Damage : EnemyAnimation.Heal;
+        _animator.Play_State(animState);
 
         _healthUpdating = true;
-        StartCoroutine(HealthUpdate_HandleDelay(healthUpdateValue));
+        StartCoroutine(HealthUpdate_HandleDelay());
     }
-    private IEnumerator HealthUpdate_HandleDelay(int healthUpdateValue)
+    private bool Handle_Death()
+    {
+        if (_data.currentData.currentHealth > 0) return false;
+
+        _movement.currentTile.Set_Occupant(null);
+        _animator.Play_State(EnemyAnimation.Death);
+
+        return true;
+    }
+
+    private IEnumerator HealthUpdate_HandleDelay()
     {
         yield return null;
-
         while (_animator.CurrentState_Playing()) yield return null;
-        // while health updated skills running (healthUpdateValue) ?
+
+        yield return _healthUpdateActionBus.SequentialDelayBus_RunUpdate();
+
+        if (Handle_Death())
+        {
+            yield return null;
+            while (_animator.CurrentState_Playing()) yield return null;
+
+            yield return _deathUpdateActionBus.SequentialDelayBus_RunUpdate();
+
+            _actionRunning = false;
+            _healthUpdating = false;
+
+            GameManager.instance.enemyManager.spawnedEnemies.Remove(this);
+            Destroy(gameObject);
+        }
 
         _healthUpdating = false;
         yield break;

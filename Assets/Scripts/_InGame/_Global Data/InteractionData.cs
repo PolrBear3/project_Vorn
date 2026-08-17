@@ -21,6 +21,9 @@ public class InteractionData
     private int _currentHealth;
     public int currentHealth => _currentHealth;
 
+    private int _previousCurrentHealth;
+    public int previousCurrentHealth => _previousCurrentHealth;
+
     [SerializeField][Range(-100, 100)] private int _healthModifyValue;
     public int healthModifyValue => _healthModifyValue;
 
@@ -43,6 +46,7 @@ public class InteractionData
         _mana = newData._mana;
         _maxHealth = newData._maxHealth;
         _currentHealth = _maxHealth;
+        _previousCurrentHealth = _maxHealth;
         _healthModifyValue = newData._healthModifyValue;
 
         _interactRange = newData._interactRange;
@@ -64,8 +68,9 @@ public class InteractionData
 
     public void Update_CurrentHealth(int newValue)
     {
+        _previousCurrentHealth = _currentHealth;
         newValue = Mathf.Clamp(newValue, 0, _maxHealth);
-        
+
         int updateValue = newValue - _currentHealth;
         if (updateValue == 0) return;
 

@@ -23,15 +23,14 @@ public class Card : MonoBehaviour
     private TileTargeting_Data _tileTargeting = new();
     public TileTargeting_Data tileTargeting => _tileTargeting;
 
+    public Action OnSetData;
+
 
     private bool _actionsRunning;
     public bool actionsRunning => _actionsRunning;
 
     private Tile _targetingTile;
     public Tile targetingTile => _targetingTile;
-
-
-    public Action OnSetData;
 
     private EventBus_Controller _placeUpdateActionBus = new();
     public EventBus_Controller placeUpdateActionBus => _placeUpdateActionBus;
@@ -75,11 +74,9 @@ public class Card : MonoBehaviour
             Tile tile = targetingTiles[i];
             _targetingTile = tile;
 
+            yield return _preUpdateSkillBus.SequentialDelayBus_RunUpdate();
+
             GameObject tileOccupant = tile.currentOccupant;
-
-            StartCoroutine(_preUpdateSkillBus.SequentialDelayBus_RunUpdate());
-            while (_preUpdateSkillBus.delayBusRunning) yield return null;
-
             if (tileOccupant != null && tileOccupant.TryGetComponent(out IInteractable interactable))
             {
                 InteractionData targetData = interactable.interactionData;
@@ -96,8 +93,7 @@ public class Card : MonoBehaviour
                 while (interactable.healthUpdating) yield return null;
             }
 
-            StartCoroutine(_afterUpdateSkillBus.SequentialDelayBus_RunUpdate());
-            while (_afterUpdateSkillBus.delayBusRunning) yield return null;
+            yield return _afterUpdateSkillBus.SequentialDelayBus_RunUpdate();
         }
         _tileTargeting.targetingTiles.Clear();
 

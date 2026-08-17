@@ -63,11 +63,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 4076180943445881456}
-  _stopStateName: Stop
+  _stopStateName: None
   _stateNames:
   - Spawn
   - Damage
   - Heal
+  - Death
 --- !u!114 &955546610830207206
 MonoBehaviour:
   m_ObjectHideFlags: 0

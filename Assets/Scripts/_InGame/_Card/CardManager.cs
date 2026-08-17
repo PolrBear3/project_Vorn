@@ -185,6 +185,7 @@ public class CardManager : MonoBehaviour
         for (int i = 0; i < runActionCards.Count; i++)
         {
             Card card = runActionCards[i];
+            if (card == null) continue;
 
             StartCoroutine(card.RunActions_TargetingTiles());
             while (card.actionsRunning) yield return null;
@@ -269,7 +270,7 @@ public class CardManager : MonoBehaviour
         Update_TileTargeting_InfoText();
 
         if (toggled == false) return;
-        
+
         _placedCards.Remove(selectedCard);
         _placedCards.Add(selectedCard);
     }

@@ -5,10 +5,6 @@ using UnityEngine;
 
 public class EnemyManager : MonoBehaviour
 {
-    [Space(10)]
-    [SerializeField] private GameObject _enemyPrefab;
-
-
     private EnemyManager_Data _data = new();
     public EnemyManager_Data data => _data;
 
@@ -16,9 +12,6 @@ public class EnemyManager : MonoBehaviour
     public List<Enemy> spawnedEnemies => _spawnedEnemies;
 
     private Coroutine _spawnCoroutine;
-
-    private EventBus_Controller _enemyActionBus = new();
-    public EventBus_Controller enemyActionBus => _enemyActionBus;
 
 
     // MonoBehaviour
@@ -56,7 +49,7 @@ public class EnemyManager : MonoBehaviour
         if (spawnEnemy == null || spawnTile == null) return null;
         Vector2 spawnPos = (Vector2)spawnTile.transform.position + spawnEnemy.spawnOffset;
 
-        GameObject enemyObj = Instantiate(_enemyPrefab, spawnPos, Quaternion.identity);
+        GameObject enemyObj = Instantiate(spawnEnemy.spawnPrefab, spawnPos, Quaternion.identity);
         enemyObj.transform.SetParent(transform);
 
         spawnTile.Set_Occupant(enemyObj);
@@ -70,7 +63,7 @@ public class EnemyManager : MonoBehaviour
 
         spawnedEnemy.Set_Data(spawnEnemy);
         spawnedEnemy.movement.Set_CurrentTile(spawnTile);
-        spawnedEnemy.animator.Play_State(0);
+        spawnedEnemy.animator.Play_State(EnemyAnimation.Spawn);
 
         return spawnedEnemy;
     }
@@ -110,9 +103,16 @@ public class EnemyManager : MonoBehaviour
     // Spawned
     private IEnumerator Run_EnemyActions()
     {
-        StartCoroutine(_enemyActionBus.SequentialDelayBus_RunUpdate());
+        List<Enemy> actionEnemies = new(_spawnedEnemies);
 
-        while (_enemyActionBus.delayBusRunning) yield return null;
+        for (int i = 0; i < actionEnemies.Count; i++)
+        {
+            Enemy enemy = actionEnemies[i];
+            if (enemy == null) continue;
+
+            StartCoroutine(enemy.Run_EndTurnActions());
+            while (enemy.actionRunning) yield return null;
+        }
         yield break;
     }
 }

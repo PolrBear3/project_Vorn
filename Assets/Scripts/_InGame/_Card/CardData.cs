@@ -16,6 +16,8 @@ public class CardData
     public CardData(Card_ScrObj setCard)
     {
         _cardScrObj = setCard;
+
+        if (setCard == null) return;
         _currentData = setCard.interactionData;
     }
 }

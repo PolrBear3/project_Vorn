@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2deb12b5a7ac74dfabd0ba54611fadcf, type: 3}
   m_Name: Mini Bitter
   m_EditorClassIdentifier: 
+  _spawnPrefab: {fileID: 2898224727119453378, guid: 1c556bdbcbe4247c391f5ba9b6411bad, type: 3}
   _spawnOffset: {x: 0, y: 0.625}
   _interactionData:
     _mana: 0

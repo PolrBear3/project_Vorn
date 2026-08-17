@@ -13,7 +13,7 @@ public class CardSkill_Spawner : CardSkill
     {
         card.OnSetData += Set_Data;
     }
-    
+
     private void OnDestroy()
     {
         card.OnSetData -= Set_Data;
@@ -34,12 +34,19 @@ public class CardSkill_Spawner : CardSkill
     // Spawn
     private Card_ScrObj SpawnCard()
     {
-        return null;
+        int spawnCardsCount = _spawnCards.Length;
+
+        if (spawnCardsCount <= 0) return null;
+        return _spawnCards[Random.Range(0, spawnCardsCount)];
     }
 
     private IEnumerator SpawnCard_onTargetTile()
     {
-        Debug.Log(GameManager.instance.cardManager.ActionRunningCard_TargetingTile());
+        CardManager cardManager = GameManager.instance.cardManager;
+
+        Tile spawnTile = cardManager.ActionRunningCard_TargetingTile();
+        cardManager.PlaceCard_OnTile(new(SpawnCard()), spawnTile);
+
         yield break;
     }
 }

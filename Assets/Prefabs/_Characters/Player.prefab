@@ -63,7 +63,10 @@ MonoBehaviour:
   _animator: {fileID: 4076180943445881456}
   _stopStateName: Stop
   _stateNames:
+  - Spawn
   - Damage
+  - Heal
+  - Death
 --- !u!1 &5178098120391580603
 GameObject:
   m_ObjectHideFlags: 0

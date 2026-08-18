@@ -40,15 +40,18 @@ public class HandInventory : MonoBehaviour
     [SerializeField][Range(0, 50)] private int _maxHandCardCount;
     [SerializeField][Range(0, 1000)] private float _handCardsSpacingValue;
 
-    [Space(20)]
-    [SerializeField] private List<Card_ScrObj> _startingDeckCards = new();
-
 
     private HandInventory_Data _data;
     public HandInventory_Data data => _data;
 
     private List<HandCard> _handCards = new();
     public List<HandCard> handCards => _handCards;
+
+
+    private HandCard _hoveringCard;
+    public HandCard hovaringCard => _hoveringCard;
+
+    private HandInventory_DragDropData _dragDropData;
 
 
     private EventBus_Controller _addCardToDeckBus;
@@ -58,23 +61,17 @@ public class HandInventory : MonoBehaviour
     public EventBus_Controller drawCardFromDeck => _drawCardFromDeck;
 
 
-    private HandCard _hoveringCard;
-    public HandCard hovaringCard => _hoveringCard;
-
-    private HandInventory_DragDropData _dragDropData;
-
-
     // MonoBehaviour
     private void Awake()
     {
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, LoadCards_toDeck);
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
+        EventBus_GlobalController.Register(EventBus.StartLoad, LoadCards_toDeck);
     }
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, LoadCards_toDeck);
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
+        EventBus_GlobalController.UnRegister(EventBus.StartLoad, LoadCards_toDeck);
 
 
         // from Set_Data
@@ -94,6 +91,9 @@ public class HandInventory : MonoBehaviour
     // Data
     private void Set_Data()
     {
+        _data = new(new()); // load saved data
+
+
         Input_Controller input = Input_Controller.instance;
 
         input.OnLeftClickPressed += Drag_HoveringCard;
@@ -108,30 +108,35 @@ public class HandInventory : MonoBehaviour
 
     private void LoadCards_toDeck()
     {
-        _data = new(new()); // load saved data
+        GameData currentGameData = GameManager.instance.currentGameData;
 
-        List<CardData> startingDeckCardDatas = new();
-        foreach (Card_ScrObj card in _startingDeckCards) startingDeckCardDatas.Add(new(card));
-
-        AddCards_toDeck(startingDeckCardDatas); // load new with shuffle
+        AddCards_toDeck(currentGameData.DeckCard_Datas());
+        AddCard_toTopDeck(new(currentGameData.hero.spawnCard));
     }
 
 
     // Deck
-    private void AddCard_toDeck(CardData addCardData)
+    public void AddCard_toDeck(CardData addCardData)
     {
-        if (addCardData == null) return;
+        if (addCardData == null || addCardData.cardScrObj == null) return;
 
         List<CardData> deckCardDatas = _data.deckCardDatas;
 
         int randDeckIndex = UnityEngine.Random.Range(0, deckCardDatas.Count + 1);
         deckCardDatas.Insert(randDeckIndex, addCardData);
     }
-    private void AddCards_toDeck(List<CardData> addCardDatas)
+    public void AddCards_toDeck(List<CardData> addCardDatas)
     {
         if (addCardDatas == null || addCardDatas.Count <= 0) return;
 
         foreach (CardData cardData in addCardDatas) AddCard_toDeck(cardData);
+    }
+
+    public void AddCard_toTopDeck(CardData addCardData)
+    {
+        if (addCardData == null || addCardData.cardScrObj == null) return;
+
+        _data.deckCardDatas.Add(addCardData);
     }
 
 

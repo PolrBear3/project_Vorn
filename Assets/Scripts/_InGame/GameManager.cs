@@ -28,14 +28,35 @@ public class GameManager : MonoBehaviour
     public HandInventory handInventory => _handInventory;
 
 
+    [Space(20)]
+    [SerializeField] private GameData _newGameData;
+
+    private GameData _currentGameData;
+    public GameData currentGameData => _currentGameData;
+
+
     // MonoBehaviour
     private void Awake()
     {
         instance = this;
+
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Load_GameData);
     }
 
     private void Start()
     {
         EventBus_GlobalController.Run_BusEvents();
+    }
+
+    private void OnDestroy()
+    {
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Load_GameData);
+    }
+
+
+    // Load Game
+    private void Load_GameData()
+    {
+        _currentGameData = _newGameData;
     }
 }

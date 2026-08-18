@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class StageManager : MonoBehaviour
 {
-    [Space(20)]
-    [SerializeField] private Stage_ScrObj _newGameStage;
-
-
     private StageData _currentData;
     public StageData currentData => _currentData;
 
@@ -43,20 +39,21 @@ public class StageManager : MonoBehaviour
         Input_Controller.instance.OnInteractPressed += End_Turn;
     }
 
+
     private void Set_Stage(Stage_ScrObj stage)
     {
         _currentData = new(stage);
+        StartCoroutine(Run_StageSetEventBus());
+    }
+    private IEnumerator Run_StageSetEventBus()
+    {
+        yield return null; // wait 1 frame for all events registeration to _stageSetEventBus
         StartCoroutine(_stageSetEventBus.RunSequential_DelayBusEvents());
     }
 
     private void Set_Stage()
     {
-        StartCoroutine(RegisterDelay_SetStage());
-    }
-    private IEnumerator RegisterDelay_SetStage()
-    {
-        yield return null;
-        Set_Stage(_newGameStage);
+        Set_Stage(GameManager.instance.currentGameData.stage);
     }
 
 

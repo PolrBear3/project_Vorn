@@ -11,6 +11,9 @@ public class TileTargeting_Data
     private List<Tile> _targetingTiles = new();
     public List<Tile> targetingTiles => _targetingTiles;
 
+    private List<Tile> _recentTargetingTiles = new();
+    public List<Tile> recentTargetingTiles => _recentTargetingTiles;
+
 
     // Targeting
     public void Toggle_Targeting(bool toggle)
@@ -18,7 +21,9 @@ public class TileTargeting_Data
         _targetingToggled = toggle;
 
         if (_targetingToggled == false) return;
+
         _targetingTiles.Clear();
+        _recentTargetingTiles.Clear();
     }
     public bool Toggle_Targeting()
     {
@@ -33,5 +38,6 @@ public class TileTargeting_Data
             _targetingTiles.Remove(tileToTarget);
         }
         _targetingTiles.Add(tileToTarget);
+        _recentTargetingTiles = new(_targetingTiles);
     }
 }

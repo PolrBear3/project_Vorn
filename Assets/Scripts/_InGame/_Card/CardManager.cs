@@ -55,9 +55,12 @@ public class CardManager : MonoBehaviour
 
         // from Set_Data
         GameManager manager = GameManager.instance;
-
         manager.tileManager.tileSelectEventBus.UnRegister(Toggle_TileTargeting);
-        manager.stageManager.endTurnEventBus.UnRegister(Run_CardActions);
+
+        StageManager stageManager = manager.stageManager;
+
+        stageManager.endTurnEventBus.UnRegister(UnToggle_TileTargeting);
+        stageManager.endTurnEventBus.UnRegister(Run_CardActions);
 
         Input_Controller input = Input_Controller.instance;
 
@@ -71,9 +74,12 @@ public class CardManager : MonoBehaviour
     private void Set_Data()
     {
         GameManager manager = GameManager.instance;
-
         manager.tileManager.tileSelectEventBus.Register(0, Toggle_TileTargeting);
-        manager.stageManager.endTurnEventBus.Register(0, Run_CardActions);
+
+        StageManager stageManager = manager.stageManager;
+
+        stageManager.endTurnEventBus.Register(0, UnToggle_TileTargeting);
+        stageManager.endTurnEventBus.Register(0, Run_CardActions);
 
         Input_Controller input = Input_Controller.instance;
 
@@ -142,8 +148,6 @@ public class CardManager : MonoBehaviour
         GameObject cardPrefab = placeCardData.cardScrObj.placePrefab;
         if (cardPrefab == null) return false;
 
-        if (CardPlace_ActionRunning()) return false;
-
         GameObject placeCardObj = Instantiate(cardPrefab, placeTile.transform.position, Quaternion.identity);
         placeCardObj.transform.SetParent(transform);
 
@@ -153,7 +157,7 @@ public class CardManager : MonoBehaviour
         _placedCards.Add(placeCard);
 
         placeCard.Set_Data(placeCardData, placeTile);
-        StartCoroutine(placeCard.placeUpdateActionBus.SequentialDelayBus_RunUpdate());
+        StartCoroutine(placeCard.placeUpdateActionBus.RunSequential_DelayBusEvents());
 
         return true;
     }
@@ -172,7 +176,7 @@ public class CardManager : MonoBehaviour
         {
             Card placedCard = _placedCards[i];
 
-            if (placedCard.actionsRunning == false) continue;
+            if (placedCard.actionRunning == false) continue;
             return placedCard.targetingTile;
         }
         return null;
@@ -188,7 +192,7 @@ public class CardManager : MonoBehaviour
             if (card == null) continue;
 
             StartCoroutine(card.RunActions_TargetingTiles());
-            while (card.actionsRunning) yield return null;
+            while (card.actionRunning) yield return null;
         }
         yield break;
     }
@@ -232,15 +236,19 @@ public class CardManager : MonoBehaviour
         cursor.Update_InfoText(updateInfo);
     }
 
-    private void UnToggle_TileTargeting(bool isPressed)
+    private void UnToggle_TileTargeting()
     {
-        if (isPressed == false) return;
-
         Card unToggleCard = TileTargeting_ToggledCard();
         if (unToggleCard == null) return;
 
         unToggleCard.tileTargeting.Toggle_Targeting(false);
         Update_TileTargeting_InfoText();
+    }
+    private void UnToggle_TileTargeting(bool isPressed)
+    {
+        if (isPressed == false) return;
+
+        UnToggle_TileTargeting();
     }
     private void UnToggle_TileTargeting_onMissClick(bool isPressed)
     {
@@ -253,6 +261,7 @@ public class CardManager : MonoBehaviour
     private void Toggle_TileTargeting()
     {
         GameManager manager = GameManager.instance;
+        if (manager.stageManager.endTurnEventBus.delayBusRunning) return;
 
         Tile selectedTile = manager.tileManager.hoveringTile;
         if (selectedTile == null) return;

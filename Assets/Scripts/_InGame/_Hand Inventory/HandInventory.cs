@@ -241,7 +241,10 @@ public class HandInventory : MonoBehaviour
         if (_dragDropData == null) return false;
 
         GameManager manager = GameManager.instance;
-        if (manager.cardManager.PlaceCard_OnTile(_dragDropData.draggingCardData, manager.tileManager.hoveringTile) == false) return false;
+        CardManager cardManager = manager.cardManager;
+
+        if (cardManager.CardPlace_ActionRunning()) return false;
+        if (cardManager.PlaceCard_OnTile(_dragDropData.draggingCardData, manager.tileManager.hoveringTile) == false) return false;
 
         manager.cursor.Drop_Card();
         _dragDropData = null;

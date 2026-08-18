@@ -87,7 +87,7 @@ public class EventBus_Controller
         }
     }
 
-    public IEnumerator SequentialDelayBus_RunUpdate()
+    public IEnumerator RunSequential_DelayBusEvents()
     {
         if (_eventSequentialDelayBus.Count <= 0) yield break;
         _delayBusRunning = true;

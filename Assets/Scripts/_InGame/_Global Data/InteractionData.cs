@@ -12,10 +12,10 @@ public interface IInteractable
 [System.Serializable]
 public class InteractionData
 {
-    [SerializeField][Range(0, 10)] private int _mana;
+    [SerializeField][Range(0, 100)] private int _mana;
     public int mana => _mana;
 
-    [SerializeField][Range(0, 10)] private int _maxHealth;
+    [SerializeField][Range(0, 100)] private int _maxHealth;
     public int maxHealth => _maxHealth;
 
     private int _currentHealth;

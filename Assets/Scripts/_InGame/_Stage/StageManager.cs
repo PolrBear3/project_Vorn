@@ -46,7 +46,7 @@ public class StageManager : MonoBehaviour
     private void Set_Stage(Stage_ScrObj stage)
     {
         _currentData = new(stage);
-        StartCoroutine(_stageSetEventBus.SequentialDelayBus_RunUpdate());
+        StartCoroutine(_stageSetEventBus.RunSequential_DelayBusEvents());
     }
 
     private void Set_Stage()
@@ -69,6 +69,7 @@ public class StageManager : MonoBehaviour
         if (_endTurnEventBus.delayBusRunning) return;
         if (GameManager.instance.cardManager.CardPlace_ActionRunning()) return;
 
-        StartCoroutine(_endTurnEventBus.SequentialDelayBus_RunUpdate());
+        _endTurnEventBus.RunSequential_BusEvents();
+        StartCoroutine(_endTurnEventBus.RunSequential_DelayBusEvents());
     }
 }

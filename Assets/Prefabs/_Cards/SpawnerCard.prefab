@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7025215890490614434}
   - component: {fileID: 2336701234444246454}
-  - component: {fileID: 7983962588868330142}
+  - component: {fileID: 423076202881471988}
+  - component: {fileID: 1413861387649704042}
   m_Layer: 0
   m_Name: Base
   m_TagString: Untagged
@@ -53,7 +54,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 0cd9a37d055224c81b50e271cd06480d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -85,7 +86,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &7983962588868330142
+--- !u!95 &423076202881471988
 Animator:
   serializedVersion: 5
   m_ObjectHideFlags: 0
@@ -95,7 +96,7 @@ Animator:
   m_GameObject: {fileID: 4008235215712168079}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 92191bac66ef1449da6a79dedc4ec3bd, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -106,6 +107,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1413861387649704042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4008235215712168079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c163f59ef2d3e4447834589d976638f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: 423076202881471988}
 --- !u!1 &5745818195482502680
 GameObject:
   m_ObjectHideFlags: 0
@@ -115,11 +129,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1650737456328438102}
-  - component: {fileID: 1752815557346819893}
   - component: {fileID: 4373037325833083918}
-  - component: {fileID: 6028175050560891894}
+  - component: {fileID: 9190055125559996718}
   m_Layer: 0
-  m_Name: Long Sword
+  m_Name: SpawnerCard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -142,24 +155,6 @@ Transform:
   - {fileID: 4992176529430534825}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1752815557346819893
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5745818195482502680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c163f59ef2d3e4447834589d976638f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _animator: {fileID: 7983962588868330142}
-  _stopStateName: Stop
-  _stateNames:
-  - Spawn
-  - Damage
-  - Heal
 --- !u!114 &4373037325833083918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,8 +169,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _baseSpriteRenderer: {fileID: 2336701234444246454}
   _contentSpriteRenderer: {fileID: 2496871960968193111}
-  _animator: {fileID: 1752815557346819893}
---- !u!114 &6028175050560891894
+  _baseAnimator: {fileID: 1413861387649704042}
+  _contentAnimator: {fileID: 1511293945915075703}
+--- !u!114 &9190055125559996718
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -188,7 +184,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _card: {fileID: 4373037325833083918}
-  _spawnCards: []
+  _trigger: 4
+  _target: 2
+  _spawnCards:
+  - {fileID: 11400000, guid: 1624de9b54fcf40f7a7d5d03437357e1, type: 2}
 --- !u!1 &7244696009784959202
 GameObject:
   m_ObjectHideFlags: 0
@@ -199,6 +198,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4992176529430534825}
   - component: {fileID: 2496871960968193111}
+  - component: {fileID: 1511293945915075703}
+  - component: {fileID: 5068843308767546803}
   m_Layer: 0
   m_Name: Content
   m_TagString: Untagged
@@ -241,7 +242,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dc19861fd932a40f5bd289e30d8bf313, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -262,7 +263,7 @@ SpriteRenderer:
   m_SortingLayerID: -1275224273
   m_SortingLayer: 2
   m_SortingOrder: 1
-  m_Sprite: {fileID: 31158166, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
+  m_Sprite: {fileID: 57619007, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -273,3 +274,37 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1511293945915075703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7244696009784959202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c163f59ef2d3e4447834589d976638f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: 5068843308767546803}
+--- !u!95 &5068843308767546803
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7244696009784959202}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 92191bac66ef1449da6a79dedc4ec3bd, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

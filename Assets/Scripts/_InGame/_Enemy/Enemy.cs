@@ -36,6 +36,7 @@ public class Enemy : MonoBehaviour, IInteractable
     public EventBus_Controller deathUpdateActionBus => _deathUpdateActionBus;
 
 
+    // IInteractable
     public InteractionData interactionData => _data.currentData;
 
     private bool _healthUpdating;
@@ -136,25 +137,47 @@ public class Enemy : MonoBehaviour, IInteractable
 
         _movement.Moveto_Tile(routeTiles[0], _data.enemyScrObj.spawnOffset);
     }
+    private Card Damage_RangedCard()
+    {
+        Card damageCard = GameManager.instance.cardManager.TileClosest_PlacedCard(_movement.currentTile);
+        if (damageCard == null) return null;
 
+        int distanceToCard = Utility.Chebyshev_Distance(_movement.currentTile.data.position, damageCard.placedTile.data.position);
+        if (distanceToCard > _data.currentData.interactRange) return null;
+
+        InteractionData cardInteractionData = damageCard.data.currentData;
+
+        int damageUpdateValue = cardInteractionData.currentHealth + _data.currentData.healthModifyValue;
+        cardInteractionData.Update_CurrentHealth(damageUpdateValue);
+
+        return damageCard;
+    }
+    
     public IEnumerator Run_EndTurnActions()
     {
         _actionRunning = true;
 
-        yield return _preMovementActionBus.SequentialDelayBus_RunUpdate();
+        yield return _preMovementActionBus.RunSequential_DelayBusEvents();
 
         Update_TargetCard();
         Moveto_TargetCard();
         while (_movement.movementCoroutine != null) yield return null;
 
-        yield return _afterMovementActionBus.SequentialDelayBus_RunUpdate();
+        Card damageCard = Damage_RangedCard();
+        if (damageCard != null)
+        {
+            yield return null;
+            while (damageCard.healthUpdating) yield return null;
+        }
+
+        yield return _afterMovementActionBus.RunSequential_DelayBusEvents();
 
         _actionRunning = false;
         yield break;
     }
 
 
-    // Interaction
+    // Health
     private void Handle_HealthUpdate(int healthUpdateValue)
     {
         string animState = healthUpdateValue < 0 ? EnemyAnimation.Damage : EnemyAnimation.Heal;
@@ -178,14 +201,14 @@ public class Enemy : MonoBehaviour, IInteractable
         yield return null;
         while (_animator.CurrentState_Playing()) yield return null;
 
-        yield return _healthUpdateActionBus.SequentialDelayBus_RunUpdate();
+        yield return _healthUpdateActionBus.RunSequential_DelayBusEvents();
 
         if (Handle_Death())
         {
             yield return null;
             while (_animator.CurrentState_Playing()) yield return null;
 
-            yield return _deathUpdateActionBus.SequentialDelayBus_RunUpdate();
+            yield return _deathUpdateActionBus.RunSequential_DelayBusEvents();
 
             _actionRunning = false;
             _healthUpdating = false;

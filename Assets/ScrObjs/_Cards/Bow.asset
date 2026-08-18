@@ -16,7 +16,7 @@ MonoBehaviour:
   _placePrefab: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
   _interactionData:
     _mana: 0
-    _maxHealth: 0
+    _maxHealth: 3
     _healthModifyValue: -2
     _interactRange: 2
     _targetSelectCount: 1

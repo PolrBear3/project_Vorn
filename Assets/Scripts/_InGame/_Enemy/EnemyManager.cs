@@ -63,7 +63,7 @@ public class EnemyManager : MonoBehaviour
 
         spawnedEnemy.Set_Data(spawnEnemy);
         spawnedEnemy.movement.Set_CurrentTile(spawnTile);
-        spawnedEnemy.animator.Play_State(EnemyAnimation.Spawn);
+        spawnedEnemy.animator.Play_State(CharacterAnimation.Spawn);
 
         return spawnedEnemy;
     }

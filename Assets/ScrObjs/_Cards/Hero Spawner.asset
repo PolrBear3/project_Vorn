@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Hero Spawner
   m_EditorClassIdentifier: 
   _contentSprite: {fileID: 57619007, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
-  _placePrefab: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+  _placePrefab: {fileID: 5745818195482502680, guid: 1b74a3373907d42acb51c1aff3862705, type: 3}
   _interactionData:
     _mana: 0
     _maxHealth: 1
-    _healthModifyValue: 0
-    _interactRange: 0
-    _targetSelectCount: 0
+    _healthModifyValue: -1
+    _interactRange: 1
+    _targetSelectCount: 4

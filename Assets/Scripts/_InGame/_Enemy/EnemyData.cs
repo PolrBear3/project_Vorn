@@ -11,6 +11,8 @@ public class EnemyData
     private InteractionData _currentData;
     public InteractionData currentData => _currentData;
 
+    // destroyed card list ?
+
 
     // New
     public EnemyData(Enemy_ScrObj setEnemy)

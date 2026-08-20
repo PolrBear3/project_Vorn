@@ -28,6 +28,10 @@ public class StageManager : MonoBehaviour
 
         // from Set_Data
         GameManager.instance.tileManager.generateEventBus.UnRegister(Set_Stage);
+
+        _endTurnEventBus.UnRegister(_endTurnEventBus.DelayBus_Running);
+        _endTurnEventBus.UnRegister(_stageSetEventBus.DelayBus_Running);
+
         Input_Controller.instance.OnInteractPressed -= End_Turn;
     }
 
@@ -36,6 +40,10 @@ public class StageManager : MonoBehaviour
     private void Set_Data()
     {
         GameManager.instance.tileManager.generateEventBus.Register(0, Set_Stage);
+
+        _endTurnEventBus.Register(_endTurnEventBus.DelayBus_Running);
+        _endTurnEventBus.Register(_stageSetEventBus.DelayBus_Running);
+
         Input_Controller.instance.OnInteractPressed += End_Turn;
     }
 
@@ -61,10 +69,6 @@ public class StageManager : MonoBehaviour
     private void End_Turn(bool isPressed)
     {
         if (isPressed == false) return;
-
-        if (_stageSetEventBus.delayBusRunning) return;
-        if (_endTurnEventBus.delayBusRunning) return;
-        if (GameManager.instance.cardManager.CardPlace_ActionRunning()) return;
 
         _endTurnEventBus.RunSequential_BusEvents();
         StartCoroutine(_endTurnEventBus.RunSequential_DelayBusEvents());

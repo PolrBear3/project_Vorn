@@ -64,13 +64,13 @@ public class Card : MonoBehaviour, IInteractable
         // from Set_Data
         _data.currentData.OnCurrentHealthUpdate -= Handle_HealthUpdate;
     }
-    
+
 
     // IInteractable
-    public InteractionData interactionData => _data.currentData;
-
     private bool _healthUpdating;
     public bool healthUpdating => _healthUpdating;
+
+    public InteractionData interactionData => _data.currentData;
 
 
     // Data
@@ -95,8 +95,8 @@ public class Card : MonoBehaviour, IInteractable
     }
 
 
-    // Actions
-    public IEnumerator RunActions_TargetingTiles()
+    // End Turn Action
+    public IEnumerator Run_EndTurnActions()
     {
         _actionRunning = true;
 

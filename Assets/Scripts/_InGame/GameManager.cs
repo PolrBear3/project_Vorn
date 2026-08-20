@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private StageManager _stageManager;
     public StageManager stageManager => _stageManager;
 
+    [SerializeField] private HeroManager _heroManager;
+    public HeroManager heroManager => _heroManager;
+
     [SerializeField] private EnemyManager _enemyManager;
     public EnemyManager enemyManager => _enemyManager;
 

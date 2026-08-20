@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class EnemyAnimation
+public static class CharacterAnimation
 {
     public const string Spawn = "Spawn";
     public const string Damage = "Damage";

@@ -57,10 +57,12 @@ public class CardManager : MonoBehaviour
         GameManager manager = GameManager.instance;
         manager.tileManager.tileSelectEventBus.UnRegister(Toggle_TileTargeting);
 
-        StageManager stageManager = manager.stageManager;
+        EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
 
-        stageManager.endTurnEventBus.UnRegister(UnToggle_TileTargeting);
-        stageManager.endTurnEventBus.UnRegister(Run_CardActions);
+        endTurnBus.UnRegister(PlacedCards_Empty);
+        endTurnBus.UnRegister(CardPlace_ActionRunning);
+        endTurnBus.UnRegister(UnToggle_TileTargeting);
+        endTurnBus.UnRegister(Run_CardActions);
 
         Input_Controller input = Input_Controller.instance;
 
@@ -76,10 +78,12 @@ public class CardManager : MonoBehaviour
         GameManager manager = GameManager.instance;
         manager.tileManager.tileSelectEventBus.Register(0, Toggle_TileTargeting);
 
-        StageManager stageManager = manager.stageManager;
+        EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
 
-        stageManager.endTurnEventBus.Register(0, UnToggle_TileTargeting);
-        stageManager.endTurnEventBus.Register(0, Run_CardActions);
+        endTurnBus.Register(PlacedCards_Empty);
+        endTurnBus.Register(CardPlace_ActionRunning);
+        endTurnBus.Register(0, UnToggle_TileTargeting);
+        endTurnBus.Register(0, Run_CardActions);
 
         Input_Controller input = Input_Controller.instance;
 
@@ -89,6 +93,10 @@ public class CardManager : MonoBehaviour
     }
 
 
+    public bool PlacedCards_Empty()
+    {
+        return _placedCards.Count <= 0;
+    }
     public Card PlacedCard(Tile placedTile)
     {
         for (int i = 0; i < _placedCards.Count; i++)
@@ -166,7 +174,7 @@ public class CardManager : MonoBehaviour
     {
         for (int i = 0; i < _placedCards.Count; i++)
         {
-            if (_placedCards[i].placeUpdateActionBus.delayBusRunning) return true;
+            if (_placedCards[i].placeUpdateActionBus.DelayBus_Running()) return true;
         }
         return false;
     }
@@ -191,8 +199,8 @@ public class CardManager : MonoBehaviour
             Card card = runActionCards[i];
             if (card == null) continue;
 
-            StartCoroutine(card.RunActions_TargetingTiles());
-            while (card.actionRunning) yield return null;
+            StartCoroutine(card.Run_EndTurnActions());
+            while (card != null && card.actionRunning || card.healthUpdating) yield return null;
         }
         yield break;
     }
@@ -261,7 +269,7 @@ public class CardManager : MonoBehaviour
     private void Toggle_TileTargeting()
     {
         GameManager manager = GameManager.instance;
-        if (manager.stageManager.endTurnEventBus.delayBusRunning) return;
+        if (manager.stageManager.endTurnEventBus.DelayBus_Running()) return;
 
         Tile selectedTile = manager.tileManager.hoveringTile;
         if (selectedTile == null) return;

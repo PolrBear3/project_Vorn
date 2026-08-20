@@ -5,11 +5,38 @@ using UnityEngine;
 
 public class EventBus_Controller
 {
+    private readonly List<Func<bool>> _runConditionBus = new();
+
     private readonly Dictionary<int, Action> _eventSequentialBus = new();
     private readonly Dictionary<int, Func<IEnumerator>> _eventSequentialDelayBus = new();
 
     private bool _delayBusRunning;
-    public bool delayBusRunning => _delayBusRunning;
+
+
+    // Condition Bus
+    public void Register(Func<bool> condition)
+    {
+        if (condition == null) return;
+        if (_runConditionBus.Contains(condition)) return;
+
+        _runConditionBus.Add(condition);
+
+    }
+    public void UnRegister(Func<bool> condition)
+    {
+        if (condition == null) return;
+        _runConditionBus.Remove(condition);
+    }
+
+    private bool RunCondition_Available()
+    {
+        for (int i = 0; i < _runConditionBus.Count; i++)
+        {
+            if (_runConditionBus[i]?.Invoke() == false) continue;
+            return false;
+        }
+        return true;
+    }
 
 
     // Sequential Bus
@@ -42,9 +69,9 @@ public class EventBus_Controller
     public void RunSequential_BusEvents()
     {
         if (_eventSequentialBus.Count <= 0) return;
+        if (RunCondition_Available() == false) return;
 
         int highestIndex = 0;
-
         foreach (var eventBus in _eventSequentialBus)
         {
             if (eventBus.Key <= highestIndex) continue;
@@ -90,10 +117,11 @@ public class EventBus_Controller
     public IEnumerator RunSequential_DelayBusEvents()
     {
         if (_eventSequentialDelayBus.Count <= 0) yield break;
+        if (RunCondition_Available() == false) yield break;
+
         _delayBusRunning = true;
 
         int highestIndex = 0;
-
         foreach (var eventBus in _eventSequentialDelayBus)
         {
             if (eventBus.Key <= highestIndex) continue;
@@ -113,5 +141,9 @@ public class EventBus_Controller
             }
         }
         _delayBusRunning = false;
+    }
+    public bool DelayBus_Running()
+    {
+        return _delayBusRunning;
     }
 }

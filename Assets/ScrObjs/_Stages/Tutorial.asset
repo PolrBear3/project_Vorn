@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Tutorial
   m_EditorClassIdentifier: 
   _enemySpawnDatas:
-  - _spawnCount: 1
+  - _spawnCount: 10
     _spawnRateDatas:
     - _spawnEnemy: {fileID: 11400000, guid: 359cc0ed37bbf4d1b80f4e111345b083, type: 2}
       _spawnRate: 1

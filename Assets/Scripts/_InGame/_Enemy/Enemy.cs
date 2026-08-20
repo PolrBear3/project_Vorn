@@ -59,7 +59,7 @@ public class Enemy : MonoBehaviour, IInteractable
     }
 
 
-    // Actions
+    // End Turn Action
     private void Update_TargetCard()
     {
         GameManager manager = GameManager.instance;
@@ -152,7 +152,7 @@ public class Enemy : MonoBehaviour, IInteractable
 
         return damageCard;
     }
-    
+
     public IEnumerator Run_EndTurnActions()
     {
         _actionRunning = true;
@@ -180,7 +180,7 @@ public class Enemy : MonoBehaviour, IInteractable
     // Health
     private void Handle_HealthUpdate(int healthUpdateValue)
     {
-        string animState = healthUpdateValue < 0 ? EnemyAnimation.Damage : EnemyAnimation.Heal;
+        string animState = healthUpdateValue < 0 ? CharacterAnimation.Damage : CharacterAnimation.Heal;
         _animator.Play_State(animState);
 
         _healthUpdating = true;
@@ -191,7 +191,7 @@ public class Enemy : MonoBehaviour, IInteractable
         if (_data.currentData.currentHealth > 0) return false;
 
         _movement.currentTile.Set_Occupant(null);
-        _animator.Play_State(EnemyAnimation.Death);
+        _animator.Play_State(CharacterAnimation.Death);
 
         return true;
     }

@@ -130,9 +130,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1650737456328438102}
   - component: {fileID: 4373037325833083918}
-  - component: {fileID: 9190055125559996718}
+  - component: {fileID: 5049861329958729039}
   m_Layer: 0
-  m_Name: SpawnerCard
+  m_Name: HeroSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -171,7 +171,7 @@ MonoBehaviour:
   _contentSpriteRenderer: {fileID: 2496871960968193111}
   _baseAnimator: {fileID: 1413861387649704042}
   _contentAnimator: {fileID: 1511293945915075703}
---- !u!114 &9190055125559996718
+--- !u!114 &5049861329958729039
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -180,14 +180,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5745818195482502680}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3998a9086f59d4abdae6f980976bfe7d, type: 3}
+  m_Script: {fileID: 11500000, guid: ec362369e9fee4048a96235849abe1d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _card: {fileID: 4373037325833083918}
-  _trigger: 4
-  _target: 2
-  _spawnCards:
-  - {fileID: 11400000, guid: 1624de9b54fcf40f7a7d5d03437357e1, type: 2}
+  _trigger: 2
+  _target: 0
 --- !u!1 &7244696009784959202
 GameObject:
   m_ObjectHideFlags: 0

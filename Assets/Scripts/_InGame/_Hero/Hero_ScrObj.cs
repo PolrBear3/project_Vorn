@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "New ScriptableObject/New Hero")]
-public class Hero_ScrObj : ScriptableObject
+public class Hero_ScrObj : CharacterScrObj
 {
-    [Space(10)]
-    [SerializeField] private GameObject _spawnPrefab;
-    public GameObject spawnPrefab => _spawnPrefab;
-
+    [Space(40)]
     [SerializeField] private Card_ScrObj _spawnCard;
     public Card_ScrObj spawnCard => _spawnCard;
+
+    // movement mana cost ?
 }

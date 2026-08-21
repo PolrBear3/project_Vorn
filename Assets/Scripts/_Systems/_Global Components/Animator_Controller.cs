@@ -4,11 +4,26 @@ using UnityEngine;
 
 public class Animator_Controller : MonoBehaviour
 {
-    [Space(10)]
-    [SerializeField] private Animator _animator;
+    private SpriteRenderer _renderer;
+    private Animator _animator;
 
+    private Sprite _defaultSprite;
     private const string None = "None";
+
     private string _currentState;
+
+
+    // MonoBehaviour
+    private void Awake()
+    {
+        if (gameObject.TryGetComponent(out Animator anim) == false) return;
+        _animator = anim;
+
+        if (gameObject.TryGetComponent(out SpriteRenderer sr) == false) return;
+        _renderer = sr;
+        
+        _defaultSprite = _renderer.sprite;
+    }
 
 
     // Main
@@ -32,6 +47,7 @@ public class Animator_Controller : MonoBehaviour
     {
         _currentState = null;
         _animator.Play(None, 0, 0f);
+        _renderer.sprite = _defaultSprite;
     }
 
     public void Play_State(string stateName)

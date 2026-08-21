@@ -44,8 +44,8 @@ public abstract class CardSkill : MonoBehaviour
             case CardSkillTrigger.AfterUpdate: return _card.afterUpdateSkillBus;
             case CardSkillTrigger.PreTargeting: return _card.preTargetingSkillBus;
             case CardSkillTrigger.AfterTargeting: return _card.afterTargetingSkillBus;
-            case CardSkillTrigger.HealthUpdate: return _card.healthUpdateActionBus;
-            case CardSkillTrigger.Death: return _card.deathUpdateActionBus;
+            case CardSkillTrigger.HealthUpdate: return _card.healthController.healthUpdateActionBus;
+            case CardSkillTrigger.Death: return _card.healthController.deathUpdateActionBus;
         }
         return null;
     }

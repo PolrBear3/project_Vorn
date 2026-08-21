@@ -63,7 +63,7 @@ public class EnemyManager : MonoBehaviour
 
         spawnedEnemy.Set_Data(spawnEnemy);
         spawnedEnemy.movement.Set_CurrentTile(spawnTile);
-        spawnedEnemy.animator.Play_State(CharacterAnimation.Spawn);
+        spawnedEnemy.animator.Play_State(OccupantAnimation.Set);
 
         return spawnedEnemy;
     }
@@ -80,6 +80,8 @@ public class EnemyManager : MonoBehaviour
 
             Enemy_ScrObj spawningEnemy = spawnEnemies[i];
             Enemy enemy = Spawn(spawningEnemy, spawnTile);
+
+            Animator_Controller animator = enemy.animator;
 
             yield return null;
             while (enemy.animator.CurrentState_Playing()) yield return null;
@@ -100,7 +102,7 @@ public class EnemyManager : MonoBehaviour
     }
 
 
-    // Spawned
+    // Spawned Enemies
     private IEnumerator Run_EnemyActions()
     {
         List<Enemy> actionEnemies = new(_spawnedEnemies);
@@ -111,7 +113,7 @@ public class EnemyManager : MonoBehaviour
             if (enemy == null) continue;
 
             StartCoroutine(enemy.Run_EndTurnActions());
-            while (enemy.actionRunning) yield return null;
+            while (enemy.actionsRunning) yield return null;
         }
         yield break;
     }

@@ -13,7 +13,9 @@ public class EventBus_Controller
     private bool _delayBusRunning;
 
 
-    // Condition Bus
+    /// <summary>
+    /// register condition that stops from running
+    /// </summary>
     public void Register(Func<bool> condition)
     {
         if (condition == null) return;

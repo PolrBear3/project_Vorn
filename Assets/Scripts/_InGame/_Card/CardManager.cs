@@ -59,7 +59,6 @@ public class CardManager : MonoBehaviour
 
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
 
-        endTurnBus.UnRegister(PlacedCards_Empty);
         endTurnBus.UnRegister(CardPlace_ActionRunning);
         endTurnBus.UnRegister(UnToggle_TileTargeting);
         endTurnBus.UnRegister(Run_CardActions);
@@ -80,7 +79,6 @@ public class CardManager : MonoBehaviour
 
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
 
-        endTurnBus.Register(PlacedCards_Empty);
         endTurnBus.Register(CardPlace_ActionRunning);
         endTurnBus.Register(0, UnToggle_TileTargeting);
         endTurnBus.Register(0, Run_CardActions);
@@ -93,10 +91,6 @@ public class CardManager : MonoBehaviour
     }
 
 
-    public bool PlacedCards_Empty()
-    {
-        return _placedCards.Count <= 0;
-    }
     public Card PlacedCard(Tile placedTile)
     {
         for (int i = 0; i < _placedCards.Count; i++)
@@ -184,7 +178,7 @@ public class CardManager : MonoBehaviour
         {
             Card placedCard = _placedCards[i];
 
-            if (placedCard.actionRunning == false) continue;
+            if (placedCard.actionsRunning == false) continue;
             return placedCard.targetingTile;
         }
         return null;
@@ -199,8 +193,10 @@ public class CardManager : MonoBehaviour
             Card card = runActionCards[i];
             if (card == null) continue;
 
+            InteractionData cardData = card.data.currentData;
+
             StartCoroutine(card.Run_EndTurnActions());
-            while (card != null && card.actionRunning || card.healthUpdating) yield return null;
+            while (card != null && card.actionsRunning || cardData.healthUpdating) yield return null;
         }
         yield break;
     }

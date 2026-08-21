@@ -12,6 +12,10 @@ public class Enemy : MonoBehaviour, IInteractable
     [SerializeField] private Animator_Controller _animator;
     public Animator_Controller animator => _animator;
 
+    [Space(10)]
+    [SerializeField] private InteractableHealth_Controller _healthController;
+    public InteractableHealth_Controller healthController => _healthController;
+
 
     private EnemyData _data;
     public EnemyData data => _data;
@@ -20,34 +24,25 @@ public class Enemy : MonoBehaviour, IInteractable
     public Card targetCard => _targetCard;
 
 
-    private bool _actionRunning;
-    public bool actionRunning => _actionRunning;
-
     private EventBus_Controller _preMovementActionBus = new();
     public EventBus_Controller preMovementActionBus => _preMovementActionBus;
 
     private EventBus_Controller _afterMovementActionBus = new();
     public EventBus_Controller afterMovementActionBus => _afterMovementActionBus;
 
-    private EventBus_Controller _healthUpdateActionBus = new();
-    public EventBus_Controller healthUpdateActionBus => _healthUpdateActionBus;
-
-    private EventBus_Controller _deathUpdateActionBus = new();
-    public EventBus_Controller deathUpdateActionBus => _deathUpdateActionBus;
+    private bool _actionsRunning;
+    public bool actionsRunning => _actionsRunning;
 
 
     // IInteractable
     public InteractionData interactionData => _data.currentData;
-
-    private bool _healthUpdating;
-    public bool healthUpdating => _healthUpdating;
 
 
     // MonoBehaviour
     private void OnDestroy()
     {
         // from Set_Data
-        _data.currentData.OnCurrentHealthUpdate -= Handle_HealthUpdate;
+        _healthController.AfterDeathUpdate -= Remove_Data;
     }
 
 
@@ -55,7 +50,14 @@ public class Enemy : MonoBehaviour, IInteractable
     public void Set_Data(Enemy_ScrObj setEnemy)
     {
         _data = new(setEnemy);
-        _data.currentData.OnCurrentHealthUpdate += Handle_HealthUpdate;
+        
+        _healthController.Set_Data(_data.currentData);
+        _healthController.AfterDeathUpdate += Remove_Data;
+    }
+
+    private void Remove_Data()
+    {
+        GameManager.instance.enemyManager.spawnedEnemies.Remove(this);
     }
 
 
@@ -155,7 +157,7 @@ public class Enemy : MonoBehaviour, IInteractable
 
     public IEnumerator Run_EndTurnActions()
     {
-        _actionRunning = true;
+        _actionsRunning = true;
 
         yield return _preMovementActionBus.RunSequential_DelayBusEvents();
 
@@ -166,58 +168,15 @@ public class Enemy : MonoBehaviour, IInteractable
         Card damageCard = Damage_RangedCard();
         if (damageCard != null)
         {
+            InteractionData cardData = damageCard.data.currentData;
+
             yield return null;
-            while (damageCard.healthUpdating) yield return null;
+            while (cardData.healthUpdating) yield return null;
         }
 
         yield return _afterMovementActionBus.RunSequential_DelayBusEvents();
 
-        _actionRunning = false;
-        yield break;
-    }
-
-
-    // Health
-    private void Handle_HealthUpdate(int healthUpdateValue)
-    {
-        string animState = healthUpdateValue < 0 ? CharacterAnimation.Damage : CharacterAnimation.Heal;
-        _animator.Play_State(animState);
-
-        _healthUpdating = true;
-        StartCoroutine(HealthUpdate_HandleDelay());
-    }
-    private bool Handle_Death()
-    {
-        if (_data.currentData.currentHealth > 0) return false;
-
-        _movement.currentTile.Set_Occupant(null);
-        _animator.Play_State(CharacterAnimation.Death);
-
-        return true;
-    }
-
-    private IEnumerator HealthUpdate_HandleDelay()
-    {
-        yield return null;
-        while (_animator.CurrentState_Playing()) yield return null;
-
-        yield return _healthUpdateActionBus.RunSequential_DelayBusEvents();
-
-        if (Handle_Death())
-        {
-            yield return null;
-            while (_animator.CurrentState_Playing()) yield return null;
-
-            yield return _deathUpdateActionBus.RunSequential_DelayBusEvents();
-
-            _actionRunning = false;
-            _healthUpdating = false;
-
-            GameManager.instance.enemyManager.spawnedEnemies.Remove(this);
-            Destroy(gameObject);
-        }
-
-        _healthUpdating = false;
+        _actionsRunning = false;
         yield break;
     }
 }

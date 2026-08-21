@@ -2,17 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class OccupantAnimation : MonoBehaviour
+public static class OccupantAnimation
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public const string Set = "Set";
+    public const string Damaged = "Damaged";
+    public const string Healed = "Heal";
+    public const string Remove = "Remove";
 }

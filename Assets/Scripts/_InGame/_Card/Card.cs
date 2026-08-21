@@ -16,6 +16,10 @@ public class Card : MonoBehaviour, IInteractable
     [SerializeField] private Animator_Controller _contentAnimator;
     public Animator_Controller contentAnimator => _contentAnimator;
 
+    [Space(20)]
+    [SerializeField] private InteractableHealth_Controller _healthController;
+    public InteractableHealth_Controller healthController => _healthController;
+
 
     private CardData _data;
     public CardData data => _data;
@@ -27,13 +31,6 @@ public class Card : MonoBehaviour, IInteractable
 
     private TileTargeting_Data _tileTargeting = new();
     public TileTargeting_Data tileTargeting => _tileTargeting;
-
-
-    private bool _actionRunning;
-    public bool actionRunning => _actionRunning;
-
-    private Tile _targetingTile;
-    public Tile targetingTile => _targetingTile;
 
 
     private EventBus_Controller _placeUpdateActionBus = new();
@@ -51,26 +48,23 @@ public class Card : MonoBehaviour, IInteractable
     private EventBus_Controller _afterTargetingSkillBus = new();
     public EventBus_Controller afterTargetingSkillBus => _afterTargetingSkillBus;
 
-    private EventBus_Controller _healthUpdateActionBus = new();
-    public EventBus_Controller healthUpdateActionBus => _healthUpdateActionBus;
+    private Tile _targetingTile;
+    public Tile targetingTile => _targetingTile;
 
-    private EventBus_Controller _deathUpdateActionBus = new();
-    public EventBus_Controller deathUpdateActionBus => _deathUpdateActionBus;
+    private bool _actionsRunning;
+    public bool actionsRunning => _actionsRunning;
+
+
+    // IInteractable
+    public InteractionData interactionData => _data.currentData;
 
 
     // MonoBehaviour
     private void OnDestroy()
     {
         // from Set_Data
-        _data.currentData.OnCurrentHealthUpdate -= Handle_HealthUpdate;
+        _healthController.AfterDeathUpdate -= Remove_Data;
     }
-
-
-    // IInteractable
-    private bool _healthUpdating;
-    public bool healthUpdating => _healthUpdating;
-
-    public InteractionData interactionData => _data.currentData;
 
 
     // Data
@@ -85,8 +79,9 @@ public class Card : MonoBehaviour, IInteractable
         _placedTile = placeTile;
         _contentSpriteRenderer.sprite = loadCard.contentSprite;
 
-        _data.currentData.OnCurrentHealthUpdate += Handle_HealthUpdate;
-
+        _healthController.Set_Data(_data.currentData);
+        _healthController.AfterDeathUpdate += Remove_Data;
+        
         OnSetData?.Invoke();
     }
     public void Set_Data(Card_ScrObj setData, Tile placeTile)
@@ -94,11 +89,16 @@ public class Card : MonoBehaviour, IInteractable
         Set_Data(new CardData(setData), placeTile);
     }
 
+    private void Remove_Data()
+    {
+        GameManager.instance.cardManager.placedCards.Remove(this);
+    }
+
 
     // End Turn Action
     public IEnumerator Run_EndTurnActions()
     {
-        _actionRunning = true;
+        _actionsRunning = true;
 
         yield return _preUpdateSkillBus.RunSequential_DelayBusEvents();
 
@@ -121,10 +121,10 @@ public class Card : MonoBehaviour, IInteractable
                 // run health updating animation (animation is set relative to updateValue) ?
                 while (_baseAnimator.CurrentState_Playing()) yield return null;
 
-                interactable.interactionData.Update_CurrentHealth(updateValue);
+                targetData.Update_CurrentHealth(updateValue);
 
                 yield return null;
-                while (interactable.healthUpdating) yield return null;
+                while (targetData.healthUpdating) yield return null;
             }
 
             yield return _afterTargetingSkillBus.RunSequential_DelayBusEvents();
@@ -133,59 +133,9 @@ public class Card : MonoBehaviour, IInteractable
         yield return _afterUpdateSkillBus.RunSequential_DelayBusEvents();
 
         _tileTargeting.targetingTiles.Clear();
-        _actionRunning = false;
+        _actionsRunning = false;
         _targetingTile = null;
 
-        yield break;
-    }
-
-
-    // Health
-    private void Handle_HealthUpdate(int healthUpdateValue)
-    {
-        string animState = healthUpdateValue < 0 ? CardAnimation.Damage : CardAnimation.Heal;
-
-        _baseAnimator.Play_State(animState);
-        _contentAnimator.Play_State(animState);
-
-        _healthUpdating = true;
-        StartCoroutine(HealthUpdate_HandleDelay());
-    }
-    private bool Handle_Death()
-    {
-        if (_data.currentData.currentHealth > 0) return false;
-
-        string deathStateAnim = CardAnimation.Destroy;
-
-        _baseAnimator.Play_State(deathStateAnim);
-        _contentAnimator.Play_State(deathStateAnim);
-
-        _placedTile.Set_Occupant(null);
-        return true;
-    }
-
-    private IEnumerator HealthUpdate_HandleDelay()
-    {
-        yield return null;
-        while (_baseAnimator.CurrentState_Playing()) yield return null;
-
-        yield return _healthUpdateActionBus.RunSequential_DelayBusEvents();
-
-        if (Handle_Death())
-        {
-            yield return null;
-            while (_baseAnimator.CurrentState_Playing()) yield return null;
-
-            yield return _deathUpdateActionBus.RunSequential_DelayBusEvents();
-
-            _actionRunning = false;
-            _healthUpdating = false;
-
-            GameManager.instance.cardManager.placedCards.Remove(this);
-            Destroy(gameObject);
-        }
-
-        _healthUpdating = false;
         yield break;
     }
 }

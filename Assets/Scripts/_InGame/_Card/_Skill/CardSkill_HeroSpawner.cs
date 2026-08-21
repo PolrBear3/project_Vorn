@@ -14,9 +14,8 @@ public class CardSkill_HeroSpawner : CardSkill
     {
         card.OnSetData -= Set_Data;
 
-
         SkillTrigger_EventBus().UnRegister(Destroy_Spawner);
-        card.deathUpdateActionBus.UnRegister(Spawn_CurrentHero);
+        card.healthController.deathUpdateActionBus.UnRegister(Spawn_CurrentHero);
     }
 
 
@@ -24,7 +23,7 @@ public class CardSkill_HeroSpawner : CardSkill
     private void Set_Data()
     {
         SkillTrigger_EventBus().Register(0, Destroy_Spawner);
-        card.deathUpdateActionBus.Register(0, Spawn_CurrentHero);
+        card.healthController.deathUpdateActionBus.Register(0, Spawn_CurrentHero);
     }
 
 
@@ -32,6 +31,8 @@ public class CardSkill_HeroSpawner : CardSkill
     private IEnumerator Destroy_Spawner()
     {
         card.data.currentData.Update_CurrentHealth(0);
+        card.placedTile.Set_Occupant(null);
+
         yield break;
     }
 
@@ -52,11 +53,13 @@ public class CardSkill_HeroSpawner : CardSkill
             Destroy(spawnHeroObj);
             yield break;
         }
+        
+        currentTile.Set_Occupant(spawnHeroObj);
         manager.heroManager.Track_CurrentHero(spawnHero);
 
         spawnHero.Set_Data(currentHero);
         spawnHero.movement.Set_CurrentTile(currentTile);
-        spawnHero.animator.Play_State(CharacterAnimation.Spawn);
+        spawnHero.animator.Play_State(OccupantAnimation.Set);
 
         yield return null;
         while (spawnHero.animator.CurrentState_Playing()) yield return null;

@@ -6,7 +6,6 @@ using UnityEngine;
 public interface IInteractable
 {
     InteractionData interactionData { get; }
-    bool healthUpdating { get; }
 }
 
 [System.Serializable]
@@ -30,6 +29,9 @@ public class InteractionData
 
     public Action<int> OnMaxHealthUpdate;
     public Action<int> OnCurrentHealthUpdate;
+
+    private bool _healthUpdating;
+    public bool healthUpdating => _healthUpdating;
 
 
     [Space(10)]
@@ -65,7 +67,6 @@ public class InteractionData
         _maxHealth = newValue;
         OnMaxHealthUpdate?.Invoke(updateValue);
     }
-
     public void Update_CurrentHealth(int newValue)
     {
         _previousCurrentHealth = _currentHealth;
@@ -76,5 +77,10 @@ public class InteractionData
 
         _currentHealth = newValue;
         OnCurrentHealthUpdate?.Invoke(updateValue);
+    }
+
+    public void Toggle_HealthUpdatingState(bool toggle)
+    {
+        _healthUpdating = toggle;
     }
 }

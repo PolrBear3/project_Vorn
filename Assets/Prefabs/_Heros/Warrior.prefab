@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 4000622285160984935}
   - component: {fileID: 6068368094005038412}
-  - component: {fileID: 7753426493594214314}
+  - component: {fileID: 3546002857372368550}
   - component: {fileID: 6745444592040142979}
   m_Layer: 0
-  m_Name: Hero
+  m_Name: Warrior
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -49,7 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _movementTweenType: 0
   _singleTileMovementTime: 0.5
---- !u!114 &7753426493594214314
+--- !u!114 &3546002857372368550
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -58,10 +58,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2898224727119453378}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c163f59ef2d3e4447834589d976638f9, type: 3}
+  m_Script: {fileID: 11500000, guid: d77a16b966f5d45fabb4fc0a174163a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animator: {fileID: 4076180943445881456}
+  _healthUpdateAnimators:
+  - {fileID: 6361876508122871599}
 --- !u!114 &6745444592040142979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75,7 +76,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _movement: {fileID: 6068368094005038412}
-  _animator: {fileID: 7753426493594214314}
+  _animator: {fileID: 6361876508122871599}
+  _healthController: {fileID: 3546002857372368550}
 --- !u!1 &5178098120391580603
 GameObject:
   m_ObjectHideFlags: 0
@@ -87,6 +89,7 @@ GameObject:
   - component: {fileID: 6454476883357333979}
   - component: {fileID: 1613547910854064946}
   - component: {fileID: 4076180943445881456}
+  - component: {fileID: 6361876508122871599}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -171,7 +174,7 @@ Animator:
   m_GameObject: {fileID: 5178098120391580603}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: e34529ee9afb84d348f43c0ea3b51b54, type: 2}
+  m_Controller: {fileID: 22100000, guid: dddde5c5c5cc34cb88a5b23457e17b9e, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -182,3 +185,16 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &6361876508122871599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5178098120391580603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c163f59ef2d3e4447834589d976638f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: 4076180943445881456}

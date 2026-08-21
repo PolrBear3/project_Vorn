@@ -96,7 +96,7 @@ Animator:
   m_GameObject: {fileID: 4008235215712168079}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 92191bac66ef1449da6a79dedc4ec3bd, type: 2}
+  m_Controller: {fileID: 22100000, guid: 5e9f3702b5c8145439bc42d1e5a6e9bf, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -130,6 +130,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1650737456328438102}
   - component: {fileID: 4373037325833083918}
+  - component: {fileID: 5300094619052477212}
   - component: {fileID: 5049861329958729039}
   m_Layer: 0
   m_Name: HeroSpawner
@@ -171,6 +172,22 @@ MonoBehaviour:
   _contentSpriteRenderer: {fileID: 2496871960968193111}
   _baseAnimator: {fileID: 1413861387649704042}
   _contentAnimator: {fileID: 1511293945915075703}
+  _healthController: {fileID: 5300094619052477212}
+--- !u!114 &5300094619052477212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5745818195482502680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d77a16b966f5d45fabb4fc0a174163a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _healthUpdateAnimators:
+  - {fileID: 1413861387649704042}
+  - {fileID: 1511293945915075703}
 --- !u!114 &5049861329958729039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,8 +213,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4992176529430534825}
   - component: {fileID: 2496871960968193111}
-  - component: {fileID: 1511293945915075703}
   - component: {fileID: 5068843308767546803}
+  - component: {fileID: 1511293945915075703}
   m_Layer: 0
   m_Name: Content
   m_TagString: Untagged
@@ -272,6 +289,27 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!95 &5068843308767546803
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7244696009784959202}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 22100000, guid: 5e9f3702b5c8145439bc42d1e5a6e9bf, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &1511293945915075703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,24 +323,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 5068843308767546803}
---- !u!95 &5068843308767546803
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7244696009784959202}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 92191bac66ef1449da6a79dedc4ec3bd, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0

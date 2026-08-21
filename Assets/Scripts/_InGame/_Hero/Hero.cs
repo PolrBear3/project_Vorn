@@ -11,6 +11,10 @@ public class Hero : MonoBehaviour, IInteractable
     [SerializeField] private Animator_Controller _animator;
     public Animator_Controller animator => _animator;
 
+    [Space(10)]
+    [SerializeField] private InteractableHealth_Controller _healthController;
+    public InteractableHealth_Controller healthController => _healthController;
+
 
     private HeroData _data;
     public HeroData data => _data;
@@ -27,5 +31,6 @@ public class Hero : MonoBehaviour, IInteractable
     public void Set_Data(Hero_ScrObj setHero)
     {
         _data = new(setHero);
+        _healthController.Set_Data(_data.currentData);
     }
 }

@@ -108,6 +108,11 @@ public class TileManager : MonoBehaviour
 
         return sortedTiles;
     }
+    public List<Tile> CloseSorted_Tiles(Tile pivotTile)
+    {
+        return CloseSorted_Tiles(pivotTile, new(_tiles));
+    }
+    
     public List<Tile> PivotSurrounding_Tiles(Tile pivotTile)
     {
         Vector2 pivotTilePos = pivotTile.data.position;

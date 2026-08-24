@@ -11,6 +11,9 @@ public class EnemyData
     private InteractionData _currentData;
     public InteractionData currentData => _currentData;
 
+    private int _movementRange;
+    public int movementRange => _movementRange;
+
     // destroyed card list ?
 
 
@@ -19,5 +22,6 @@ public class EnemyData
     {
         _enemyScrObj = setEnemy;
         _currentData = new(setEnemy.interactionData);
+        _movementRange = setEnemy.movementRange;
     }
 }

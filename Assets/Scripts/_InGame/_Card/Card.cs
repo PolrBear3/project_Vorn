@@ -92,6 +92,7 @@ public class Card : MonoBehaviour, IInteractable
     private void Remove_Data()
     {
         GameManager.instance.cardManager.placedCards.Remove(this);
+        Destroy(gameObject);
     }
 
 

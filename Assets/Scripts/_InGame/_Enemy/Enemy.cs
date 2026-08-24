@@ -20,9 +20,6 @@ public class Enemy : MonoBehaviour, IInteractable
     private EnemyData _data;
     public EnemyData data => _data;
 
-    private Card _targetCard;
-    public Card targetCard => _targetCard;
-
 
     private EventBus_Controller _preMovementActionBus = new();
     public EventBus_Controller preMovementActionBus => _preMovementActionBus;
@@ -58,125 +55,129 @@ public class Enemy : MonoBehaviour, IInteractable
     private void Remove_Data()
     {
         GameManager.instance.enemyManager.spawnedEnemies.Remove(this);
+        Destroy(gameObject);
     }
 
 
-    // End Turn Action
-    private void Update_TargetCard()
+    // Movement
+    private Tile Hero_TargetTile()
     {
         GameManager manager = GameManager.instance;
+        
+        Hero currentHero = manager.heroManager.currentHero;
+        if (currentHero == null) return null;
+        
+        Tile targetTile = manager.tileManager.ClosestAvailable_SurroundingTile(_movement.currentTile, currentHero.movement.currentTile);
+        if (targetTile == null) return null;
 
-        Tile currentTile = _movement.currentTile;
-        List<Card> updateCards = manager.cardManager.TileClosest_PlacedCards(currentTile);
-
-        _targetCard = null;
-        if (updateCards.Count <= 0) return;
-
-        TileManager tileManager = manager.tileManager;
-        int interactRange = Mathf.Max(1, _data.currentData.interactRange);
-
-        for (int i = 0; i < updateCards.Count; i++)
-        {
-            Card updateCard = updateCards[i];
-
-            Tile cardTile = updateCard.placedTile;
-            List<Tile> interactRangeTiles = tileManager.Distance_Tiles(cardTile, interactRange);
-
-            bool hasEmptyTile = false;
-
-            for (int j = 0; j < interactRangeTiles.Count; j++)
-            {
-                Tile rangeTile = interactRangeTiles[j];
-                if (rangeTile != currentTile && rangeTile.currentOccupant != null) continue;
-
-                hasEmptyTile = true;
-                break;
-            }
-            if (hasEmptyTile == false) continue;
-
-            _targetCard = updateCard;
-            break;
-        }
+        return targetTile;
     }
-    private Tile TargetCard_DestinationTile(Tile pivotTile)
+    private Tile TauntCard_TargetTile()
     {
-        if (_targetCard == null) return null;
+        Tile currentTile = _movement.currentTile;
 
-        TileManager tileManager = GameManager.instance.tileManager;
-        int interactRange = Mathf.Max(1, _data.currentData.interactRange);
+        GameManager manager = GameManager.instance;
 
-        for (int i = 0; i < interactRange; i++)
+        List<Card> closestCards = manager.cardManager.TileClosest_PlacedCards(currentTile);
+        if (closestCards.Count <= 0) return null;
+
+        for (int i = 0; i < closestCards.Count; i++)
         {
-            int checkRange = i + 1;
-
-            List<Tile> rangeTiles = tileManager.Distance_Tiles(_targetCard.placedTile, checkRange);
-            List<Tile> closeSortedTiles = tileManager.CloseSorted_Tiles(pivotTile, rangeTiles);
-
-            for (int j = 0; j < closeSortedTiles.Count; j++)
-            {
-                Tile destinationTile = closeSortedTiles[j];
-
-                if (pivotTile == destinationTile) return destinationTile;
-                if (destinationTile.currentOccupant != null) continue;
-
-                return destinationTile;
-            }
+            Card card = closestCards[i];
+            
+            if (card.data.currentData.abilities.Contains(InteractableAbility.Taunt) == false) continue;
+            return manager.tileManager.ClosestAvailable_SurroundingTile(currentTile, card.placedTile);
         }
         return null;
     }
 
-    private void Moveto_TargetCard()
+    private void Moveto_TargetTile()
     {
-        if (_targetCard == null) return;
-
         Tile currentTile = _movement.currentTile;
-        Tile destinationTile = TargetCard_DestinationTile(currentTile);
+        Tile destinationTile = TauntCard_TargetTile() ?? Hero_TargetTile();
 
-        if (currentTile == destinationTile) return;
+        if (destinationTile == null || currentTile == destinationTile) return;
 
         List<Tile> routeTiles = GameManager.instance.tileManager.PathFind_RouteTiles(currentTile, destinationTile);
         if (routeTiles.Count <= 0) return;
 
-        _movement.Moveto_Tile(routeTiles[0], _data.enemyScrObj.spawnOffset);
+        _movement.Moveto_Tile(routeTiles[0], _data.enemyScrObj.spawnOffset); // set routTile index value relative to movement range ?
     }
-    private Card Damage_RangedCard()
+    
+    
+    // Damage
+    private InteractionData Damageable_InteractionData()
     {
-        Card damageCard = GameManager.instance.cardManager.TileClosest_PlacedCard(_movement.currentTile);
+        GameManager manager = GameManager.instance;
+        CardManager cardManager = manager.cardManager;
+
+        Tile currentTile = _movement.currentTile;
+        Vector2 currentTilePos = currentTile.data.position;
+
+        int interactRange = _data.currentData.interactRange;
+
+        // taunt card
+        List<Card> tauntCards = cardManager.TileClosest_PlacedCards(currentTile, InteractableAbility.Taunt);
+        int tauntCardsCount = tauntCards.Count;
+
+        for (int i = 0; i < tauntCardsCount; i++)
+        {
+            if (Utility.Chebyshev_Distance(currentTilePos, tauntCards[i].placedTile.data.position) > interactRange) continue;
+            return tauntCards[i].data.currentData;
+        }
+        if (tauntCardsCount > 0) return null;
+
+        // hero
+        Hero currentHero = manager.heroManager.currentHero;
+        if (currentHero != null && Utility.Chebyshev_Distance(currentTile.data.position, currentHero.movement.currentTile.data.position) <= interactRange)
+        {
+            return currentHero.interactionData;
+        }
+
+        // interact range card
+        Card damageCard = cardManager.TileClosest_PlacedCard(currentTile);
         if (damageCard == null) return null;
 
-        int distanceToCard = Utility.Chebyshev_Distance(_movement.currentTile.data.position, damageCard.placedTile.data.position);
-        if (distanceToCard > _data.currentData.interactRange) return null;
+        int distanceToCard = Utility.Chebyshev_Distance(currentTile.data.position, damageCard.placedTile.data.position);
+        if (distanceToCard > interactRange) return null;
 
-        InteractionData cardInteractionData = damageCard.data.currentData;
+        return damageCard.interactionData;
+    }
+    private InteractionData Damage_RangedInteractable()
+    {
+        InteractionData damageTargetData = Damageable_InteractionData();
+        if (damageTargetData == null) return null;
 
-        int damageUpdateValue = cardInteractionData.currentHealth + _data.currentData.healthModifyValue;
-        cardInteractionData.Update_CurrentHealth(damageUpdateValue);
+        int damageUpdateValue = damageTargetData.currentHealth + _data.currentData.healthModifyValue;
+        damageTargetData.Update_CurrentHealth(damageUpdateValue);
 
-        return damageCard;
+        return damageTargetData;
     }
 
+
+    // End Turn
     public IEnumerator Run_EndTurnActions()
     {
         _actionsRunning = true;
-
         yield return _preMovementActionBus.RunSequential_DelayBusEvents();
 
-        Update_TargetCard();
-        Moveto_TargetCard();
-        while (_movement.movementCoroutine != null) yield return null;
-
-        Card damageCard = Damage_RangedCard();
-        if (damageCard != null)
+        int movementRange = _data.movementRange; // movement
+        for (int i = 0; i < movementRange; i++)
         {
-            InteractionData cardData = damageCard.data.currentData;
+            Moveto_TargetTile();
+            while (_movement.movementCoroutine != null) yield return null;
+        }
 
+        InteractionData damageData = Damage_RangedInteractable(); // damage interactable
+        if (damageData != null)
+        {
             yield return null;
-            while (cardData.healthUpdating) yield return null;
+            while (damageData.healthUpdating) yield return null;
         }
 
         yield return _afterMovementActionBus.RunSequential_DelayBusEvents();
-
         _actionsRunning = false;
+        
         yield break;
     }
 }

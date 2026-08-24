@@ -45,7 +45,7 @@ public class CardSkill_Spawner : CardSkill
         int interactRange = card.data.currentData.interactRange;
 
         List<Tile> targetingTiles = new(card.tileTargeting.recentTargetingTiles);
-        List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distance_Tiles(placedTile, interactRange);
+        List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(placedTile, interactRange);
 
         switch (target, trigger)
         {

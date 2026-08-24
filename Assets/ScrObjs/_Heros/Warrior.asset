@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a60e2a3f121942f08a8d9ffd2c06a54, type: 3}
   m_Name: Warrior
   m_EditorClassIdentifier: 
-  _spawnCard: {fileID: 11400000, guid: 3315c924a82ca49358b3067216bbf7d7, type: 2}
   _spawnPrefab: {fileID: 2898224727119453378, guid: 8070969ea02a34c579b978543a027696, type: 3}
   _spawnOffset: {x: 0, y: 0.625}
+  _interactionData:
+    _mana: 0
+    _maxHealth: 5
+    _healthModifyValue: 0
+    _abilities: 
+    _interactRange: 0
+    _targetSelectCount: 0
+  _spawnCard: {fileID: 11400000, guid: 3315c924a82ca49358b3067216bbf7d7, type: 2}

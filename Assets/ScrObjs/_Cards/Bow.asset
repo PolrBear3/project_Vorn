@@ -18,5 +18,6 @@ MonoBehaviour:
     _mana: 0
     _maxHealth: 3
     _healthModifyValue: -2
+    _abilities: 01000000
     _interactRange: 2
     _targetSelectCount: 1

@@ -92,6 +92,28 @@ public class TileManager : MonoBehaviour
         }
         return null;
     }
+    public Tile ClosestAvailable_SurroundingTile(Tile pivotTile, Tile targetTile)
+    {
+        int checkCount = _tiles.Count;
+        int checkRange = 1;
+        
+        while (checkCount > 0)
+        {
+            List<Tile> distanceSortedTiles = CloseSorted_Tiles(pivotTile, TargetDistanced_Tiles(targetTile, checkRange));
+            if (distanceSortedTiles.Contains(pivotTile)) return pivotTile;
+
+            for (int i = 0; i < distanceSortedTiles.Count; i++)
+            {
+                Tile tile = distanceSortedTiles[i];
+                checkCount--;
+
+                if (tile.currentOccupant != null) continue;
+                return tile;
+            }
+            checkRange++;
+        }
+        return null;
+    }
 
     public List<Tile> CloseSorted_Tiles(Tile pivotTile, List<Tile> sortingTiles)
     {
@@ -112,7 +134,36 @@ public class TileManager : MonoBehaviour
     {
         return CloseSorted_Tiles(pivotTile, new(_tiles));
     }
-    
+
+    public List<Tile> TargetDistanced_Tiles(Tile pivotTile, int distance)
+    {
+        List<Tile> distanceTiles = new(_tiles);
+
+        for (int i = distanceTiles.Count - 1; i >= 0; i--)
+        {
+            Vector2 tilePos = distanceTiles[i].data.position;
+            int checkDistance = Utility.Chebyshev_Distance(pivotTile.data.position, tilePos);
+
+            if (checkDistance == distance) continue;
+            distanceTiles.RemoveAt(i);
+        }
+        return distanceTiles;
+    }
+    public List<Tile> Distanced_Tiles(Tile pivotTile, int distance)
+    {
+        List<Tile> distanceTiles = new(_tiles);
+
+        for (int i = distanceTiles.Count - 1; i >= 0; i--)
+        {
+            Vector2 tilePos = distanceTiles[i].data.position;
+            int checkDistance = Utility.Chebyshev_Distance(pivotTile.data.position, tilePos);
+
+            if (checkDistance <= distance) continue;
+            distanceTiles.RemoveAt(i);
+        }
+        return distanceTiles;
+    }
+
     public List<Tile> PivotSurrounding_Tiles(Tile pivotTile)
     {
         Vector2 pivotTilePos = pivotTile.data.position;
@@ -128,20 +179,6 @@ public class TileManager : MonoBehaviour
             surroundingTiles.Add(surroundingTile);
         }
         return surroundingTiles;
-    }
-    public List<Tile> Distance_Tiles(Tile pivotTile, int distance)
-    {
-        List<Tile> distanceTiles = new(_tiles);
-
-        for (int i = distanceTiles.Count - 1; i >= 0; i--)
-        {
-            Vector2 tilePos = distanceTiles[i].data.position;
-            int checkDistance = Utility.Chebyshev_Distance(pivotTile.data.position, tilePos);
-
-            if (checkDistance <= distance) continue;
-            distanceTiles.RemoveAt(i);
-        }
-        return distanceTiles;
     }
     public List<Tile> Edged_Tiles()
     {

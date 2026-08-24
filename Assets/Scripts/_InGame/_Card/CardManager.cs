@@ -102,21 +102,6 @@ public class CardManager : MonoBehaviour
         }
         return null;
     }
-
-    public List<Card> TileClosest_PlacedCards(Tile pivotTile)
-    {
-        List<Card> placedCards = new(_placedCards);
-        Vector2 pivotTilePos = pivotTile.data.position;
-
-        placedCards.Sort((cardA, cardB) =>
-        {
-            int distanceA = Utility.Chebyshev_Distance(pivotTilePos, cardA.placedTile.data.position);
-            int distanceB = Utility.Chebyshev_Distance(pivotTilePos, cardB.placedTile.data.position);
-
-            return distanceA.CompareTo(distanceB);
-        });
-        return placedCards;
-    }
     public Card TileClosest_PlacedCard(Tile pivotTile)
     {
         if (_placedCards.Count <= 0) return null;
@@ -138,6 +123,56 @@ public class CardManager : MonoBehaviour
             closestCard = placedCard;
         }
         return closestCard;
+    }
+
+    public List<Card> TileClosest_PlacedCards(Tile pivotTile)
+    {
+        List<Card> placedCards = new(_placedCards);
+        Vector2 pivotTilePos = pivotTile.data.position;
+
+        placedCards.Sort((cardA, cardB) =>
+        {
+            int distanceA = Utility.Chebyshev_Distance(pivotTilePos, cardA.placedTile.data.position);
+            int distanceB = Utility.Chebyshev_Distance(pivotTilePos, cardB.placedTile.data.position);
+
+            return distanceA.CompareTo(distanceB);
+        });
+        return placedCards;
+    }
+    public List<Card> TileClosest_PlacedCards(Tile pivotTile, InteractableAbility targetAbility)
+    {
+        List<Card> placedCards = TileClosest_PlacedCards(pivotTile);
+
+        for (int i = placedCards.Count - 1; i >= 0 ; i--)
+        {
+            if (placedCards[i].data.currentData.abilities.Contains(targetAbility)) continue;
+            placedCards.RemoveAt(i);
+        }
+        return placedCards;
+    }
+
+    public List<Card> DistanceRanged_PlacedCards(Tile pivotTile, int distance)
+    {
+        Vector2 pivotTilePos = pivotTile.data.position;
+        List<Card> placedCards = TileClosest_PlacedCards(pivotTile);
+
+        for (int i = placedCards.Count - 1; i >= 0 ; i--)
+        {
+            if (Utility.Chebyshev_Distance(pivotTilePos, placedCards[i].placedTile.data.position) <= distance) continue;
+            placedCards.RemoveAt(i);
+        }
+        return placedCards;
+    }
+    public List<Card> DistanceRanged_PlacedCards(Tile pivotTile, int distance, InteractableAbility targetAbility)
+    {
+        List<Card> placedCards = DistanceRanged_PlacedCards(pivotTile, distance);
+        
+        for (int i = placedCards.Count - 1; i >= 0 ; i--)
+        {
+            if (placedCards[i].data.currentData.abilities.Contains(targetAbility)) continue;
+            placedCards.RemoveAt(i);
+        }   
+        return placedCards;
     }
 
 

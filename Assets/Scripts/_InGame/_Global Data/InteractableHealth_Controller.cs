@@ -61,7 +61,7 @@ public class InteractableHealth_Controller : MonoBehaviour
     // Main
     private void Handle_HealthUpdate(int healthUpdateValue)
     {
-        string animState = healthUpdateValue < 0 ? OccupantAnimation.Damaged : OccupantAnimation.Healed;
+        string animState = healthUpdateValue <= 0 ? OccupantAnimation.Damaged : OccupantAnimation.Healed;
         Play_AnimatorState(animState);
 
         _targetData.Toggle_HealthUpdatingState(true);
@@ -82,9 +82,7 @@ public class InteractableHealth_Controller : MonoBehaviour
             while (CurrentAnimatorState_Playing()) yield return null;
 
             yield return _deathUpdateActionBus.RunSequential_DelayBusEvents();
-
             AfterDeathUpdate?.Invoke();
-            Destroy(gameObject);
         }
 
         _targetData.Toggle_HealthUpdatingState(false);

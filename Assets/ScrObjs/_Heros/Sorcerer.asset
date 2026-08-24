@@ -16,8 +16,9 @@ MonoBehaviour:
   _spawnOffset: {x: 0, y: 0.625}
   _interactionData:
     _mana: 0
-    _maxHealth: 0
+    _maxHealth: 10
     _healthModifyValue: 0
+    _abilities: 
     _interactRange: 0
     _targetSelectCount: 0
   _spawnCard: {fileID: 11400000, guid: 985b99e3b79f84187bcb119b55878706, type: 2}

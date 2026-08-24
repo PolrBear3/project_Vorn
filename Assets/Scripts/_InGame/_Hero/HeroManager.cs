@@ -7,6 +7,9 @@ public class HeroManager : MonoBehaviour
     private Hero _currentHero;
     public Hero currentHero => _currentHero;
 
+    private EventBus_Controller _heroDeathEventBus = new();
+    public EventBus_Controller heroDeathEventBus => _heroDeathEventBus;
+
 
     // MonoBehaviour
     private void Awake()
@@ -16,17 +19,22 @@ public class HeroManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
-
-
-        GameManager.instance.stageManager.endTurnEventBus.UnRegister(Hero_Unavailable);
+        EventBus_Controller endTurnBus = GameManager.instance.stageManager.endTurnEventBus;
+        
+        endTurnBus.UnRegister(EndStage_OnHeroDeath);
+        endTurnBus.UnRegister(Hero_Unavailable);
+        endTurnBus.UnRegister(_heroDeathEventBus.DelayBus_Running);
     }
 
 
     // Data
     private void Set_Data()
     {
-        GameManager.instance.stageManager.endTurnEventBus.Register(Hero_Unavailable);
+        EventBus_Controller endTurnBus = GameManager.instance.stageManager.endTurnEventBus;
+
+        endTurnBus.Register(3, EndStage_OnHeroDeath);
+        endTurnBus.Register(Hero_Unavailable);
+        endTurnBus.Register(_heroDeathEventBus.DelayBus_Running);
     }
 
 
@@ -41,5 +49,14 @@ public class HeroManager : MonoBehaviour
     private bool Hero_Unavailable()
     {
         return _currentHero == null && GameManager.instance.cardManager.placedCards.Count <= 0;
+    }
+
+
+    // Game Over
+    private IEnumerator EndStage_OnHeroDeath()
+    {
+        if (_currentHero == null || _currentHero.data.currentData.currentHealth > 0) yield break;
+
+        _heroDeathEventBus.RunSequential_DelayBusEvents();
     }
 }

@@ -124,15 +124,15 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: Enemies
     originalName: 
-    pivot: {x: 0.5, y: -1.4347826}
+    pivot: {x: 0.65217394, y: -1.9411765}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     rect:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 60
-      height: 23
+      width: 46
+      height: 17
     spriteID: 7eedc1392b19a4770ba1f1f6826ce9c4
     spriteBone: []
     spriteOutline: []
@@ -162,8 +162,8 @@ ScriptedImporter:
       cellRect:
         x: 2
         y: 33
-        width: 60
-        height: 23
+        width: 46
+        height: 17
       spriteId: 7eedc1392b19a4770ba1f1f6826ce9c4
     linkedCells: []
     parentIndex: -1
@@ -184,4 +184,4 @@ ScriptedImporter:
   secondarySpriteTextures: []
   spritePackingTag: 
   canvasSize: {x: 64, y: 64}
-  previousTextureSize: {x: 128, y: 32}
+  previousTextureSize: {x: 64, y: 32}

@@ -102,27 +102,42 @@ public class CardManager : MonoBehaviour
         }
         return null;
     }
-    public Card TileClosest_PlacedCard(Tile pivotTile)
-    {
-        if (_placedCards.Count <= 0) return null;
 
-        Vector2 targetTilePos = pivotTile.data.position;
+    public Card TileClosest_PlacedCard(Tile pivotTile, List<Card> targetCards)
+    {
+        if (pivotTile == null || targetCards.Count <= 0) return null;
+
+        Vector2 pivotTilePos = pivotTile.data.position;
 
         int closestDistance = int.MaxValue;
-        Card closestCard = null;
+        List<Card> closestCards = new();
 
-        for (int i = 0; i < _placedCards.Count; i++)
+        for (int i = 0; i < targetCards.Count; i++)
         {
-            Card placedCard = _placedCards[i];
-            Vector2 placedCardPos = placedCard.placedTile.data.position;
+            Card targetCard = targetCards[i];
+            Vector2 placedCardPos = targetCard.placedTile.data.position;
 
-            int distance = Utility.Chebyshev_Distance(targetTilePos, placedCardPos);
-            if (distance >= closestDistance) continue;
+            int distance = Utility.Chebyshev_Distance(pivotTilePos, placedCardPos);
+            if (distance > closestDistance) continue;
+
+            if (distance == closestDistance)
+            {
+                closestCards.Add(targetCard);
+                continue;
+            }
+
+            closestCards.Clear();
+            closestCards.Add(targetCard);
 
             closestDistance = distance;
-            closestCard = placedCard;
         }
-        return closestCard;
+
+        if (closestCards.Count <= 0) return null;
+        return closestCards[UnityEngine.Random.Range(0, closestCards.Count)];
+    }
+    public Card TileClosest_PlacedCard(Tile pivotTile)
+    {
+        return TileClosest_PlacedCard(pivotTile, _placedCards);
     }
 
     public List<Card> TileClosest_PlacedCards(Tile pivotTile)

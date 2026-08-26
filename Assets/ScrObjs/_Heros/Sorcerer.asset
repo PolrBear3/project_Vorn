@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a60e2a3f121942f08a8d9ffd2c06a54, type: 3}
   m_Name: Sorcerer
   m_EditorClassIdentifier: 
-  _spawnPrefab: {fileID: 2898224727119453378, guid: 8070969ea02a34c579b978543a027696, type: 3}
+  _spawnPrefab: {fileID: 2898224727119453378, guid: 50fe8dbc4047b41f1958f8e9bcc85fac, type: 3}
   _spawnOffset: {x: 0, y: 0.625}
   _interactionData:
     _mana: 0

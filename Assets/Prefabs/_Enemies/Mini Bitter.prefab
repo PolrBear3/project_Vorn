@@ -34,6 +34,7 @@ Transform:
   m_Children:
   - {fileID: 6454476883357333979}
   - {fileID: 1672291489210603966}
+  - {fileID: 1636654550989142201}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6068368094005038412
@@ -79,6 +80,7 @@ MonoBehaviour:
   _movement: {fileID: 6068368094005038412}
   _animator: {fileID: 5980303246077372278}
   _healthController: {fileID: 4456962534190399516}
+  _actionClock: {fileID: 4241560987994780019}
 --- !u!1 &5178098120391580603
 GameObject:
   m_ObjectHideFlags: 0
@@ -198,7 +200,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c163f59ef2d3e4447834589d976638f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animator: {fileID: 4076180943445881456}
 --- !u!1 &5403647815540469562
 GameObject:
   m_ObjectHideFlags: 0
@@ -283,3 +284,76 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1001 &8539928786010127289
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4000622285160984935}
+    m_Modifications:
+    - target: {fileID: 6932582821626102528, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6932582821626102528, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.3125
+      objectReference: {fileID: 0}
+    - target: {fileID: 6932582821626102528, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6932582821626102528, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6932582821626102528, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6932582821626102528, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6932582821626102528, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6932582821626102528, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6932582821626102528, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6932582821626102528, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7598165162007348789, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+      propertyPath: m_Name
+      value: Action Clock
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+--- !u!4 &1636654550989142201 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6932582821626102528, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+  m_PrefabInstance: {fileID: 8539928786010127289}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4241560987994780019 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5503089519614839498, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+  m_PrefabInstance: {fileID: 8539928786010127289}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6e570e75ff5947d6a0458c031ac22c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

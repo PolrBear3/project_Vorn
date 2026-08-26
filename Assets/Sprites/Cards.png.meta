@@ -202,7 +202,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -210,6 +210,48 @@ TextureImporter:
       bones: []
       spriteID: 23eec7e8845dc44ffa157e53e4600696
       internalID: 57619007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Cards_5
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 60acf4ea75dff46eba18d7bcff633029
+      internalID: 259849577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Cards_6
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5e649eab7f3d04b6fb52c0a5f2f74f0f
+      internalID: -1398126270
       vertices: []
       indices: 
       edges: []
@@ -230,6 +272,8 @@ TextureImporter:
       Cards_2: -1634482492
       Cards_3: 319371553
       Cards_4: 57619007
+      Cards_5: 259849577
+      Cards_6: -1398126270
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

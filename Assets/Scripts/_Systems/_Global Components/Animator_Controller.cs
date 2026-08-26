@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class Animator_Controller : MonoBehaviour
 {
-    private SpriteRenderer _renderer;
+    private SpriteRenderer _sr;
+    public SpriteRenderer sr => _sr;
+
     private Animator _animator;
 
     private Sprite _defaultSprite;
@@ -20,9 +22,9 @@ public class Animator_Controller : MonoBehaviour
         _animator = anim;
 
         if (gameObject.TryGetComponent(out SpriteRenderer sr) == false) return;
-        _renderer = sr;
+        _sr = sr;
         
-        _defaultSprite = _renderer.sprite;
+        _defaultSprite = _sr.sprite;
     }
 
 
@@ -47,7 +49,7 @@ public class Animator_Controller : MonoBehaviour
     {
         _currentState = null;
         _animator.Play(None, 0, 0f);
-        _renderer.sprite = _defaultSprite;
+        _sr.sprite = _defaultSprite;
     }
 
     public void Play_State(string stateName)

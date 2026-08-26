@@ -145,7 +145,7 @@ TextureImporter:
         x: 32
         y: 32
         width: 16
-        height: 32
+        height: 16
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -155,27 +155,6 @@ TextureImporter:
       bones: []
       spriteID: 894fa1ccbdc724fc4afcd56f387614e3
       internalID: -418820412
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: EnemyShadows_3
-      rect:
-        serializedVersion: 2
-        x: 48
-        y: 32
-        width: 16
-        height: 32
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 40cb4e20c73704cc58f8600929628a36
-      internalID: 1752521307
       vertices: []
       indices: 
       edges: []

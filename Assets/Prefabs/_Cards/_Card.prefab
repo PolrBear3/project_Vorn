@@ -119,7 +119,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c163f59ef2d3e4447834589d976638f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animator: {fileID: 423076202881471988}
 --- !u!1 &5745818195482502680
 GameObject:
   m_ObjectHideFlags: 0
@@ -262,7 +261,7 @@ SpriteRenderer:
   m_SortingLayerID: -1275224273
   m_SortingLayer: 2
   m_SortingOrder: 1
-  m_Sprite: {fileID: 57619007, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
+  m_Sprite: {fileID: 385560396, guid: 77c7dff379a2b40bcb8e18c0ac618efe, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -306,4 +305,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c163f59ef2d3e4447834589d976638f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animator: {fileID: 5068843308767546803}

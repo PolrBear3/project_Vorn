@@ -15,6 +15,8 @@ public class Enemy : MonoBehaviour, IInteractable
     [Space(10)]
     [SerializeField] private InteractableHealth_Controller _healthController;
     public InteractableHealth_Controller healthController => _healthController;
+    
+    [SerializeField] private ActionClock _actionClock;
 
 
     private EnemyData _data;
@@ -50,6 +52,8 @@ public class Enemy : MonoBehaviour, IInteractable
         
         _healthController.Set_Data(_data.currentData);
         _healthController.AfterDeathUpdate += Remove_Data;
+
+        _actionClock.Toggle(false);
     }
 
     private void Remove_Data()
@@ -106,7 +110,7 @@ public class Enemy : MonoBehaviour, IInteractable
     
     
     // Damage
-    private InteractionData Damageable_InteractionData()
+    private InteractionData DamageTarget_InteractionData()
     {
         GameManager manager = GameManager.instance;
         CardManager cardManager = manager.cardManager;
@@ -117,15 +121,11 @@ public class Enemy : MonoBehaviour, IInteractable
         int interactRange = _data.currentData.interactRange;
 
         // taunt card
-        List<Card> tauntCards = cardManager.TileClosest_PlacedCards(currentTile, InteractableAbility.Taunt);
-        int tauntCardsCount = tauntCards.Count;
+        Card tauntCard = cardManager.TileClosest_PlacedCard(currentTile, cardManager.TileClosest_PlacedCards(currentTile, InteractableAbility.Taunt));
+        bool tauntCardDamageable = tauntCard != null && Utility.Chebyshev_Distance(currentTilePos, tauntCard.placedTile.data.position) <= interactRange;
 
-        for (int i = 0; i < tauntCardsCount; i++)
-        {
-            if (Utility.Chebyshev_Distance(currentTilePos, tauntCards[i].placedTile.data.position) > interactRange) continue;
-            return tauntCards[i].data.currentData;
-        }
-        if (tauntCardsCount > 0) return null;
+        if (tauntCardDamageable) return tauntCard.interactionData;
+        if (tauntCard != null) return null; // restrict damaging if taunt cards are not in range
 
         // hero
         Hero currentHero = manager.heroManager.currentHero;
@@ -145,7 +145,7 @@ public class Enemy : MonoBehaviour, IInteractable
     }
     private InteractionData Damage_RangedInteractable()
     {
-        InteractionData damageTargetData = Damageable_InteractionData();
+        InteractionData damageTargetData = DamageTarget_InteractionData();
         if (damageTargetData == null) return null;
 
         int damageUpdateValue = damageTargetData.currentHealth + _data.currentData.healthModifyValue;
@@ -159,6 +159,8 @@ public class Enemy : MonoBehaviour, IInteractable
     public IEnumerator Run_EndTurnActions()
     {
         _actionsRunning = true;
+        _actionClock.Toggle(_actionsRunning);
+
         yield return _preMovementActionBus.RunSequential_DelayBusEvents();
 
         int movementRange = _data.movementRange; // movement
@@ -176,8 +178,10 @@ public class Enemy : MonoBehaviour, IInteractable
         }
 
         yield return _afterMovementActionBus.RunSequential_DelayBusEvents();
+
         _actionsRunning = false;
-        
+        _actionClock.Toggle(_actionsRunning);
+
         yield break;
     }
 }

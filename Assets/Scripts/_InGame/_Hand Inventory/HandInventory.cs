@@ -34,11 +34,19 @@ public class HandInventory : MonoBehaviour
 {
     [Space(20)]
     [SerializeField] private GameObject _handCardPrefab;
+
+    [Space(10)]
     [SerializeField] private Transform _allHandCards;
+    [SerializeField] private RectTransform _cardPlatform;
 
     [Space(20)]
-    [SerializeField][Range(0, 50)] private int _maxHandCardCount;
     [SerializeField][Range(0, 1000)] private float _handCardsSpacingValue;
+    [SerializeField][Range(0, 1000)] private float _platformWidthUpdateValue;
+
+    private float _defaultPlatformWidth;
+
+    [Space(10)]
+    [SerializeField][Range(0, 50)] private int _maxHandCardCount;
 
 
     private HandInventory_Data _data;
@@ -64,6 +72,8 @@ public class HandInventory : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
+        _defaultPlatformWidth = _cardPlatform.rect.width;
+
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
         EventBus_GlobalController.Register(EventBus.StartLoad, LoadCards_toDeck);
     }
@@ -92,6 +102,8 @@ public class HandInventory : MonoBehaviour
     private void Set_Data()
     {
         _data = new(new()); // load saved data
+
+        Update_CardPlatform();
 
 
         Input_Controller input = Input_Controller.instance;
@@ -154,6 +166,17 @@ public class HandInventory : MonoBehaviour
             _handCards[i].rectTransform.anchoredPosition = new Vector2(xPos, 0f);
         }
     }
+    private void Update_CardPlatform()
+    {
+        int currentCardCount = _handCards.Count;
+        bool toggle = currentCardCount > 0;
+
+        _cardPlatform.gameObject.SetActive(toggle);
+        if (toggle == false) return;
+
+        float updateWidthValue = _defaultPlatformWidth + Mathf.Max(0, (currentCardCount - 2) * _platformWidthUpdateValue);
+        _cardPlatform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, updateWidthValue);
+    }
 
     public HandCard AddCard_toHand(CardData addCardData)
     {
@@ -201,7 +224,9 @@ public class HandInventory : MonoBehaviour
 
             _drawCardFromDeck.RunSequential_BusEvents();
         }
+
         Update_HandCardPositions();
+        Update_CardPlatform();
     }
     private void Draw_Card()
     {
@@ -238,7 +263,9 @@ public class HandInventory : MonoBehaviour
             break;
         }
         RemoveCard_fromHand(_hoveringCard);
+
         Update_HandCardPositions();
+        Update_CardPlatform();
     }
 
     private bool Place_DraggingCard()
@@ -288,6 +315,7 @@ public class HandInventory : MonoBehaviour
         _dragDropData = null;
 
         Update_HandCardPositions();
+        Update_CardPlatform();
     }
     private void Return_DraggingCard(bool _)
     {

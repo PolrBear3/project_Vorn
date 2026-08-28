@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9c318aef96e4541adb575bbae3e2530f
+guid: 9a415eccaa97f432ba80a572593b0ebe
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -93,123 +93,47 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 3
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Cards_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 48
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 26a735dc238a7404dbf1b3f9ebc3f96f
-      internalID: 145379247
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Cards_1
-      rect:
-        serializedVersion: 2
-        x: 16
-        y: 48
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 3d2b0734792fd478d855f9e1fd186448
-      internalID: 31158166
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Cards_2
-      rect:
-        serializedVersion: 2
-        x: 32
-        y: 48
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 228eb39e69ece444cb53ee17443c69f8
-      internalID: -1634482492
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Cards_3
+      name: PlayerShadows_0
       rect:
         serializedVersion: 2
         x: 0
         y: 32
         width: 16
-        height: 16
+        height: 32
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3041551f419f9449a83ec59e8d01e272
-      internalID: 319371553
+      spriteID: c3a17dce8f9de4b99bed209eb6522da0
+      internalID: 1904992722
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cards_6
+      name: PlayerShadows_1
       rect:
         serializedVersion: 2
-        x: 48
-        y: 48
+        x: 16
+        y: 32
         width: 16
-        height: 16
+        height: 32
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5e649eab7f3d04b6fb52c0a5f2f74f0f
-      internalID: -1398126270
+      spriteID: 7a91427bf222a4b919b4913464d75589
+      internalID: -946323305
       vertices: []
       indices: 
       edges: []
@@ -225,13 +149,8 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Cards_0: 145379247
-      Cards_1: 31158166
-      Cards_2: -1634482492
-      Cards_3: 319371553
-      Cards_4: 57619007
-      Cards_5: 259849577
-      Cards_6: -1398126270
+      PlayerShadows_0: 1904992722
+      PlayerShadows_1: -946323305
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

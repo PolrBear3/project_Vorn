@@ -105,6 +105,9 @@ public class Enemy : MonoBehaviour, IInteractable
         List<Tile> routeTiles = GameManager.instance.tileManager.PathFind_RouteTiles(currentTile, destinationTile);
         if (routeTiles.Count <= 0) return;
 
+        Tile routeTile = routeTiles[0];
+
+        _movement.Direction_FlipUpdate(routeTile);
         _movement.Moveto_Tile(routeTiles[0], _data.enemyScrObj.spawnOffset); // set routTile index value relative to movement range ?
     }
     

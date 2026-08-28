@@ -8,6 +8,10 @@ public class TileMovement_Controller : MonoBehaviour
     [SerializeField] private LeanTweenType _movementTweenType;
     [SerializeField][Range(0, 10)] private float _singleTileMovementTime;
 
+    [Space(20)]
+    [SerializeField] private SpriteRenderer[] _directionFlipRenderers;
+
+
     private Tile _currentTile;
     public Tile currentTile => _currentTile;
 
@@ -22,6 +26,24 @@ public class TileMovement_Controller : MonoBehaviour
 
         _currentTile = setTile;
         return true;
+    }
+
+    
+    // Flip
+    public void Direction_FlipUpdate(float faceDirection)
+    {
+        bool isFlip = faceDirection < 0;
+        
+        for (int i = 0; i < _directionFlipRenderers.Length; i++)
+        {
+            _directionFlipRenderers[i].flipX = isFlip;
+        }
+    }
+    public void Direction_FlipUpdate(Tile faceTile)
+    {
+        if (_currentTile == null) return;
+        
+        Direction_FlipUpdate(faceTile.data.position.x - _currentTile.data.position.x);
     }
 
 

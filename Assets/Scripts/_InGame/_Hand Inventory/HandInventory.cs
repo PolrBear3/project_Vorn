@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HandInventory_DragDropData
 {
@@ -37,7 +38,7 @@ public class HandInventory : MonoBehaviour
 
     [Space(10)]
     [SerializeField] private Transform _allHandCards;
-    [SerializeField] private RectTransform _cardPlatform;
+    [SerializeField] private Image _cardPlatform;
 
     [Space(20)]
     [SerializeField][Range(0, 1000)] private float _handCardsSpacingValue;
@@ -72,7 +73,7 @@ public class HandInventory : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
-        _defaultPlatformWidth = _cardPlatform.rect.width;
+        _defaultPlatformWidth = _cardPlatform.rectTransform.rect.width;
 
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
         EventBus_GlobalController.Register(EventBus.StartLoad, LoadCards_toDeck);
@@ -103,6 +104,9 @@ public class HandInventory : MonoBehaviour
     {
         _data = new(new()); // load saved data
 
+        GameManager manager = GameManager.instance;
+
+        _cardPlatform.sprite = manager.currentGameData.hero.cardPlatformSprite;
         Update_CardPlatform();
 
 
@@ -112,7 +116,7 @@ public class HandInventory : MonoBehaviour
         input.OnLeftClickPressed += Drop_DraggingCard;
         input.OnRightClickPressed += Return_DraggingCard;
 
-        StageManager stageManager = GameManager.instance.stageManager;
+        StageManager stageManager = manager.stageManager;
 
         stageManager.stageSetEventBus.Register(1, DrawCard_Delay);
         stageManager.endTurnEventBus.Register(2, DrawCard_Delay);
@@ -175,7 +179,7 @@ public class HandInventory : MonoBehaviour
         if (toggle == false) return;
 
         float updateWidthValue = _defaultPlatformWidth + Mathf.Max(0, (currentCardCount - 2) * _platformWidthUpdateValue);
-        _cardPlatform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, updateWidthValue);
+        _cardPlatform.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, updateWidthValue);
     }
 
     public HandCard AddCard_toHand(CardData addCardData)

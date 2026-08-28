@@ -51,6 +51,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _movementTweenType: 0
   _singleTileMovementTime: 0.5
+  _directionFlipRenderers:
+  - {fileID: 1613547910854064946}
+  - {fileID: 7601364463894247838}
 --- !u!114 &4456962534190399516
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274,7 +277,7 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 1887342381, guid: 3fc22f43fa3b3425bada0f9fa9a04e15, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.5019608}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -292,6 +295,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4000622285160984935}
     m_Modifications:
+    - target: {fileID: 5503089519614839498, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
+      propertyPath: _toggleDelayTime
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 6932582821626102528, guid: 350c0a5e0116a49469df6bed50117c6c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

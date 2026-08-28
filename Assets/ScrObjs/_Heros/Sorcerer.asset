@@ -22,3 +22,4 @@ MonoBehaviour:
     _interactRange: 0
     _targetSelectCount: 0
   _spawnCard: {fileID: 11400000, guid: 985b99e3b79f84187bcb119b55878706, type: 2}
+  _cardPlatformSprite: {fileID: -1636192044, guid: 670bf62ffb65a4c3d943af234a4a26c5, type: 3}

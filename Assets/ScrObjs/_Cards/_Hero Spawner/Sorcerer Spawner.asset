@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ab6d7b62706f44cf85f91250d6d2ee0, type: 3}
   m_Name: Sorcerer Spawner
   m_EditorClassIdentifier: 
-  _contentSprite: {fileID: 259849577, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
-  _placePrefab: {fileID: 5745818195482502680, guid: 1b74a3373907d42acb51c1aff3862705, type: 3}
+  _contentSprite: {fileID: -544282593, guid: 670bf62ffb65a4c3d943af234a4a26c5, type: 3}
+  _placePrefab: {fileID: 5745818195482502680, guid: 82ec451c02eba411983703042a09eb62, type: 3}
   _interactionData:
     _mana: 0
     _maxHealth: 1

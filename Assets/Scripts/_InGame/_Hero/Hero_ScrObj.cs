@@ -9,5 +9,8 @@ public class Hero_ScrObj : CharacterScrObj
     [SerializeField] private Card_ScrObj _spawnCard;
     public Card_ScrObj spawnCard => _spawnCard;
 
+    [SerializeField] private Sprite _cardPlatformSprite;
+    public Sprite cardPlatformSprite => _cardPlatformSprite;
+
     // movement mana cost ?
 }

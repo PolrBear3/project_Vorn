@@ -119,7 +119,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c163f59ef2d3e4447834589d976638f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animator: {fileID: 423076202881471988}
 --- !u!1 &5745818195482502680
 GameObject:
   m_ObjectHideFlags: 0
@@ -129,9 +128,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1650737456328438102}
+  - component: {fileID: 1441753937466206074}
   - component: {fileID: 4373037325833083918}
-  - component: {fileID: 5300094619052477212}
-  - component: {fileID: 5049861329958729039}
+  - component: {fileID: 8708016764475977682}
   m_Layer: 0
   m_Name: HeroSpawner
   m_TagString: Untagged
@@ -156,6 +155,21 @@ Transform:
   - {fileID: 4992176529430534825}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1441753937466206074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5745818195482502680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d77a16b966f5d45fabb4fc0a174163a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _healthUpdateAnimators:
+  - {fileID: 1413861387649704042}
+  - {fileID: 1511293945915075703}
 --- !u!114 &4373037325833083918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,23 +186,8 @@ MonoBehaviour:
   _contentSpriteRenderer: {fileID: 2496871960968193111}
   _baseAnimator: {fileID: 1413861387649704042}
   _contentAnimator: {fileID: 1511293945915075703}
-  _healthController: {fileID: 5300094619052477212}
---- !u!114 &5300094619052477212
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5745818195482502680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d77a16b966f5d45fabb4fc0a174163a7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _healthUpdateAnimators:
-  - {fileID: 1413861387649704042}
-  - {fileID: 1511293945915075703}
---- !u!114 &5049861329958729039
+  _healthController: {fileID: 1441753937466206074}
+--- !u!114 &8708016764475977682
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -278,7 +277,7 @@ SpriteRenderer:
   m_SortingLayerID: -1275224273
   m_SortingLayer: 2
   m_SortingOrder: 1
-  m_Sprite: {fileID: 57619007, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
+  m_Sprite: {fileID: 1120329142, guid: 670bf62ffb65a4c3d943af234a4a26c5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -322,4 +321,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c163f59ef2d3e4447834589d976638f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animator: {fileID: 5068843308767546803}

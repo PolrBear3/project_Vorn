@@ -96,7 +96,7 @@ public class TileManager : MonoBehaviour
     {
         int checkCount = _tiles.Count;
         int checkRange = 1;
-        
+
         while (checkCount > 0)
         {
             List<Tile> distanceSortedTiles = CloseSorted_Tiles(pivotTile, TargetDistanced_Tiles(targetTile, checkRange));

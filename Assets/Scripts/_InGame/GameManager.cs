@@ -11,6 +11,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TileManager _tileManager;
     public TileManager tileManager => _tileManager;
 
+    [SerializeField] private TileTargeting_Controller _tileTargeting;
+    public TileTargeting_Controller tileTargeting => _tileTargeting;
+
     [SerializeField] private CardManager _cardManager;
     public CardManager cardManager => _cardManager;
 

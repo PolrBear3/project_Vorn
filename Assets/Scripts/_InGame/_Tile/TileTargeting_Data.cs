@@ -6,7 +6,6 @@ using UnityEngine;
 public class TileTargeting_Data
 {
     private bool _targetingToggled;
-    public bool targetingToggled => _targetingToggled;
 
     private List<Tile> _targetingTiles = new();
     public List<Tile> targetingTiles => _targetingTiles;
@@ -16,19 +15,16 @@ public class TileTargeting_Data
 
 
     // Targeting
-    public void Toggle_Targeting(bool toggle)
+    public bool Toggle_Targeting(Tile togglePivotTile)
     {
-        _targetingToggled = toggle;
+        _targetingToggled = _targetingToggled == false && togglePivotTile != null ? togglePivotTile : null;
 
-        if (_targetingToggled == false) return;
+        if (_targetingToggled == false) return false;
 
         _targetingTiles.Clear();
         _recentTargetingTiles.Clear();
-    }
-    public bool Toggle_Targeting()
-    {
-        Toggle_Targeting(!_targetingToggled);
-        return _targetingToggled;
+
+        return true;
     }
 
     public void Target_Tile(Tile tileToTarget)

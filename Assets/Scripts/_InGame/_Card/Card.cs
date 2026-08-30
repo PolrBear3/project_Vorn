@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Card : MonoBehaviour, IInteractable
+public class Card : MonoBehaviour, IInteractable, ITileTargeting
 {
     [Space(10)]
     [SerializeField] private SpriteRenderer _baseSpriteRenderer;
@@ -59,6 +59,14 @@ public class Card : MonoBehaviour, IInteractable
     public InteractionData interactionData => _data.currentData;
 
 
+    // ITileTargeting
+    public Tile pivotTile => _placedTile;
+    public TileTargeting_Data targetingData => _tileTargeting;
+
+    public int targetingRange => _data.currentData.interactRange;
+    public int targetingCount => _data.currentData.targetSelectCount;
+
+
     // MonoBehaviour
     private void OnDestroy()
     {
@@ -81,7 +89,7 @@ public class Card : MonoBehaviour, IInteractable
 
         _healthController.Set_Data(_data.currentData);
         _healthController.AfterDeathUpdate += Remove_Data;
-        
+
         OnSetData?.Invoke();
     }
     public void Set_Data(Card_ScrObj setData, Tile placeTile)

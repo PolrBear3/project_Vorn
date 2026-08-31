@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Hero : MonoBehaviour, IInteractable
+public class Hero : MonoBehaviour, IInteractable, ITileTargeting
 {
     [Space(20)]
     [SerializeField] private TileMovement_Controller _movement;
@@ -19,12 +19,23 @@ public class Hero : MonoBehaviour, IInteractable
     private HeroData _data;
     public HeroData data => _data;
 
+    private TileTargeting_Data _tileTargeting = new();
+    public TileTargeting_Data tileTargeting => _tileTargeting;
+
 
     // IInteractable
     public InteractionData interactionData => _data.currentData;
 
     private bool _healthUpdating;
     public bool healthUpdating => _healthUpdating;
+
+
+    // ITileTargeting
+    public Tile pivotTile => _movement.currentTile;
+    public TileTargeting_Data targetingData => _tileTargeting;
+
+    public int targetingRange => _data.currentData.interactRange;
+    public int targetingCount => _data.currentData.targetSelectCount;
 
 
     // Data

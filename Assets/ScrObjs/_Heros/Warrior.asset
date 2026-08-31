@@ -19,7 +19,7 @@ MonoBehaviour:
     _maxHealth: 5
     _healthModifyValue: 0
     _abilities: 
-    _interactRange: 0
-    _targetSelectCount: 0
+    _interactRange: 10
+    _targetSelectCount: 1
   _spawnCard: {fileID: 11400000, guid: 3315c924a82ca49358b3067216bbf7d7, type: 2}
   _cardPlatformSprite: {fileID: 749140979, guid: 670bf62ffb65a4c3d943af234a4a26c5, type: 3}

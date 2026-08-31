@@ -26,6 +26,9 @@ public class TileManager : MonoBehaviour
     private EventBus_Controller _generateEventBus = new();
     public EventBus_Controller generateEventBus => _generateEventBus;
 
+    private EventBus_Controller _tileHoverEventBus = new();
+    public EventBus_Controller tileHoverEventBus => _tileHoverEventBus;
+
     private EventBus_Controller _tileSelectEventBus = new();
     public EventBus_Controller tileSelectEventBus => _tileSelectEventBus;
 
@@ -34,16 +37,21 @@ public class TileManager : MonoBehaviour
     private void Awake()
     {
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Generate_Tile);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Generate_Tiles);
     }
 
     private void OnDestroy()
     {
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Generate_Tile);
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Generate_Tiles);
 
 
         // from Set_Data
+        GameManager manager = GameManager.instance;
+
+        _generateEventBus.UnRegister(Reset_TileIndicators);
+        manager.stageManager.endTurnEventBus.Register(0, Reset_TileIndicators);
+
         Input_Controller.instance.OnLeftClickPressed -= Select_HoveringTile;
     }
 
@@ -51,6 +59,11 @@ public class TileManager : MonoBehaviour
     // Data
     private void Set_Data()
     {
+        GameManager manager = GameManager.instance;
+        
+        _generateEventBus.Register(0, Reset_TileIndicators);
+        manager.stageManager.endTurnEventBus.Register(0, Reset_TileIndicators);
+
         Input_Controller.instance.OnLeftClickPressed += Select_HoveringTile;
     }
 
@@ -207,6 +220,18 @@ public class TileManager : MonoBehaviour
         }
         return null;
     }
+    private bool Is_CrossMovement(TilePath_Data pathData)
+    {
+        if (pathData.previousPathData == null) return true;
+
+        Vector2 currentPos = pathData.tile.data.position;
+        Vector2 previousPos = pathData.previousPathData.tile.data.position;
+
+        Vector2 difference = currentPos - previousPos;
+
+        return difference.x == 0 || difference.y == 0;
+    }
+
     public List<Tile> PathFind_RouteTiles(Tile startingTile, Tile destinationTile)
     {
         List<Tile> routeTiles = new();
@@ -231,8 +256,17 @@ public class TileManager : MonoBehaviour
 
                 if (openPath == currentPath) continue;
                 if (openPath.F_Cost() > currentPath.F_Cost()) continue;
-                if (openPath.F_Cost() == currentPath.F_Cost() && openPath.hCost >= currentPath.hCost) continue;
 
+                if (openPath.F_Cost() == currentPath.F_Cost())
+                {
+                    if (openPath.hCost > currentPath.hCost) continue;
+
+                    bool sameHCost = openPath.hCost == currentPath.hCost;
+                    bool openCross = Is_CrossMovement(openPath);
+                    bool currentCross = Is_CrossMovement(currentPath);
+
+                    if (sameHCost && (openCross == false || currentCross)) continue;
+                }
                 currentPath = openPath;
             }
 
@@ -283,7 +317,7 @@ public class TileManager : MonoBehaviour
 
 
     // Generate
-    private void Generate_Tile()
+    private void Generate_Tiles()
     {
         float xWorldPos = -_generateXPos;
         float yWorldPos = -_generateYPos;
@@ -325,13 +359,23 @@ public class TileManager : MonoBehaviour
     public void Update_hoveringTile(Tile hoveringTile)
     {
         _hoveringTile = hoveringTile;
+        _tileHoverEventBus.RunSequential_BusEvents();
     }
-
     public void Select_HoveringTile(bool isPressed)
     {
         if (isPressed == false) return;
         if (_hoveringTile == null) return;
 
         _tileSelectEventBus.RunSequential_BusEvents();
+    }
+
+
+    // UI Animation
+    public void Reset_TileIndicators()
+    {
+        foreach (Tile tile in _tiles)
+        {
+            tile.indicatorAnimController.StopCurrent_PlayingState();
+        }
     }
 }

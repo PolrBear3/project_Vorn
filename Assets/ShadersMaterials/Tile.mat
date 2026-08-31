@@ -75,12 +75,12 @@ Material:
     m_Ints: []
     m_Floats:
     - _Alpha: 1
-    - _AlphaCutoffValue: 0
+    - _AlphaCutoffValue: 0.662
     - _AlphaOutlineBlend: 1
     - _AlphaOutlineGlow: 19.8
     - _AlphaOutlineMinAlpha: 0
     - _AlphaOutlinePower: 1
-    - _AlphaRoundThreshold: 0.621
+    - _AlphaRoundThreshold: 0.801
     - _BillboardY: 0
     - _BlurHD: 0
     - _BlurIntensity: 10
@@ -92,7 +92,7 @@ Material:
     - _ClipUvRight: 0
     - _ClipUvUp: 0
     - _ColorChangeLuminosity: 0
-    - _ColorChangeTolerance: 0.25
+    - _ColorChangeTolerance: 0
     - _ColorChangeTolerance2: 0.25
     - _ColorChangeTolerance3: 0.25
     - _ColorRampBlend: 1
@@ -101,8 +101,8 @@ Material:
     - _ColorSwapBlend: 1
     - _ColorSwapBlueLuminosity: 0.5
     - _ColorSwapGreenLuminosity: 0.5
-    - _ColorSwapRedLuminosity: 0.5
-    - _Contrast: 1.05
+    - _ColorSwapRedLuminosity: -0.525
+    - _Contrast: 0
     - _CullingOption: 0
     - _DistortAmount: 0.5
     - _DistortTexXSpeed: 5
@@ -119,7 +119,7 @@ Material:
     - _GhostBlend: 1
     - _GhostColorBoost: 1
     - _GhostTransparency: 0
-    - _GlitchAmount: 0
+    - _GlitchAmount: 20
     - _GlitchSize: 1
     - _Glow: 10
     - _GlowGlobal: 1
@@ -147,7 +147,7 @@ Material:
     - _HologramUnmodAmount: 0
     - _HsvBright: 1
     - _HsvSaturation: 1
-    - _HsvShift: 136
+    - _HsvShift: 19
     - _InnerOutlineAlpha: 1
     - _InnerOutlineGlow: 4
     - _InnerOutlineThickness: 1
@@ -197,7 +197,7 @@ Material:
     - _ShakeUvX: 0
     - _ShakeUvY: 0
     - _ShineGlow: 1
-    - _ShineLocation: 0.418
+    - _ShineLocation: 0.855
     - _ShineRotate: 0
     - _ShineWidth: 0.1
     - _TextureScrollXSpeed: -1.8
@@ -220,10 +220,10 @@ Material:
     m_Colors:
     - _AlphaOutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ColorChangeNewCol: {r: 1, g: 1, b: 0, a: 1}
+    - _ColorChangeNewCol: {r: 0.009034436, g: 0.3584906, b: 0, a: 1}
     - _ColorChangeNewCol2: {r: 1, g: 1, b: 0, a: 1}
     - _ColorChangeNewCol3: {r: 1, g: 1, b: 0, a: 1}
-    - _ColorChangeTarget: {r: 1, g: 0, b: 0, a: 1}
+    - _ColorChangeTarget: {r: 0.42352942, g: 0.4, b: 0.47058824, a: 1}
     - _ColorChangeTarget2: {r: 1, g: 0, b: 0, a: 1}
     - _ColorChangeTarget3: {r: 1, g: 0, b: 0, a: 1}
     - _ColorSwapBlue: {r: 1, g: 1, b: 1, a: 1}
@@ -238,9 +238,9 @@ Material:
     - _GreyscaleTintColor: {r: 1, g: 1, b: 1, a: 1}
     - _HitEffectColor: {r: 1, g: 0.18942153, b: 0, a: 1}
     - _HologramStripeColor: {r: 0, g: 1, b: 1, a: 1}
-    - _InnerOutlineColor: {r: 1, g: 0, b: 0, a: 1}
+    - _InnerOutlineColor: {r: 0.13039613, g: 1, b: 0, a: 1}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _OverlayColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ShineColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ShineColor: {r: 0.37624258, g: 1, b: 0.2688679, a: 1}
   m_BuildTextureStacks: []

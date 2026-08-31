@@ -61,6 +61,7 @@ public class HandInventory : MonoBehaviour
     public HandCard hovaringCard => _hoveringCard;
 
     private HandInventory_DragDropData _dragDropData;
+    public HandInventory_DragDropData dragDropData => _dragDropData;
 
 
     private EventBus_Controller _addCardToDeckBus;
@@ -86,16 +87,23 @@ public class HandInventory : MonoBehaviour
 
 
         // from Set_Data
+        GameManager manager = GameManager.instance;
+        
+        manager.tileManager.tileHoverEventBus.Register(0, HoverTile_DraggingCard);
+
         Input_Controller input = Input_Controller.instance;
 
         input.OnLeftClickPressed -= Drag_HoveringCard;
         input.OnLeftClickPressed -= Drop_DraggingCard;
         input.OnRightClickPressed -= Return_DraggingCard;
 
-        StageManager stageManager = GameManager.instance.stageManager;
-
+        StageManager stageManager = manager.stageManager;
         stageManager.stageSetEventBus.UnRegister(DrawCard_Delay);
-        stageManager.endTurnEventBus.UnRegister(DrawCard_Delay);
+
+        EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
+
+        endTurnEventBus.UnRegister(Return_DraggingCard);
+        endTurnEventBus.UnRegister(DrawCard_Delay);
     }
 
 
@@ -110,6 +118,8 @@ public class HandInventory : MonoBehaviour
         Update_CardPlatform();
 
 
+        manager.tileManager.tileHoverEventBus.Register(0, HoverTile_DraggingCard);
+
         Input_Controller input = Input_Controller.instance;
 
         input.OnLeftClickPressed += Drag_HoveringCard;
@@ -117,9 +127,12 @@ public class HandInventory : MonoBehaviour
         input.OnRightClickPressed += Return_DraggingCard;
 
         StageManager stageManager = manager.stageManager;
-
         stageManager.stageSetEventBus.Register(1, DrawCard_Delay);
-        stageManager.endTurnEventBus.Register(2, DrawCard_Delay);
+
+        EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
+
+        endTurnEventBus.Register(0, Return_DraggingCard);
+        endTurnEventBus.Register(2, DrawCard_Delay);
     }
 
     private void LoadCards_toDeck()
@@ -253,11 +266,13 @@ public class HandInventory : MonoBehaviour
     }
     private void Drag_HoveringCard(bool isHolding)
     {
-        if (_hoveringCard == null) return;
-        if (isHolding == false) return;
+        if (isHolding == false || _hoveringCard == null) return;
+
+        GameManager manager = GameManager.instance;
+        if (manager.stageManager.endTurnEventBus.DelayBus_Running()) return;
 
         CardData hoveringCardData = _hoveringCard.data;
-        if (GameManager.instance.cursor.Drag_Card(hoveringCardData, _hoveringCard.transform) == false) return;
+        if (manager.cursor.Drag_Card(hoveringCardData, _hoveringCard.transform) == false) return;
 
         for (int i = 0; i < handCards.Count; i++)
         {
@@ -272,6 +287,20 @@ public class HandInventory : MonoBehaviour
         Update_CardPlatform();
     }
 
+    private void HoverTile_DraggingCard()
+    {
+        if (_dragDropData == null) return;
+        
+        TileManager tileManager = GameManager.instance.tileManager;
+        tileManager.Reset_TileIndicators();
+
+        Tile hoveringTile = tileManager.hoveringTile;
+        if (hoveringTile == null) return;
+
+        string playState = hoveringTile.currentOccupant == null ? UIAnimation.Toggle : UIAnimation.Restricted;
+        hoveringTile.indicatorAnimController.Play_State(playState);
+    }
+
     private bool Place_DraggingCard()
     {
         if (_dragDropData == null) return false;
@@ -283,7 +312,9 @@ public class HandInventory : MonoBehaviour
         if (cardManager.PlaceCard_OnTile(_dragDropData.draggingCardData, manager.tileManager.hoveringTile) == false) return false;
 
         manager.cursor.Drop_Card();
+
         _dragDropData = null;
+        manager.tileManager.Reset_TileIndicators();
 
         return true;
     }
@@ -297,6 +328,8 @@ public class HandInventory : MonoBehaviour
             if (Place_DraggingCard()) return;
 
             _dragDropData.DragComplete();
+            GameManager.instance.tileManager.Reset_TileIndicators();
+
             return;
         }
 
@@ -310,13 +343,16 @@ public class HandInventory : MonoBehaviour
     {
         if (_dragDropData == null) return;
 
-        GameManager.instance.cursor.Drop_Card();
+        GameManager manager = GameManager.instance;
+
+        manager.cursor.Drop_Card();
         HandCard addedCard = AddCard_toHand(_dragDropData.draggingCardData);
 
         _handCards.Remove(addedCard);
         _handCards.Insert(_dragDropData.handCardsIndex, addedCard);
 
         _dragDropData = null;
+        manager.tileManager.Reset_TileIndicators();
 
         Update_HandCardPositions();
         Update_CardPlatform();

@@ -36,6 +36,11 @@ public class TileTargeting_Controller : MonoBehaviour
         input.OnLeftClickPressed -= UnToggle_Targeting_onMissClick;
         input.OnRightClickPressed -= UnToggle_Targeting;
         input.OnLeftClickPressed -= Target_Tile;
+
+        GameManager manager = GameManager.instance;
+
+        manager.stageManager.endTurnEventBus.UnRegister(UnToggle_Targeting);
+        manager.tileManager.tileHoverEventBus.UnRegister(Update_TargetingTileIndicators);
     }
 
 
@@ -47,6 +52,11 @@ public class TileTargeting_Controller : MonoBehaviour
         input.OnLeftClickPressed += UnToggle_Targeting_onMissClick;
         input.OnRightClickPressed += UnToggle_Targeting;
         input.OnLeftClickPressed += Target_Tile;
+
+        GameManager manager = GameManager.instance;
+
+        manager.stageManager.endTurnEventBus.Register(0,UnToggle_Targeting);
+        manager.tileManager.tileHoverEventBus.Register(0, Update_TargetingTileIndicators);
     }
 
 
@@ -57,6 +67,8 @@ public class TileTargeting_Controller : MonoBehaviour
         if (_targetingToggleLock) return false;
 
         GameManager manager = GameManager.instance;
+
+        if (manager.handInventory.dragDropData != null) return false;
         if (manager.stageManager.endTurnEventBus.DelayBus_Running()) return false;
 
         if (targetingSource.targetingCount <= 0) return false;
@@ -65,6 +77,8 @@ public class TileTargeting_Controller : MonoBehaviour
         bool toggled = targetingSource.targetingData.Toggle_Targeting(targetingSource.pivotTile);
 
         _toggledSource = toggled ? targetingSource : null;
+
+        Update_TargetingTileIndicators();
         Update_InfoText();
 
         return toggled;
@@ -77,6 +91,7 @@ public class TileTargeting_Controller : MonoBehaviour
         _toggledSource.targetingData.Toggle_Targeting(null);
         _toggledSource = null;
 
+        GameManager.instance.tileManager.Reset_TileIndicators();
         Update_InfoText();
     }
     private void UnToggle_Targeting(bool isPressed)
@@ -102,7 +117,7 @@ public class TileTargeting_Controller : MonoBehaviour
 
         return targetingData.targetingTiles.Count >= targetSelectCount;
     }
-    private IEnumerator TargetingToggle_LockUpdate()
+    public IEnumerator TargetingToggle_LockUpdate()
     {
         _targetingToggleLock = true;
         yield return null;
@@ -110,6 +125,32 @@ public class TileTargeting_Controller : MonoBehaviour
         _targetingToggleLock = false;
     }
 
+    private void Update_TargetingTileIndicators()
+    {
+        if (_toggledSource == null) return;
+
+        TileManager tileManager = GameManager.instance.tileManager;
+        tileManager.Reset_TileIndicators();
+
+        if (Targeting_Complete()) return;
+
+        Tile hoveringTile = tileManager.hoveringTile;
+        List<Tile> targetingTiles = new(_toggledSource.targetingData.targetingTiles);
+
+        for (int i = 0; i < targetingTiles.Count; i++)
+        {
+            targetingTiles[i].indicatorAnimController.Play_State(UIAnimation.Available);
+        }
+
+        Tile targetingToggledTile = _toggledSource.pivotTile;
+        if (hoveringTile == null || hoveringTile == targetingToggledTile || targetingTiles.Contains(hoveringTile)) return;
+
+        int interactRange = _toggledSource.targetingRange;
+        int distance = Utility.Chebyshev_Distance(targetingToggledTile.data.position, hoveringTile.data.position);
+
+        string playStateString = distance <= interactRange ? UIAnimation.Toggle : UIAnimation.Restricted;
+        hoveringTile.indicatorAnimController.Play_State(playStateString);
+    }
     private void Target_Tile(bool isPressed)
     {
         if (isPressed == false) return;
@@ -126,24 +167,20 @@ public class TileTargeting_Controller : MonoBehaviour
 
         if (distance > interactRange) return;
 
-        TileTargeting_Data targetingData = _toggledSource.targetingData;
-        targetingData.Target_Tile(selectedTile);
+        _toggledSource.targetingData.Target_Tile(selectedTile);
 
         if (Targeting_Complete() == false)
         {
+            Update_TargetingTileIndicators();
             Update_InfoText();
             return;
         }
-
-        targetingData.Toggle_Targeting(null);
-        _toggledSource = null;
-
+        UnToggle_Targeting();
         StartCoroutine(TargetingToggle_LockUpdate());
-        Update_InfoText();
     }
 
 
-    // UI
+    // Cursor UI
     private void Update_InfoText()
     {
         Cursor cursor = GameManager.instance.cursor;

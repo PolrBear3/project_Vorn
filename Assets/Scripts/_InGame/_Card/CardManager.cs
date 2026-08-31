@@ -55,7 +55,10 @@ public class CardManager : MonoBehaviour
         // from Set_Data
         GameManager manager = GameManager.instance;
 
-        manager.tileManager.tileSelectEventBus.UnRegister(Toggle_TileTargeting);
+        TileManager tileManager = manager.tileManager;
+
+        tileManager.tileHoverEventBus.UnRegister(Hover_PlacedCard);
+        tileManager.tileSelectEventBus.UnRegister(Toggle_TileTargeting);
 
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
 
@@ -69,7 +72,10 @@ public class CardManager : MonoBehaviour
     {
         GameManager manager = GameManager.instance;
 
-        manager.tileManager.tileSelectEventBus.Register(0, Toggle_TileTargeting);
+        TileManager tileManager = manager.tileManager;
+
+        tileManager.tileHoverEventBus.Register(0, Hover_PlacedCard);
+        tileManager.tileSelectEventBus.Register(0, Toggle_TileTargeting);
 
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
 
@@ -199,6 +205,56 @@ public class CardManager : MonoBehaviour
         StartCoroutine(placeCard.placeUpdateActionBus.RunSequential_DelayBusEvents());
 
         return true;
+    }
+    
+    private List<Tile> HoverIndicate_Tiles(Card hoverCard, out string indicateStateString)
+    {
+        if (hoverCard == null)
+        {
+            indicateStateString = null;
+            return null;
+        }
+
+        List<Tile> targetingTiles = new(hoverCard.targetingData.targetingTiles);
+
+        if (targetingTiles.Count > 0)
+        {
+            indicateStateString = UIAnimation.Available;
+            return targetingTiles;
+        }
+
+        Tile hoverCardTile = hoverCard.placedTile;
+
+        List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(hoverCardTile, hoverCard.data.currentData.interactRange);
+        interactRangeTiles.Remove(hoverCardTile);
+
+        indicateStateString = UIAnimation.Toggle;
+        return interactRangeTiles;
+    }
+    private void Hover_PlacedCard()
+    {
+        GameManager manager = GameManager.instance;
+
+        if (manager.stageManager.endTurnEventBus.DelayBus_Running()) return;
+        if (manager.tileTargeting.toggledSource != null) return;
+
+        TileManager tileManager = manager.tileManager;
+        Tile hoveringTile = tileManager.hoveringTile;
+
+        if (hoveringTile == null)
+        {
+            tileManager.Reset_TileIndicators();
+            return;
+        }
+
+        Card placedCard = PlacedCard(hoveringTile);
+        if (placedCard == null) return;
+
+        List<Tile> indicateTiles = HoverIndicate_Tiles(placedCard, out string indicateStateString);
+        foreach (Tile tile in indicateTiles)
+        {
+            tile.indicatorAnimController.Play_State(indicateStateString);
+        }
     }
 
     public bool CardPlace_ActionRunning()

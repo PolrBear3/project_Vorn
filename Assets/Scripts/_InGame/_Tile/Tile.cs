@@ -9,6 +9,9 @@ public class Tile : MonoBehaviour
 
     [Space(20)]
     [SerializeField] private EventSystems_Controller _hoverDetector;
+    
+    [SerializeField] private Animator_Controller _indicatorAnimController;
+    public Animator_Controller indicatorAnimController => _indicatorAnimController;
 
 
     private TileData _data;

@@ -13,7 +13,6 @@ public class TileManager : MonoBehaviour
 
     [Space(20)]
     [SerializeField] private GameObject _generateTilePrefab;
-    [SerializeField] private Sprite[] _tileSprites;
 
 
     private List<Tile> _tiles = new();
@@ -47,10 +46,10 @@ public class TileManager : MonoBehaviour
 
 
         // from Set_Data
-        GameManager manager = GameManager.instance;
+        _generateEventBus.UnRegister(Update_TileSprites);
 
         _generateEventBus.UnRegister(Reset_TileIndicators);
-        manager.stageManager.endTurnEventBus.Register(0, Reset_TileIndicators);
+        GameManager.instance.stageManager.endTurnEventBus.Register(0, Reset_TileIndicators);
 
         Input_Controller.instance.OnLeftClickPressed -= Select_HoveringTile;
     }
@@ -59,10 +58,10 @@ public class TileManager : MonoBehaviour
     // Data
     private void Set_Data()
     {
-        GameManager manager = GameManager.instance;
-        
+        _generateEventBus.Register(0, Update_TileSprites);
+
         _generateEventBus.Register(0, Reset_TileIndicators);
-        manager.stageManager.endTurnEventBus.Register(0, Reset_TileIndicators);
+        GameManager.instance.stageManager.endTurnEventBus.Register(0, Reset_TileIndicators);
 
         Input_Controller.instance.OnLeftClickPressed += Select_HoveringTile;
     }
@@ -333,10 +332,9 @@ public class TileManager : MonoBehaviour
             spawnTile.name = spawnTile.name + " " + i;
 
             if (spawnTile.TryGetComponent(out Tile tile) == false) break;
-            _tiles.Add(tile);
 
+            _tiles.Add(tile);
             tile.Set_Data(new(xPos, yPos));
-            tile.spriteRenderer.sprite = _tileSprites[UnityEngine.Random.Range(0, _tileSprites.Length)];
 
             yWorldPos += _tileSpacing;
             yPos++;
@@ -352,6 +350,18 @@ public class TileManager : MonoBehaviour
             if (xWorldPos > _generateXPos) break;
         }
         _generateEventBus.RunSequential_BusEvents();
+    }
+    private void Update_TileSprites()
+    {
+        Stage_ScrObj currentStage = GameManager.instance.currentGameData.stage;
+        
+        for (int i = 0; i < _tiles.Count; i++)
+        {
+            Tile tile = _tiles[i];
+
+            Sprite updateSprite = PivotSurrounding_Tiles(tile).Count >= 8 ? currentStage.Default_TileSprite() : currentStage.Edge_TileSprite();
+            tile.spriteRenderer.sprite = updateSprite;
+        }
     }
 
 

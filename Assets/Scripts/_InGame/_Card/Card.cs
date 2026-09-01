@@ -62,9 +62,13 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
     // ITileTargeting
     public Tile pivotTile => _placedTile;
     public TileTargeting_Data targetingData => _tileTargeting;
-
-    public int targetingRange => _data.currentData.interactRange;
     public int targetingCount => _data.currentData.targetSelectCount;
+
+    public bool Targeting_Available(Tile targetingTile)
+    {
+        int distance = Utility.Chebyshev_Distance(_placedTile.data.position, targetingTile.data.position);
+        return distance <= _data.currentData.interactRange;
+    }
 
 
     // MonoBehaviour

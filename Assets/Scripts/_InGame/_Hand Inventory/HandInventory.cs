@@ -70,6 +70,9 @@ public class HandInventory : MonoBehaviour
     private EventBus_Controller _drawCardFromDeck = new();
     public EventBus_Controller drawCardFromDeck => _drawCardFromDeck;
 
+    private EventBus_Controller _placeCardEventBus = new();
+    public EventBus_Controller placeCardEventBus => _placeCardEventBus;
+
 
     // MonoBehaviour
     private void Awake()
@@ -132,7 +135,7 @@ public class HandInventory : MonoBehaviour
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
 
         endTurnEventBus.Register(0, Return_DraggingCard);
-        endTurnEventBus.Register(2, DrawCard_Delay);
+        endTurnEventBus.Register(3, DrawCard_Delay);
     }
 
     private void LoadCards_toDeck()
@@ -316,6 +319,7 @@ public class HandInventory : MonoBehaviour
         _dragDropData = null;
         manager.tileManager.Reset_TileIndicators();
 
+        _placeCardEventBus.RunSequential_BusEvents();
         return true;
     }
     private void Drop_DraggingCard(bool isHolding)

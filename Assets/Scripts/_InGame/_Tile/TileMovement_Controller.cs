@@ -30,7 +30,7 @@ public class TileMovement_Controller : MonoBehaviour
 
     
     // Flip
-    public void Direction_FlipUpdate(float faceDirection)
+    private void Direction_FlipUpdate(float faceDirection)
     {
         bool isFlip = faceDirection < 0;
         

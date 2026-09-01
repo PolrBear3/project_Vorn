@@ -22,9 +22,11 @@ public class HeroManager : MonoBehaviour
         GameManager manager = GameManager.instance;
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
         
-        endTurnBus.UnRegister(EndStage_OnHeroDeath);
         endTurnBus.UnRegister(Hero_Unavailable);
         endTurnBus.UnRegister(_heroDeathEventBus.DelayBus_Running);
+
+        endTurnBus.UnRegister(Run_HeroActions);
+        endTurnBus.UnRegister(EndStage_OnHeroDeath);
 
         TileManager tileManager = manager.tileManager;
         EventBus_Controller tileHoverEventBus = tileManager.tileHoverEventBus;
@@ -33,6 +35,9 @@ public class HeroManager : MonoBehaviour
         tileHoverEventBus.UnRegister(Update_MovementRoute_OnTileTargeting);
 
         tileManager.tileSelectEventBus.UnRegister(Toggle_TileMovementTargeting);
+        manager.handInventory.placeCardEventBus.UnRegister(Cancel_TileMovementTargeting);
+
+        manager.stageManager.endTurnEventBus.UnRegister(Run_HeroActions);
     }
 
 
@@ -42,9 +47,11 @@ public class HeroManager : MonoBehaviour
         GameManager manager = GameManager.instance;
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
 
-        endTurnBus.Register(3, EndStage_OnHeroDeath);
         endTurnBus.Register(Hero_Unavailable);
         endTurnBus.Register(_heroDeathEventBus.DelayBus_Running);
+
+        endTurnBus.Register(0, Run_HeroActions);
+        endTurnBus.Register(4, EndStage_OnHeroDeath);
 
         TileManager tileManager = manager.tileManager;
         EventBus_Controller tileHoverEventBus = tileManager.tileHoverEventBus;
@@ -53,6 +60,7 @@ public class HeroManager : MonoBehaviour
         tileHoverEventBus.Register(1, Update_MovementRoute_OnTileTargeting);
 
         tileManager.tileSelectEventBus.Register(0, Toggle_TileMovementTargeting);
+        manager.handInventory.placeCardEventBus.Register(0, Cancel_TileMovementTargeting);
     }
 
     private bool Hero_Unavailable()
@@ -79,7 +87,27 @@ public class HeroManager : MonoBehaviour
 
         manager.tileTargeting.Toggle_Targeting(_currentHero);
     }
-    
+    private void Cancel_TileMovementTargeting()
+    {
+        if (_currentHero == null) return;
+        
+        TileTargeting_Data targetingData = _currentHero.tileTargeting;
+        List<Tile> targetingTiles = targetingData.targetingTiles;
+
+        if (targetingTiles.Count <= 0) return;
+
+        for (int i = 0; i < targetingTiles.Count; i++)
+        {
+            if (_currentHero.Targeting_Available(targetingTiles[i])) continue;
+
+            targetingTiles.Clear();
+            targetingData.recentTargetingTiles.Clear();
+
+            // mana refund ?
+            return;
+        }
+    }
+
     private void Update_MovementRoute_OnTileTargeting()
     {
         if (_currentHero == null) return;
@@ -101,6 +129,9 @@ public class HeroManager : MonoBehaviour
             if (routeTile == hoveringTile) continue;
             routeTile.indicatorAnimController.Play_State(UIAnimation.Available);
         }
+
+        if (hoveringTile.currentOccupant == null) return;
+        hoveringTile.indicatorAnimController.Play_State(UIAnimation.Restricted);
     }
     private void Update_MovementRoute_OnHeroHover()
     {
@@ -133,6 +164,18 @@ public class HeroManager : MonoBehaviour
             if (routeTile == hoveringTile) continue;
             routeTile.indicatorAnimController.Play_State(UIAnimation.Available);
         }
+    }
+
+
+    // Current Hero
+    private IEnumerator Run_HeroActions()
+    {
+        if (_currentHero == null) yield break;
+        
+        StartCoroutine(_currentHero.Run_EndTurnActions());
+        while (_currentHero.actionsRunning) yield return null;
+
+        yield break;
     }
 
 

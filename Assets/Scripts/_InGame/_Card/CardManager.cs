@@ -80,7 +80,7 @@ public class CardManager : MonoBehaviour
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
 
         endTurnBus.Register(CardPlace_ActionRunning);
-        endTurnBus.Register(0, Run_CardActions);
+        endTurnBus.Register(1, Run_CardActions);
     }
 
 

@@ -12,6 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 205b206b49f1e4d8582012b440f2251d, type: 3}
   m_Name: Tutorial
   m_EditorClassIdentifier: 
+  _defaultTileSprites:
+  - {fileID: -1975314735, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
+  - {fileID: 135956888, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
+  - {fileID: 667475204, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
+  - {fileID: -218666325, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
+  _edgeTilesprites:
+  - {fileID: 949711634, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
+  - {fileID: -1708901758, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
+  - {fileID: 1650145184, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
+  - {fileID: -1367416326, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
   _enemySpawnDatas:
   - _spawnCount: 0
     _spawnRateDatas:

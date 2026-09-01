@@ -5,10 +5,11 @@ using UnityEngine;
 public interface ITileTargeting
 {
     Tile pivotTile { get; }
-    TileTargeting_Data targetingData { get; }
 
-    int targetingRange { get; }
+    TileTargeting_Data targetingData { get; }
     int targetingCount { get; }
+
+    bool Targeting_Available(Tile targetingTile);
 }
 
 public class TileTargeting_Controller : MonoBehaviour
@@ -142,31 +143,22 @@ public class TileTargeting_Controller : MonoBehaviour
             targetingTiles[i].indicatorAnimController.Play_State(UIAnimation.Available);
         }
 
-        Tile targetingToggledTile = _toggledSource.pivotTile;
-        if (hoveringTile == null || hoveringTile == targetingToggledTile || targetingTiles.Contains(hoveringTile)) return;
+        if (hoveringTile == null || hoveringTile == _toggledSource.pivotTile || targetingTiles.Contains(hoveringTile)) return;
 
-        int interactRange = _toggledSource.targetingRange;
-        int distance = Utility.Chebyshev_Distance(targetingToggledTile.data.position, hoveringTile.data.position);
-
-        string playStateString = distance <= interactRange ? UIAnimation.Toggle : UIAnimation.Restricted;
+        string playStateString = _toggledSource.Targeting_Available(hoveringTile) ? UIAnimation.Toggle : UIAnimation.Restricted;
         hoveringTile.indicatorAnimController.Play_State(playStateString);
     }
     private void Target_Tile(bool isPressed)
     {
-        if (isPressed == false) return;
-        if (_toggledSource == null) return;
+        if (isPressed == false || _toggledSource == null) return;
 
         Tile selectedTile = GameManager.instance.tileManager.hoveringTile;
         if (selectedTile == null) return;
 
         Tile pivotTile = _toggledSource.pivotTile;
         if (pivotTile == null || selectedTile == pivotTile) return;
-
-        int interactRange = _toggledSource.targetingRange;
-        int distance = Utility.Chebyshev_Distance(pivotTile.data.position, selectedTile.data.position);
-
-        if (distance > interactRange) return;
-
+       
+        if (_toggledSource.Targeting_Available(selectedTile) == false) return;
         _toggledSource.targetingData.Target_Tile(selectedTile);
 
         if (Targeting_Complete() == false)

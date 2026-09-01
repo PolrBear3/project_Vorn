@@ -134,6 +134,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _movementTweenType: 0
   _singleTileMovementTime: 0.5
+  _directionFlipRenderers:
+  - {fileID: 1613547910854064946}
+  - {fileID: 2942787712760851441}
 --- !u!114 &3546002857372368550
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -39,7 +39,7 @@ public class EnemyManager : MonoBehaviour
         StageManager stageManager = GameManager.instance.stageManager;
 
         stageManager.stageSetEventBus.Register(0, Run_DelaySpawn);
-        stageManager.endTurnEventBus.Register(1, Run_EnemyActions);
+        stageManager.endTurnEventBus.Register(2, Run_EnemyActions);
     }
 
 

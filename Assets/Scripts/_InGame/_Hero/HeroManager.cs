@@ -11,6 +11,11 @@ public class HeroManager : MonoBehaviour
     public EventBus_Controller heroDeathEventBus => _heroDeathEventBus;
 
 
+    [Space(20)]
+    [SerializeField] private HeroStatBar _healthBar;
+    [SerializeField] private HeroStatBar _manaBar;
+
+
     // MonoBehaviour
     private void Awake()
     {

@@ -18,10 +18,10 @@ MonoBehaviour:
   - {fileID: 667475204, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
   - {fileID: -218666325, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
   _edgeTilesprites:
-  - {fileID: 949711634, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
-  - {fileID: -1708901758, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
-  - {fileID: 1650145184, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
-  - {fileID: -1367416326, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
+  - {fileID: -1318532268, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
+  - {fileID: -771167798, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
+  - {fileID: 1210506815, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
+  - {fileID: -296799713, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
   _enemySpawnDatas:
   - _spawnCount: 0
     _spawnRateDatas:

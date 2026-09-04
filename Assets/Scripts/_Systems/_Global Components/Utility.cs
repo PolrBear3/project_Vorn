@@ -4,6 +4,9 @@ using UnityEngine;
 
 public static class Utility
 {
+    public static float worldSpacePixelValue = 0.0625f;
+    public static float screenSpacePixelValue = 6.25f;
+
     public static List<Vector2> Surrounding_Directions()
     {
         List<Vector2> directions = new(8);

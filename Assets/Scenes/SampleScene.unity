@@ -491,6 +491,11 @@ MonoBehaviour:
   _backgroundEffectSpeed: 0.8
   _statBlockPrefab: {fileID: 1818964235729703761, guid: bf4f3384ab6a8467eb474897b3b3bf2b, type: 3}
   _statBlockSprite: {fileID: -1761077686, guid: 77c7dff379a2b40bcb8e18c0ac618efe, type: 3}
+  _widthPixelSize: 10
+  _heightPixelSize: 88
+  _xSeperatePixelDistance: 5
+  _ySeperatePixelDistance: 7
+  _maxRowBlockCount: 0
 --- !u!1 &392547014
 GameObject:
   m_ObjectHideFlags: 0
@@ -1222,6 +1227,11 @@ MonoBehaviour:
   _backgroundEffectSpeed: 0.8
   _statBlockPrefab: {fileID: 1818964235729703761, guid: bf4f3384ab6a8467eb474897b3b3bf2b, type: 3}
   _statBlockSprite: {fileID: 2032670016, guid: 77c7dff379a2b40bcb8e18c0ac618efe, type: 3}
+  _widthPixelSize: 10
+  _heightPixelSize: 88
+  _xSeperatePixelDistance: 6
+  _ySeperatePixelDistance: 6
+  _maxRowBlockCount: 3
 --- !u!1 &1285172575
 GameObject:
   m_ObjectHideFlags: 0

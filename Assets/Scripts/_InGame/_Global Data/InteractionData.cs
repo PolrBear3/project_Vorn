@@ -43,7 +43,7 @@ public class InteractionData
     [SerializeField][Range(0, 10)] private int _targetSelectCount;
     public int targetSelectCount => _targetSelectCount;
 
-
+    public Action<int, int> OnHealthUpdate; // currentHealth, maxHealth
     public Action<int> OnMaxHealthUpdate;
     public Action<int> OnCurrentHealthUpdate;
     public Action OnAbilityUpdate;
@@ -78,7 +78,9 @@ public class InteractionData
         if (updateValue == 0) return;
 
         _maxHealth = newValue;
+
         OnMaxHealthUpdate?.Invoke(updateValue);
+        OnHealthUpdate?.Invoke(_currentHealth, _maxHealth);
     }
     public void Update_CurrentHealth(int newValue)
     {
@@ -91,7 +93,9 @@ public class InteractionData
         if (updateValue < 0 && Remove_Ability(InteractableAbility.Shield)) return;
 
         _currentHealth = newValue;
+        
         OnCurrentHealthUpdate?.Invoke(updateValue);
+        OnHealthUpdate?.Invoke(_currentHealth, _maxHealth);
     }
 
     public void Toggle_HealthUpdatingState(bool toggle)

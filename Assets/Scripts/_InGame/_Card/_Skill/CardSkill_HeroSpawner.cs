@@ -55,9 +55,10 @@ public class CardSkill_HeroSpawner : CardSkill
         }
         
         currentTile.Set_Occupant(spawnHeroObj);
-        manager.heroManager.Track_CurrentHero(spawnHero);
 
-        spawnHero.Set_Data(currentHero);
+        spawnHero.Set_Data(currentHero); // set data before tracking hero
+        manager.heroManager.Track_CurrentHero(spawnHero); // needs interaction data set for updating
+
         spawnHero.movement.Set_CurrentTile(currentTile);
         spawnHero.animator.Play_State(OccupantAnimation.Set);
 

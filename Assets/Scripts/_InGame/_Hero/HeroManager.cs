@@ -10,10 +10,12 @@ public class HeroManager : MonoBehaviour
     private EventBus_Controller _heroDeathEventBus = new();
     public EventBus_Controller heroDeathEventBus => _heroDeathEventBus;
 
-
     [Space(20)]
-    [SerializeField] private HeroStatBar _healthBar;
-    [SerializeField] private HeroStatBar _manaBar;
+    [SerializeField] private Hero_StatPanel _healthPanel;
+    [SerializeField] private Hero_StatPanel _manaPanel;
+
+    [Space(10)]
+    [SerializeField][Range(0, 1000)] private float _statPanelsSpacingValue;
 
 
     // MonoBehaviour
@@ -24,6 +26,7 @@ public class HeroManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        // from Set_Data
         GameManager manager = GameManager.instance;
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
         
@@ -42,13 +45,20 @@ public class HeroManager : MonoBehaviour
         tileManager.tileSelectEventBus.UnRegister(Toggle_TileMovementTargeting);
         manager.handInventory.placeCardEventBus.UnRegister(Cancel_TileMovementTargeting);
 
-        manager.stageManager.endTurnEventBus.UnRegister(Run_HeroActions);
+        manager.handInventory.OnPlatformWidthUpdate -= Update_StatPanelPositions;
+
+        // from Track_CurrentHero
+        if (_currentHero == null) return;
+        _currentHero.interactionData.OnHealthUpdate -= _healthPanel.Update_ValueText;
     }
 
 
     // Data
     private void Set_Data()
     {
+        Update_HealthPanel();
+
+
         GameManager manager = GameManager.instance;
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
 
@@ -66,18 +76,24 @@ public class HeroManager : MonoBehaviour
 
         tileManager.tileSelectEventBus.Register(0, Toggle_TileMovementTargeting);
         manager.handInventory.placeCardEventBus.Register(0, Cancel_TileMovementTargeting);
-    }
 
-    private bool Hero_Unavailable()
-    {
-        return _currentHero == null && GameManager.instance.cardManager.placedCards.Count <= 0;
+        manager.handInventory.OnPlatformWidthUpdate += Update_StatPanelPositions;
     }
     public void Track_CurrentHero(Hero heroToTrack)
     {
         if (heroToTrack == null) return;
 
         heroToTrack.transform.SetParent(transform);
+
         _currentHero = heroToTrack;
+        _currentHero.interactionData.OnHealthUpdate += _healthPanel.Update_ValueText;
+
+        Update_HealthPanel();
+    }
+
+    private bool Hero_Unavailable()
+    {
+        return _currentHero == null && GameManager.instance.cardManager.placedCards.Count <= 0;
     }
 
 
@@ -190,5 +206,45 @@ public class HeroManager : MonoBehaviour
         if (_currentHero == null || _currentHero.data.currentData.currentHealth > 0) yield break;
 
         _heroDeathEventBus.RunSequential_DelayBusEvents();
+    }
+
+
+    // Stat Panels
+    private float Update_Direction(float xPosition)
+    {
+        if (xPosition < 0f) return -1f;
+        if (xPosition > 0f) return 1f;
+
+        return 0f;
+    }
+    private void Update_StatPanelPositions(float cardPlatformWidth)
+    {
+        float halfPlatformWidth = cardPlatformWidth / 2f;
+
+        float healthHalfWidth = _healthPanel.rectTransform.rect.width / 2f;
+        float manaHalfWidth = _manaPanel.rectTransform.rect.width / 2f;
+
+        float healthXPosition = halfPlatformWidth + _statPanelsSpacingValue + healthHalfWidth;
+        float manaXPosition = halfPlatformWidth + _statPanelsSpacingValue + manaHalfWidth;
+
+        Vector2 healthPos = _healthPanel.rectTransform.anchoredPosition;
+        Vector2 manaPos = _manaPanel.rectTransform.anchoredPosition;
+
+        healthPos.x = healthXPosition * Update_Direction(healthPos.x);
+        manaPos.x = manaXPosition * Update_Direction(manaPos.x);
+
+        _healthPanel.rectTransform.anchoredPosition = healthPos;
+        _manaPanel.rectTransform.anchoredPosition = manaPos;
+    }
+
+    private void Update_HealthPanel()
+    {
+        if (_currentHero == null)
+        {
+            _healthPanel.Update_ValueText(0, 0);
+            return;
+        }
+        InteractionData currentHeroData = _currentHero.data.currentData;
+        _healthPanel.Update_ValueText(currentHeroData.currentHealth, currentHeroData.maxHealth);
     }
 }

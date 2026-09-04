@@ -45,6 +45,8 @@ public class HandInventory : MonoBehaviour
     [SerializeField][Range(0, 1000)] private float _platformWidthUpdateValue;
 
     private float _defaultPlatformWidth;
+    public Action<float> OnPlatformWidthUpdate;
+
 
     [Space(10)]
     [SerializeField][Range(0, 50)] private int _maxHandCardCount;
@@ -64,7 +66,7 @@ public class HandInventory : MonoBehaviour
     public HandInventory_DragDropData dragDropData => _dragDropData;
 
 
-    private EventBus_Controller _addCardToDeckBus;
+    private EventBus_Controller _addCardToDeckBus = new();
     public EventBus_Controller addCardToDeckBus => _addCardToDeckBus;
 
     private EventBus_Controller _drawCardFromDeck = new();
@@ -172,7 +174,7 @@ public class HandInventory : MonoBehaviour
     }
 
 
-    // Hand
+    // Visual
     private void Update_HandCardPositions()
     {
         if (_handCards == null || _handCards.Count <= 0) return;
@@ -192,12 +194,21 @@ public class HandInventory : MonoBehaviour
         bool toggle = currentCardCount > 0;
 
         _cardPlatform.gameObject.SetActive(toggle);
-        if (toggle == false) return;
+
+        if (toggle == false)
+        {
+            OnPlatformWidthUpdate?.Invoke(0f);
+            return;
+        }
 
         float updateWidthValue = _defaultPlatformWidth + Mathf.Max(0, (currentCardCount - 2) * _platformWidthUpdateValue);
         _cardPlatform.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, updateWidthValue);
+
+        OnPlatformWidthUpdate?.Invoke(_cardPlatform.rectTransform.rect.width);
     }
 
+
+    // Hand
     public HandCard AddCard_toHand(CardData addCardData)
     {
         if (_handCards.Count >= _maxHandCardCount) return null;

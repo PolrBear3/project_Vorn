@@ -17,17 +17,11 @@ public interface IInteractable
 [System.Serializable]
 public class InteractionData
 {
-    [SerializeField][Range(0, 100)] private int _mana;
-    public int mana => _mana;
-
     [SerializeField][Range(0, 100)] private int _maxHealth;
     public int maxHealth => _maxHealth;
 
     private int _currentHealth;
     public int currentHealth => _currentHealth;
-
-    private int _previousCurrentHealth;
-    public int previousCurrentHealth => _previousCurrentHealth;
 
     [SerializeField][Range(-100, 100)] private int _healthModifyValue;
     public int healthModifyValue => _healthModifyValue;
@@ -43,9 +37,15 @@ public class InteractionData
     [SerializeField][Range(0, 10)] private int _targetSelectCount;
     public int targetSelectCount => _targetSelectCount;
 
-    public Action<int, int> OnHealthUpdate; // currentHealth, maxHealth
-    public Action<int> OnMaxHealthUpdate;
-    public Action<int> OnCurrentHealthUpdate;
+    /// <summary>
+    /// currentHealth, maxHealth
+    /// </summary>
+    public Action<int, int> OnHealthUpdate;
+    /// <summary>
+    /// modified value
+    /// </summary>
+    public Action<int> OnHealthModifyUpdate;
+
     public Action OnAbilityUpdate;
 
 
@@ -56,10 +56,8 @@ public class InteractionData
     // New
     public InteractionData(InteractionData newData)
     {
-        _mana = newData._mana;
         _maxHealth = newData._maxHealth;
         _currentHealth = _maxHealth;
-        _previousCurrentHealth = _maxHealth;
         _healthModifyValue = newData._healthModifyValue;
 
         _abilities = new(newData.abilities);
@@ -73,29 +71,27 @@ public class InteractionData
     public void Update_MaxHealth(int newValue)
     {
         newValue = Mathf.Max(_currentHealth, newValue);
+        int modifyValue = newValue - _maxHealth;
 
-        int updateValue = newValue - _maxHealth;
-        if (updateValue == 0) return;
+        if (modifyValue == 0) return;
 
         _maxHealth = newValue;
 
-        OnMaxHealthUpdate?.Invoke(updateValue);
         OnHealthUpdate?.Invoke(_currentHealth, _maxHealth);
+        OnHealthModifyUpdate?.Invoke(modifyValue);
     }
     public void Update_CurrentHealth(int newValue)
     {
-        _previousCurrentHealth = _currentHealth;
         newValue = Mathf.Clamp(newValue, 0, _maxHealth);
+        int modifyValue = newValue - _currentHealth;
 
-        int updateValue = newValue - _currentHealth;
-
-        if (updateValue == 0) return;
-        if (updateValue < 0 && Remove_Ability(InteractableAbility.Shield)) return;
+        if (modifyValue == 0) return;
+        if (modifyValue < 0 && Remove_Ability(InteractableAbility.Shield)) return;
 
         _currentHealth = newValue;
-        
-        OnCurrentHealthUpdate?.Invoke(updateValue);
+
         OnHealthUpdate?.Invoke(_currentHealth, _maxHealth);
+        OnHealthModifyUpdate?.Invoke(modifyValue);
     }
 
     public void Toggle_HealthUpdatingState(bool toggle)

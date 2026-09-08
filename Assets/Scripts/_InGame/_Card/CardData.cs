@@ -11,11 +11,15 @@ public class CardData
     private InteractionData _currentData;
     public InteractionData currentData => _currentData;
 
+    private int _currentManaPrice;
+    public int currentManaPrice => _currentManaPrice;
+
 
     // New
     public CardData(Card_ScrObj setCard)
     {
         _cardScrObj = setCard;
+        _currentManaPrice = setCard.manaPrice;
 
         if (setCard == null) return;
         _currentData = new(setCard.interactionData);

@@ -25,17 +25,17 @@ public class InteractableHealth_Controller : MonoBehaviour
     private void OnDestroy()
     {
         if (_targetData == null) return;
-        _targetData.OnCurrentHealthUpdate -= Handle_HealthUpdate;
+        _targetData.OnHealthModifyUpdate -= Handle_HealthUpdate;
     }
-    
+
 
     // Data
     public void Set_Data(InteractionData targetData)
     {
         if (targetData == null) return;
-        
+
         _targetData = targetData;
-        _targetData.OnCurrentHealthUpdate += Handle_HealthUpdate;
+        _targetData.OnHealthModifyUpdate += Handle_HealthUpdate;
     }
 
 
@@ -59,9 +59,9 @@ public class InteractableHealth_Controller : MonoBehaviour
 
 
     // Main
-    private void Handle_HealthUpdate(int healthUpdateValue)
+    private void Handle_HealthUpdate(int healthModifyValue)
     {
-        string animState = healthUpdateValue <= 0 ? OccupantAnimation.Damaged : OccupantAnimation.Healed;
+        string animState = healthModifyValue <= 0 ? OccupantAnimation.Damaged : OccupantAnimation.Healed;
         Play_AnimatorState(animState);
 
         _targetData.Toggle_HealthUpdatingState(true);

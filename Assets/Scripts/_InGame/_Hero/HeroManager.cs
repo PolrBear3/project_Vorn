@@ -29,7 +29,7 @@ public class HeroManager : MonoBehaviour
         // from Set_Data
         GameManager manager = GameManager.instance;
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
-        
+
         endTurnBus.UnRegister(Hero_Unavailable);
         endTurnBus.UnRegister(_heroDeathEventBus.DelayBus_Running);
 
@@ -50,6 +50,7 @@ public class HeroManager : MonoBehaviour
         // from Track_CurrentHero
         if (_currentHero == null) return;
         _currentHero.interactionData.OnHealthUpdate -= _healthPanel.Update_ValueText;
+        _currentHero.data.OnManaUpdate -= _manaPanel.Update_ValueText;
     }
 
 
@@ -57,6 +58,7 @@ public class HeroManager : MonoBehaviour
     private void Set_Data()
     {
         Update_HealthPanel();
+        Update_ManaPanel();
 
 
         GameManager manager = GameManager.instance;
@@ -87,8 +89,10 @@ public class HeroManager : MonoBehaviour
 
         _currentHero = heroToTrack;
         _currentHero.interactionData.OnHealthUpdate += _healthPanel.Update_ValueText;
+        _currentHero.data.OnManaUpdate += _manaPanel.Update_ValueText;
 
         Update_HealthPanel();
+        Update_ManaPanel();
     }
 
     private bool Hero_Unavailable()
@@ -111,7 +115,7 @@ public class HeroManager : MonoBehaviour
     private void Cancel_TileMovementTargeting()
     {
         if (_currentHero == null) return;
-        
+
         TileTargeting_Data targetingData = _currentHero.tileTargeting;
         List<Tile> targetingTiles = targetingData.targetingTiles;
 
@@ -174,7 +178,7 @@ public class HeroManager : MonoBehaviour
 
         List<Tile> routeTiles = _currentHero.tileTargeting.targetingTiles;
         if (routeTiles.Count <= 0) return;
-        
+
         Tile destinationTile = routeTiles[0];
         routeTiles = tileManager.PathFind_RouteTiles(_currentHero.movement.currentTile, destinationTile);
 
@@ -189,14 +193,36 @@ public class HeroManager : MonoBehaviour
 
 
     // Current Hero
+    public int Current_ManaCount()
+    {
+        if (_currentHero == null) return 0;
+        return _currentHero.data.currentManaCount;
+    }
+    public void Modify_CurrentManaCount(int modifyCount)
+    {
+        if (_currentHero == null || modifyCount == 0) return;
+
+        int currentManaCount = _currentHero != null ? _currentHero.data.currentManaCount : 0;
+        _currentHero.data.Update_CurrentManaCount(currentManaCount + modifyCount);
+    }
+
     private IEnumerator Run_HeroActions()
     {
         if (_currentHero == null) yield break;
-        
+
         StartCoroutine(_currentHero.Run_EndTurnActions());
         while (_currentHero.actionsRunning) yield return null;
 
         yield break;
+    }
+    private IEnumerator Refill_CurrentManaCount()
+    {
+        if (_currentHero == null) yield break;
+
+        HeroData heroData = _currentHero.data;
+        if (heroData.currentData.currentHealth <= 0) yield break;
+
+        heroData.Update_CurrentManaCount(heroData.maxManaCount);
     }
 
 
@@ -244,7 +270,19 @@ public class HeroManager : MonoBehaviour
             _healthPanel.Update_ValueText(0, 0);
             return;
         }
+
         InteractionData currentHeroData = _currentHero.data.currentData;
         _healthPanel.Update_ValueText(currentHeroData.currentHealth, currentHeroData.maxHealth);
+    }
+    private void Update_ManaPanel()
+    {
+        if (_currentHero == null)
+        {
+            _manaPanel.Update_ValueText(0, 0);
+            return;
+        }
+
+        HeroData data = _currentHero.data;
+        _manaPanel.Update_ValueText(data.currentManaCount, data.maxManaCount);
     }
 }

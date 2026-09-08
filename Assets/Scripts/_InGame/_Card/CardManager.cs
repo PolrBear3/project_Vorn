@@ -187,11 +187,23 @@ public class CardManager : MonoBehaviour
     // Cards
     public bool PlaceCard_OnTile(CardData placeCardData, Tile placeTile)
     {
-        if (placeCardData == null || placeCardData.cardScrObj == null) return false;
         if (placeTile == null || placeTile.currentOccupant != null) return false;
 
-        GameObject cardPrefab = placeCardData.cardScrObj.placePrefab;
+        Card_ScrObj placingCard = placeCardData?.cardScrObj;
+        if (placingCard == null) return false;
+
+        GameObject cardPrefab = placingCard.placePrefab;
         if (cardPrefab == null) return false;
+
+        HeroManager heroManager = GameManager.instance.heroManager;
+        int cardManaPrice = placingCard.manaPrice;
+
+        if (heroManager.Current_ManaCount() < cardManaPrice)
+        {
+            // not enough mana panel animation ? 
+            return false;
+        }
+        heroManager.Modify_CurrentManaCount(-cardManaPrice);
 
         GameObject placeCardObj = Instantiate(cardPrefab, placeTile.transform.position, Quaternion.identity);
         placeCardObj.transform.SetParent(transform);
@@ -206,7 +218,7 @@ public class CardManager : MonoBehaviour
 
         return true;
     }
-    
+
     private List<Tile> HoverIndicate_Tiles(Card hoverCard, out string indicateStateString)
     {
         if (hoverCard == null)

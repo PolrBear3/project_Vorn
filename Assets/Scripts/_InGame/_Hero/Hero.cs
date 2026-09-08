@@ -42,7 +42,8 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
     {
         List<Tile> routeTiles = GameManager.instance.tileManager.PathFind_RouteTiles(_movement.currentTile, targetingTile);
 
-        return targetingTile.currentOccupant == null && routeTiles.Contains(targetingTile);
+        if (targetingTile.currentOccupant != null) return false;
+        return routeTiles.Contains(targetingTile) && _data.currentManaCount >= routeTiles.Count;
     }
 
 

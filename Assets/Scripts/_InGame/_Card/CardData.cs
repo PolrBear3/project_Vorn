@@ -19,7 +19,7 @@ public class CardData
     public CardData(Card_ScrObj setCard)
     {
         _cardScrObj = setCard;
-        _currentManaPrice = setCard.manaPrice;
+        _currentManaPrice = setCard.manaCost;
 
         if (setCard == null) return;
         _currentData = new(setCard.interactionData);

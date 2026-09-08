@@ -10,6 +10,9 @@ public class HeroManager : MonoBehaviour
     private EventBus_Controller _heroDeathEventBus = new();
     public EventBus_Controller heroDeathEventBus => _heroDeathEventBus;
 
+    private int _recentMovementManaCost;
+
+
     [Space(20)]
     [SerializeField] private Hero_StatPanel _healthPanel;
     [SerializeField] private Hero_StatPanel _manaPanel;
@@ -34,6 +37,7 @@ public class HeroManager : MonoBehaviour
         endTurnBus.UnRegister(_heroDeathEventBus.DelayBus_Running);
 
         endTurnBus.UnRegister(Run_HeroActions);
+        endTurnBus.UnRegister(Refill_CurrentManaCount);
         endTurnBus.UnRegister(EndStage_OnHeroDeath);
 
         TileManager tileManager = manager.tileManager;
@@ -43,9 +47,15 @@ public class HeroManager : MonoBehaviour
         tileHoverEventBus.UnRegister(Update_MovementRoute_OnTileTargeting);
 
         tileManager.tileSelectEventBus.UnRegister(Toggle_TileMovementTargeting);
-        manager.handInventory.placeCardEventBus.UnRegister(Cancel_TileMovementTargeting);
+        manager.tileTargeting.OnTargetTile -= UpdateMana_OnTileMovementTarget;
 
-        manager.handInventory.OnPlatformWidthUpdate -= Update_StatPanelPositions;
+        HandInventory handInventory = manager.handInventory;
+        handInventory.OnPlatformWidthUpdate -= Update_StatPanelPositions;
+
+        EventBus_Controller placeCardEventBus = handInventory.placeCardEventBus;
+
+        placeCardEventBus.UnRegister(Cancel_TileMovementTargeting_OnRouteBlocked);
+        placeCardEventBus.UnRegister(UpdateMana_OnTileMovementTarget);
 
         // from Track_CurrentHero
         if (_currentHero == null) return;
@@ -68,7 +78,8 @@ public class HeroManager : MonoBehaviour
         endTurnBus.Register(_heroDeathEventBus.DelayBus_Running);
 
         endTurnBus.Register(0, Run_HeroActions);
-        endTurnBus.Register(4, EndStage_OnHeroDeath);
+        endTurnBus.Register(4, Refill_CurrentManaCount);
+        endTurnBus.Register(5, EndStage_OnHeroDeath);
 
         TileManager tileManager = manager.tileManager;
         EventBus_Controller tileHoverEventBus = tileManager.tileHoverEventBus;
@@ -77,9 +88,15 @@ public class HeroManager : MonoBehaviour
         tileHoverEventBus.Register(1, Update_MovementRoute_OnTileTargeting);
 
         tileManager.tileSelectEventBus.Register(0, Toggle_TileMovementTargeting);
-        manager.handInventory.placeCardEventBus.Register(0, Cancel_TileMovementTargeting);
+        manager.tileTargeting.OnTargetTile += UpdateMana_OnTileMovementTarget;
 
-        manager.handInventory.OnPlatformWidthUpdate += Update_StatPanelPositions;
+        HandInventory handInventory = manager.handInventory;
+        handInventory.OnPlatformWidthUpdate += Update_StatPanelPositions;
+
+        EventBus_Controller placeCardEventBus = handInventory.placeCardEventBus;
+
+        placeCardEventBus.Register(0, Cancel_TileMovementTargeting_OnRouteBlocked);
+        placeCardEventBus.Register(0, UpdateMana_OnTileMovementTarget);
     }
     public void Track_CurrentHero(Hero heroToTrack)
     {
@@ -101,7 +118,33 @@ public class HeroManager : MonoBehaviour
     }
 
 
+    // Mana
+    public int Current_ManaCount()
+    {
+        if (_currentHero == null) return 0;
+        return _currentHero.data.currentManaCount;
+    }
+    public void Modify_CurrentManaCount(int modifyCount)
+    {
+        if (_currentHero == null || modifyCount == 0) return;
+
+        int currentManaCount = _currentHero != null ? _currentHero.data.currentManaCount : 0;
+        _currentHero.data.Update_CurrentManaCount(currentManaCount + modifyCount);
+    }
+
+
     // Movement Targeting
+    private List<Tile> RouteTiles_toDestionation()
+    {
+        if (_currentHero == null) return null;
+
+        List<Tile> routeTiles = _currentHero.tileTargeting.targetingTiles;
+        if (routeTiles.Count <= 0) return routeTiles;
+
+        Tile destinationTile = routeTiles[0];
+        return GameManager.instance.tileManager.PathFind_RouteTiles(_currentHero.movement.currentTile, destinationTile);
+    }
+
     private void Toggle_TileMovementTargeting()
     {
         GameManager manager = GameManager.instance;
@@ -110,27 +153,80 @@ public class HeroManager : MonoBehaviour
         if (selectedTile == null) return;
         if (_currentHero == null || _currentHero.movement.currentTile != selectedTile) return;
 
-        manager.tileTargeting.Toggle_Targeting(_currentHero);
+        if (manager.tileTargeting.Toggle_Targeting(_currentHero) == false) return;
+
+        HeroData heroData = _currentHero.data;
+
+        heroData.Update_CurrentManaCount(heroData.currentManaCount + _recentMovementManaCost);
+        _recentMovementManaCost = 0;
     }
+
     private void Cancel_TileMovementTargeting()
     {
         if (_currentHero == null) return;
 
         TileTargeting_Data targetingData = _currentHero.tileTargeting;
-        List<Tile> targetingTiles = targetingData.targetingTiles;
 
+        targetingData.targetingTiles.Clear();
+        targetingData.recentTargetingTiles.Clear();
+
+        Refund_MovementManaCost();
+    }
+    private void Cancel_TileMovementTargeting_OnRouteBlocked()
+    {
+        if (_currentHero == null) return;
+
+        List<Tile> targetingTiles = _currentHero.tileTargeting.targetingTiles;
         if (targetingTiles.Count <= 0) return;
 
+        List<Tile> routeTiles = RouteTiles_toDestionation();
         for (int i = 0; i < targetingTiles.Count; i++)
         {
-            if (_currentHero.Targeting_Available(targetingTiles[i])) continue;
+            if (routeTiles.Contains(targetingTiles[i])) continue;
 
-            targetingTiles.Clear();
-            targetingData.recentTargetingTiles.Clear();
-
-            // mana refund ?
+            Cancel_TileMovementTargeting();
             return;
         }
+    }
+
+    private void UpdateMana_OnTileMovementTarget()
+    {
+        if (_currentHero == null) return;
+
+        int totalManaCost = RouteTiles_toDestionation().Count;
+        int manaCostDifference = totalManaCost - _recentMovementManaCost;
+
+        if (manaCostDifference == 0) return;
+
+        HeroData heroData = _currentHero.data;
+        
+        int updatedManaCount = heroData.currentManaCount - manaCostDifference;
+        if (updatedManaCount < 0)
+        {
+            Cancel_TileMovementTargeting();
+            return;
+        }
+
+        Debug.Log("UpdateMana_OnTileMovementTarget");
+
+        heroData.Update_CurrentManaCount(updatedManaCount);
+        _recentMovementManaCost = totalManaCost;
+    }
+    private void UpdateMana_OnTileMovementTarget(ITileTargeting heroSource)
+    {
+        if (_currentHero == null) return;
+        if (heroSource is not Hero hero || _currentHero != hero) return;
+
+        UpdateMana_OnTileMovementTarget();
+    }
+
+    private void Refund_MovementManaCost()
+    {
+        if (_currentHero == null) return;
+        HeroData heroData = _currentHero.data;
+
+        heroData.Update_CurrentManaCount(heroData.currentManaCount + _recentMovementManaCost);
+        _recentMovementManaCost = 0;
     }
 
     private void Update_MovementRoute_OnTileTargeting()
@@ -145,18 +241,21 @@ public class HeroManager : MonoBehaviour
         Tile hoveringTile = tileManager.hoveringTile;
         if (hoveringTile == null) return;
 
+        if (_currentHero.Targeting_Available(hoveringTile) == false)
+        {
+            hoveringTile.indicatorAnimController.Play_State(UIAnimation.Restricted);
+            return;
+        }
+
         List<Tile> routeTiles = tileManager.PathFind_RouteTiles(_currentHero.movement.currentTile, hoveringTile);
 
         for (int i = 0; i < routeTiles.Count; i++)
         {
             Tile routeTile = routeTiles[i];
 
-            if (routeTile == hoveringTile) continue;
+            if (routeTile == hoveringTile) continue; // destination tile
             routeTile.indicatorAnimController.Play_State(UIAnimation.Available);
         }
-
-        if (hoveringTile.currentOccupant == null) return;
-        hoveringTile.indicatorAnimController.Play_State(UIAnimation.Restricted);
     }
     private void Update_MovementRoute_OnHeroHover()
     {
@@ -192,20 +291,7 @@ public class HeroManager : MonoBehaviour
     }
 
 
-    // Current Hero
-    public int Current_ManaCount()
-    {
-        if (_currentHero == null) return 0;
-        return _currentHero.data.currentManaCount;
-    }
-    public void Modify_CurrentManaCount(int modifyCount)
-    {
-        if (_currentHero == null || modifyCount == 0) return;
-
-        int currentManaCount = _currentHero != null ? _currentHero.data.currentManaCount : 0;
-        _currentHero.data.Update_CurrentManaCount(currentManaCount + modifyCount);
-    }
-
+    // End Turn Actions
     private IEnumerator Run_HeroActions()
     {
         if (_currentHero == null) yield break;

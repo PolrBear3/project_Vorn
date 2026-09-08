@@ -16,6 +16,6 @@ public class Card_ScrObj : ScriptableObject
     [SerializeField] private InteractionData _interactionData;
     public InteractionData interactionData => _interactionData;
 
-    [SerializeField][Range(0, 50)] private int _manaPrice;
-    public int manaPrice => _manaPrice;
+    [SerializeField][Range(0, 50)] private int _manaCost;
+    public int manaCost => _manaCost;
 }

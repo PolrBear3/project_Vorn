@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,6 +19,8 @@ public class TileTargeting_Controller : MonoBehaviour
     public ITileTargeting toggledSource => _toggledSource;
 
     private bool _targetingToggleLock;
+
+    public Action<ITileTargeting> OnTargetTile;
 
 
     // MonoBehaviour
@@ -159,7 +162,9 @@ public class TileTargeting_Controller : MonoBehaviour
         if (pivotTile == null || selectedTile == pivotTile) return;
        
         if (_toggledSource.Targeting_Available(selectedTile) == false) return;
+        
         _toggledSource.targetingData.Target_Tile(selectedTile);
+        OnTargetTile?.Invoke(_toggledSource);
 
         if (Targeting_Complete() == false)
         {

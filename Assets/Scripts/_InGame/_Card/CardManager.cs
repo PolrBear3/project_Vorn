@@ -196,14 +196,14 @@ public class CardManager : MonoBehaviour
         if (cardPrefab == null) return false;
 
         HeroManager heroManager = GameManager.instance.heroManager;
-        int cardManaPrice = placingCard.manaPrice;
+        int cardManaCost = placingCard.manaCost;
 
-        if (heroManager.Current_ManaCount() < cardManaPrice)
+        if (heroManager.Current_ManaCount() < cardManaCost)
         {
             // not enough mana panel animation ? 
             return false;
         }
-        heroManager.Modify_CurrentManaCount(-cardManaPrice);
+        heroManager.Modify_CurrentManaCount(-cardManaCost);
 
         GameObject placeCardObj = Instantiate(cardPrefab, placeTile.transform.position, Quaternion.identity);
         placeCardObj.transform.SetParent(transform);

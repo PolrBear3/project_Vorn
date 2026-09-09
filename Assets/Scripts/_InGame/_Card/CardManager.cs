@@ -40,6 +40,9 @@ public class CardManager : MonoBehaviour
     private CardManager_DragDropData _dragDropData;
     public CardManager_DragDropData dragDropData => _dragDropData;
 
+    [Space(20)]
+    [SerializeField] private ToolTip _placedCardHoverToolTip;
+
 
     // MonoBehaviour
     private void Awake()

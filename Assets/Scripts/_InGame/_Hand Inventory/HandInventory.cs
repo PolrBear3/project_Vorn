@@ -44,12 +44,11 @@ public class HandInventory : MonoBehaviour
     [SerializeField][Range(0, 1000)] private float _handCardsSpacingValue;
     [SerializeField][Range(0, 1000)] private float _platformWidthUpdateValue;
 
-    private float _defaultPlatformWidth;
-    public Action<float> OnPlatformWidthUpdate;
-
-
     [Space(10)]
     [SerializeField][Range(0, 50)] private int _maxHandCardCount;
+
+    [Space(20)]
+    [SerializeField] private ToolTip _handCardHoverToolTip;
 
 
     private HandInventory_Data _data;
@@ -64,6 +63,10 @@ public class HandInventory : MonoBehaviour
 
     private HandInventory_DragDropData _dragDropData;
     public HandInventory_DragDropData dragDropData => _dragDropData;
+
+
+    private float _defaultPlatformWidth;
+    public Action<float> OnPlatformWidthUpdate;
 
 
     private EventBus_Controller _addCardToDeckBus = new();
@@ -277,6 +280,18 @@ public class HandInventory : MonoBehaviour
     public void Update_HoveringCard(HandCard hoveringCard)
     {
         _hoveringCard = hoveringCard;
+
+        // ToolTip
+        bool toggle = hoveringCard != null;
+        _handCardHoverToolTip.Toggle(toggle);
+
+        if (toggle == false) return;
+
+        Card_ScrObj hoverCardScrObj = hoveringCard.data.cardScrObj;
+        _handCardHoverToolTip.Update_Contents(null, hoverCardScrObj.contentSprite, hoverCardScrObj.cardName, hoverCardScrObj.cardDescription);
+
+        RectTransform panel = _handCardHoverToolTip.panel.rectTransform;
+        panel.anchoredPosition = new(hoveringCard.rectTransform.anchoredPosition.x, panel.anchoredPosition.y);
     }
     private void Drag_HoveringCard(bool isHolding)
     {

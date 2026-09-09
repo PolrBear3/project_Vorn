@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ab6d7b62706f44cf85f91250d6d2ee0, type: 3}
   m_Name: Bow
   m_EditorClassIdentifier: 
+  _cardName: Bow
+  _cardDescription: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
+    porta mi eu porttitor dapibus.
   _contentSprite: {fileID: -1634482492, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
   _placePrefab: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
   _interactionData:
@@ -20,4 +23,4 @@ MonoBehaviour:
     _abilities: 01000000
     _interactRange: 2
     _targetSelectCount: 1
-  _manaPrice: 3
+  _manaCost: 0

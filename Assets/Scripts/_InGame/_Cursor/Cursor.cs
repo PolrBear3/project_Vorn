@@ -22,6 +22,9 @@ public class Cursor : MonoBehaviour
     [SerializeField] private RectTransform _draggingCardFollowPoint;
     [SerializeField][Range(0, 100)] private float _draggingCardMovementSpeed;
 
+    [Space(20)]
+    [SerializeField] private ToolTip _dragCardToolTip;
+
 
     private bool _pointerIconToggled;
 

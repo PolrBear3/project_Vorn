@@ -96,7 +96,7 @@ public class HandInventory : MonoBehaviour
 
         // from Set_Data
         GameManager manager = GameManager.instance;
-        
+
         manager.tileManager.tileHoverEventBus.Register(0, HoverTile_DraggingCard);
 
         Input_Controller input = Input_Controller.instance;
@@ -282,7 +282,7 @@ public class HandInventory : MonoBehaviour
         _hoveringCard = hoveringCard;
 
         // ToolTip
-        bool toggle = hoveringCard != null;
+        bool toggle = hoveringCard != null && _dragDropData == null;
         _handCardHoverToolTip.Toggle(toggle);
 
         if (toggle == false) return;
@@ -319,7 +319,7 @@ public class HandInventory : MonoBehaviour
     private void HoverTile_DraggingCard()
     {
         if (_dragDropData == null) return;
-        
+
         TileManager tileManager = GameManager.instance.tileManager;
         tileManager.Reset_TileIndicators();
 

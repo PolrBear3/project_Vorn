@@ -219,6 +219,7 @@ public class CardManager : MonoBehaviour
         placeCard.Set_Data(placeCardData, placeTile);
         StartCoroutine(placeCard.placeUpdateActionBus.RunSequential_DelayBusEvents());
 
+        Hover_PlacedCard();
         return true;
     }
 
@@ -259,10 +260,14 @@ public class CardManager : MonoBehaviour
         if (hoveringTile == null)
         {
             tileManager.Reset_TileIndicators();
+            _placedCardHoverToolTip.Toggle(false);
+
             return;
         }
 
         Card placedCard = PlacedCard(hoveringTile);
+        _placedCardHoverToolTip.Toggle(placedCard != null);
+
         if (placedCard == null) return;
 
         List<Tile> indicateTiles = HoverIndicate_Tiles(placedCard, out string indicateStateString);
@@ -270,6 +275,12 @@ public class CardManager : MonoBehaviour
         {
             tile.indicatorAnimController.Play_State(indicateStateString);
         }
+
+        // ToolTip
+        Card_ScrObj cardScrObj = placedCard.data.cardScrObj;
+
+        _placedCardHoverToolTip.ToggleOn_CursorPoint(true);
+        _placedCardHoverToolTip.Update_Contents(null, cardScrObj.contentSprite, cardScrObj.cardName, cardScrObj.cardDescription);
     }
 
     public bool CardPlace_ActionRunning()

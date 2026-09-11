@@ -7,6 +7,9 @@ using System;
 
 public class ToolTip : MonoBehaviour
 {
+    [Space(20)]
+    [SerializeField] private RectTransform _positionUpdateBoundary;
+    
     [Space(10)]
     [SerializeField] private Image _panel;
     public Image panel => _panel;
@@ -26,6 +29,8 @@ public class ToolTip : MonoBehaviour
 
 
     private Sprite _defaultBaseSprite;
+    private float _defaultNameFontSize;
+
     private Coroutine _toggleDelayCoroutine;
 
     private List<Func<bool>> _toggleRestrictionChecks = new();
@@ -36,20 +41,37 @@ public class ToolTip : MonoBehaviour
     private void Awake()
     {
         _defaultBaseSprite = _baseImage.sprite;
+        _defaultNameFontSize = _nameText.fontSize;
 
-        Toggle(false);
+        UnToggle();
     }
 
 
     // Main
+    private void Update_NameText(string nameString)
+    {
+        _nameText.text = nameString;
+        _nameText.fontSize = _defaultNameFontSize;
+
+        float availableWidth = _nameText.rectTransform.rect.width;
+
+        float textBoxHeight = _nameText.rectTransform.rect.height;
+        float preferredWidth = _nameText.GetPreferredValues(nameString, Mathf.Infinity, textBoxHeight).x;
+
+        if (preferredWidth <= availableWidth) return;
+        float sizeRatio = availableWidth / preferredWidth;
+
+        _nameText.fontSize = Mathf.Max(0, _defaultNameFontSize * sizeRatio);
+    }
     public void Update_Contents(Sprite baseSprite, Sprite iconSprite, string nameString, string descriptionString)
     {
         _baseImage.sprite = baseSprite != null ? baseSprite : _defaultBaseSprite;
         _iconImage.sprite = iconSprite;
 
-        _nameText.text = nameString;
+        Update_NameText(nameString);
         _descriptionText.text = descriptionString;
     }
+
 
     private bool Toggle_Restricted()
     {
@@ -83,6 +105,11 @@ public class ToolTip : MonoBehaviour
         _toggleDelayCoroutine = null;
     }
 
+    public void UnToggle()
+    {
+        Toggle(false);
+    }
+
 
     // Cursor
     private void Update_yPivotState()
@@ -99,12 +126,58 @@ public class ToolTip : MonoBehaviour
         panelRect.pivot = new(panelRect.pivot.x, yPivotValue);
         panelRect.anchoredPosition = anchoredPosition;
     }
+
+    public Vector2 PositionUpdateBoundary_OverflowAmount()
+    {
+        if (_panel == null || _positionUpdateBoundary == null)
+            return Vector2.zero;
+
+        RectTransform panelRect = _panel.rectTransform;
+
+        Vector3[] panelCorners = new Vector3[4];
+        Vector3[] boundaryCorners = new Vector3[4];
+
+        panelRect.GetWorldCorners(panelCorners);
+        _positionUpdateBoundary.GetWorldCorners(boundaryCorners);
+
+        Vector2 worldOverflow = Vector2.zero;
+
+        // Left
+        if (panelCorners[0].x < boundaryCorners[0].x)
+            worldOverflow.x = panelCorners[0].x - boundaryCorners[0].x;
+
+        // Right
+        if (panelCorners[2].x > boundaryCorners[2].x)
+            worldOverflow.x = panelCorners[2].x - boundaryCorners[2].x;
+
+        // Bottom
+        if (panelCorners[0].y < boundaryCorners[0].y)
+            worldOverflow.y = panelCorners[0].y - boundaryCorners[0].y;
+
+        // Top
+        if (panelCorners[2].y > boundaryCorners[2].y)
+            worldOverflow.y = panelCorners[2].y - boundaryCorners[2].y;
+
+        RectTransform panelParent = panelRect.parent as RectTransform;
+        if (panelParent == null)
+            return worldOverflow;
+
+        Vector3 localOverflow =
+            panelParent.InverseTransformVector(worldOverflow);
+
+        return new Vector2(localOverflow.x, localOverflow.y);
+    }
     private void UpdatePosition_CursorPoint()
     {
-        RectTransform cursorPointer = GameManager.instance.cursor.pointerIconRect;
+        GameManager manager = GameManager.instance;
+        
+        RectTransform cursorPointer = manager.cursor.pointerIconRect;
+        RectTransform panelRect = _panel.rectTransform;
 
         float offsetX = cursorPointer.position.x >= Screen.width / 2f ? _flipSeperationDistanceX.y : _flipSeperationDistanceX.x;
-        _panel.rectTransform.anchoredPosition = cursorPointer.anchoredPosition + new Vector2(offsetX, 0f);
+        panelRect.anchoredPosition = cursorPointer.anchoredPosition + new Vector2(offsetX, 0f);
+
+        panelRect.anchoredPosition -= PositionUpdateBoundary_OverflowAmount();
     }
 
     public void ToggleOn_CursorPoint(bool toggle)

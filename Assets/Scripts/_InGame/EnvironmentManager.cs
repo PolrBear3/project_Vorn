@@ -5,6 +5,9 @@ using UnityEngine;
 public class EnvironmentManager : MonoBehaviour
 {
     [Space(20)]
+    [SerializeField] private Camera _camera;
+
+    [Space(20)]
     [SerializeField] private SpriteRenderer _materialBackground;
     [SerializeField][Range(0, 10)]  private float _backgroundEffectSpeed;
 

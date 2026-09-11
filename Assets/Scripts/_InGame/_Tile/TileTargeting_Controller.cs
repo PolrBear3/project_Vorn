@@ -20,6 +20,7 @@ public class TileTargeting_Controller : MonoBehaviour
 
     private bool _targetingToggleLock;
 
+    public Action<bool> OnToggleTargeting;
     public Action<ITileTargeting> OnTargetTile;
 
 
@@ -81,6 +82,7 @@ public class TileTargeting_Controller : MonoBehaviour
         bool toggled = targetingSource.targetingData.Toggle_Targeting(targetingSource.pivotTile);
 
         _toggledSource = toggled ? targetingSource : null;
+        OnToggleTargeting?.Invoke(toggled);
 
         Update_TargetingTileIndicators();
         Update_InfoText();
@@ -93,7 +95,9 @@ public class TileTargeting_Controller : MonoBehaviour
         if (_toggledSource == null) return;
 
         _toggledSource.targetingData.Toggle_Targeting(null);
+
         _toggledSource = null;
+        OnToggleTargeting?.Invoke(false);
 
         GameManager.instance.tileManager.Reset_TileIndicators();
         Update_InfoText();

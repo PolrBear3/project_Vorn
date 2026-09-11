@@ -27,6 +27,9 @@ public class GameManager : MonoBehaviour
     public EnemyManager enemyManager => _enemyManager;
 
     [Space(10)]
+    [SerializeField] private EnvironmentManager _environmentManager;
+    public EnvironmentManager environmentManager => _environmentManager;
+
     [SerializeField] private Cursor _cursor;
     public Cursor cursor => _cursor;
 

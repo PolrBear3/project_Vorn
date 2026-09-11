@@ -67,6 +67,11 @@ public class CardManager : MonoBehaviour
 
         endTurnBus.UnRegister(CardPlace_ActionRunning);
         endTurnBus.UnRegister(Run_CardActions);
+
+        endTurnBus.UnRegister(_placedCardHoverToolTip.UnToggle);
+        endTurnBus.OnSequentialDelayFinish -= Hover_PlacedCard;
+
+        manager.tileTargeting.OnToggleTargeting -= Hover_PlacedCard;
     }
 
 
@@ -84,6 +89,11 @@ public class CardManager : MonoBehaviour
 
         endTurnBus.Register(CardPlace_ActionRunning);
         endTurnBus.Register(1, Run_CardActions);
+
+        endTurnBus.Register(0, _placedCardHoverToolTip.UnToggle);
+        endTurnBus.OnSequentialDelayFinish += Hover_PlacedCard;
+
+        manager.tileTargeting.OnToggleTargeting += Hover_PlacedCard;
     }
 
 
@@ -223,6 +233,7 @@ public class CardManager : MonoBehaviour
         return true;
     }
 
+
     private List<Tile> HoverIndicate_Tiles(Card hoverCard, out string indicateStateString)
     {
         if (hoverCard == null)
@@ -247,6 +258,7 @@ public class CardManager : MonoBehaviour
         indicateStateString = UIAnimation.Toggle;
         return interactRangeTiles;
     }
+    
     private void Hover_PlacedCard()
     {
         GameManager manager = GameManager.instance;
@@ -282,6 +294,16 @@ public class CardManager : MonoBehaviour
         _placedCardHoverToolTip.ToggleOn_CursorPoint(true);
         _placedCardHoverToolTip.Update_Contents(null, cardScrObj.contentSprite, cardScrObj.cardName, cardScrObj.cardDescription);
     }
+    private void Hover_PlacedCard(bool tileTargetingToggled)
+    {
+        if (tileTargetingToggled)
+        {
+            _placedCardHoverToolTip.UnToggle();
+            return;
+        }
+        Hover_PlacedCard();
+    }
+
 
     public bool CardPlace_ActionRunning()
     {

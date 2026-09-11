@@ -10,6 +10,7 @@ public class EventBus_Controller
     private readonly Dictionary<int, Action> _eventSequentialBus = new();
     private readonly Dictionary<int, Func<IEnumerator>> _eventSequentialDelayBus = new();
 
+    public Action OnSequentialDelayFinish;
     private bool _delayBusRunning;
 
 
@@ -143,6 +144,7 @@ public class EventBus_Controller
             }
         }
         _delayBusRunning = false;
+        OnSequentialDelayFinish?.Invoke();
     }
     public bool DelayBus_Running()
     {

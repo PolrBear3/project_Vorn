@@ -9,7 +9,7 @@ public class Card_ScrObj : ScriptableObject
     [SerializeField] private string _cardName;
     public string cardName => _cardName;
 
-    [SerializeField] private string _cardDescription;
+    [SerializeField][TextArea(3, 10)] private string _cardDescription;
     public string cardDescription => _cardDescription;
 
     [Space(20)]

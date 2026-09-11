@@ -13,10 +13,7 @@ MonoBehaviour:
   m_Name: Long Sword
   m_EditorClassIdentifier: 
   _cardName: Long Sword
-  _cardDescription: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem
-    ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet,
-    consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing
-    elit.
+  _cardDescription: Deal damage to 2 targets within a range of 1.
   _contentSprite: {fileID: 31158166, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
   _placePrefab: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
   _interactionData:

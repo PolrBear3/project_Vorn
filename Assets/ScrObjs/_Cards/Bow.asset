@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Bow
   m_EditorClassIdentifier: 
   _cardName: Bow
-  _cardDescription: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
-    porta mi eu porttitor dapibus.
+  _cardDescription: Deal damage to 1 target within a range of 2.
   _contentSprite: {fileID: -1634482492, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
   _placePrefab: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
   _interactionData:

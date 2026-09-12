@@ -9,7 +9,7 @@ public class Tile : MonoBehaviour
 
     [Space(20)]
     [SerializeField] private EventSystems_Controller _hoverDetector;
-    
+
     [SerializeField] private Animator_Controller _indicatorAnimController;
     public Animator_Controller indicatorAnimController => _indicatorAnimController;
 
@@ -40,7 +40,7 @@ public class Tile : MonoBehaviour
     }
 
 
-    // Card & Enemy Placeable
+    // Occupant
     public bool Set_Occupant(GameObject occupantObject)
     {
         if (occupantObject == null)
@@ -53,6 +53,14 @@ public class Tile : MonoBehaviour
 
         _currentOccupant = occupantObject;
         return true;
+    }
+
+    public IInteractable CurrentOccupant_Interactable()
+    {
+        if (_currentOccupant == null) return null;
+        if (_currentOccupant.TryGetComponent(out IInteractable interactable) == false) return null;
+
+        return interactable;
     }
 
 

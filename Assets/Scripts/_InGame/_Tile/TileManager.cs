@@ -14,6 +14,9 @@ public class TileManager : MonoBehaviour
     [Space(20)]
     [SerializeField] private GameObject _generateTilePrefab;
 
+    [SerializeField] private EdgeTile_DamageSystem _damageSystem;
+    public EdgeTile_DamageSystem damageSystem => _damageSystem;
+
 
     private List<Tile> _tiles = new();
     public List<Tile> tiles => _tiles;
@@ -354,7 +357,7 @@ public class TileManager : MonoBehaviour
     private void Update_TileSprites()
     {
         Stage_ScrObj currentStage = GameManager.instance.currentGameData.stage;
-        
+
         for (int i = 0; i < _tiles.Count; i++)
         {
             Tile tile = _tiles[i];

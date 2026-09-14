@@ -37,6 +37,7 @@ public class InteractionData
     [SerializeField][Range(0, 10)] private int _targetSelectCount;
     public int targetSelectCount => _targetSelectCount;
 
+
     /// <summary>
     /// currentHealth, maxHealth
     /// </summary>

@@ -56,6 +56,8 @@ public class StageManager : MonoBehaviour
     private IEnumerator Run_StageSetEventBus()
     {
         yield return null; // wait 1 frame for all events registeration to _stageSetEventBus
+
+        _stageSetEventBus.RunSequential_BusEvents();
         StartCoroutine(_stageSetEventBus.RunSequential_DelayBusEvents());
     }
 

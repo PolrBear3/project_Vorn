@@ -140,7 +140,7 @@ public class HandInventory : MonoBehaviour
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
 
         endTurnEventBus.Register(0, Return_DraggingCard);
-        endTurnEventBus.Register(3, DrawCard_Delay);
+        endTurnEventBus.Register(4, DrawCard_Delay);
     }
 
     private void LoadCards_toDeck()

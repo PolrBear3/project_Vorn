@@ -31,7 +31,7 @@ public class CardManager_DragDropData
 
 public class CardManager : MonoBehaviour
 {
-    private CardManager_Data _data = new();
+    private CardManager_Data _data = new(); // for save & load
     public CardManager_Data data => _data;
 
     private List<Card> _placedCards = new();
@@ -88,7 +88,7 @@ public class CardManager : MonoBehaviour
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
 
         endTurnBus.Register(CardPlace_ActionRunning);
-        endTurnBus.Register(1, Run_CardActions);
+        endTurnBus.Register(2, Run_CardActions);
 
         endTurnBus.Register(0, _placedCardHoverToolTip.UnToggle);
         endTurnBus.OnSequentialDelayFinish += Hover_PlacedCard;
@@ -327,8 +327,10 @@ public class CardManager : MonoBehaviour
 
     private IEnumerator Run_CardActions()
     {
+        Hero currentHero = GameManager.instance.heroManager.currentHero;
+        if (currentHero != null && currentHero.data.currentData.currentHealth <= 0) yield break;
+        
         List<Card> runActionCards = new(_placedCards);
-
         for (int i = 0; i < runActionCards.Count; i++)
         {
             Card card = runActionCards[i];
@@ -339,6 +341,7 @@ public class CardManager : MonoBehaviour
             StartCoroutine(card.Run_EndTurnActions());
             while (card != null && card.actionsRunning || cardData.healthUpdating) yield return null;
         }
+        
         yield break;
     }
 

@@ -10,6 +10,13 @@ public class Stage_ScrObj : ScriptableObject
     [SerializeField] private Sprite[] _edgeTilesprites;
 
     [Space(20)]
+    [SerializeField][Range(0, 50)] private int _rowTileCount;
+    public int rowTileCount => _rowTileCount;
+
+    [SerializeField][Range(0, 50)] private int _columnTileCount;
+    public int columnTileCount => _columnTileCount;
+
+    [Space(20)]
     [SerializeField] private Enemy_SpawnData[] _enemySpawnDatas; // wave of enemies spawining in a single stage
     public Enemy_SpawnData[] enemySpawnDatas => _enemySpawnDatas;
 

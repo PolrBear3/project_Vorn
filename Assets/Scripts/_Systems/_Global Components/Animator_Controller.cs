@@ -10,9 +10,9 @@ public class Animator_Controller : MonoBehaviour
     private Animator _animator;
 
     private Sprite _defaultSprite;
-    private const string None = "None";
-
     private string _currentState;
+
+    private const string None = "None";
 
 
     // MonoBehaviour
@@ -51,7 +51,6 @@ public class Animator_Controller : MonoBehaviour
         _animator.Play(None, 0, 0f);
         _sr.sprite = _defaultSprite;
     }
-
     public void Play_State(string stateName)
     {
         _currentState = stateName;

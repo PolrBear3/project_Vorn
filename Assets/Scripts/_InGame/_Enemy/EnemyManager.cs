@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class EnemyManager : MonoBehaviour
 {
-    private EnemyManager_Data _data = new();
+    private EnemyManager_Data _data = new();  // for save & load
     public EnemyManager_Data data => _data;
 
     private List<Enemy> _spawnedEnemies = new();
@@ -39,7 +39,7 @@ public class EnemyManager : MonoBehaviour
         StageManager stageManager = GameManager.instance.stageManager;
 
         stageManager.stageSetEventBus.Register(0, Run_DelaySpawn);
-        stageManager.endTurnEventBus.Register(2, Run_EnemyActions);
+        stageManager.endTurnEventBus.Register(3, Run_EnemyActions);
     }
 
 
@@ -105,8 +105,10 @@ public class EnemyManager : MonoBehaviour
     // Spawned Enemies
     private IEnumerator Run_EnemyActions()
     {
-        List<Enemy> actionEnemies = new(_spawnedEnemies);
+        Hero currentHero = GameManager.instance.heroManager.currentHero;
+        if (currentHero != null && currentHero.data.currentData.currentHealth <= 0) yield break;
 
+        List<Enemy> actionEnemies = new(_spawnedEnemies);
         for (int i = 0; i < actionEnemies.Count; i++)
         {
             Enemy enemy = actionEnemies[i];
@@ -115,6 +117,7 @@ public class EnemyManager : MonoBehaviour
             StartCoroutine(enemy.Run_EndTurnActions());
             while (enemy.actionsRunning) yield return null;
         }
+
         yield break;
     }
 }

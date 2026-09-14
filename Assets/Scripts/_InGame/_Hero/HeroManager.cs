@@ -77,9 +77,9 @@ public class HeroManager : MonoBehaviour
         endTurnBus.Register(Hero_Unavailable);
         endTurnBus.Register(_heroDeathEventBus.DelayBus_Running);
 
-        endTurnBus.Register(0, Run_HeroActions);
-        endTurnBus.Register(4, Refill_CurrentManaCount);
-        endTurnBus.Register(5, EndStage_OnHeroDeath);
+        endTurnBus.Register(1, Run_HeroActions);
+        endTurnBus.Register(5, Refill_CurrentManaCount);
+        endTurnBus.Register(6, EndStage_OnHeroDeath);
 
         TileManager tileManager = manager.tileManager;
         EventBus_Controller tileHoverEventBus = tileManager.tileHoverEventBus;
@@ -207,8 +207,6 @@ public class HeroManager : MonoBehaviour
             return;
         }
 
-        Debug.Log("UpdateMana_OnTileMovementTarget");
-
         heroData.Update_CurrentManaCount(updatedManaCount);
         _recentMovementManaCost = totalManaCost;
     }
@@ -294,7 +292,7 @@ public class HeroManager : MonoBehaviour
     // End Turn Actions
     private IEnumerator Run_HeroActions()
     {
-        if (_currentHero == null) yield break;
+        if (_currentHero == null || _currentHero.data.currentData.currentHealth <= 0) yield break;
 
         StartCoroutine(_currentHero.Run_EndTurnActions());
         while (_currentHero.actionsRunning) yield return null;
@@ -303,7 +301,7 @@ public class HeroManager : MonoBehaviour
     }
     private IEnumerator Refill_CurrentManaCount()
     {
-        if (_currentHero == null) yield break;
+        if (_currentHero == null || _currentHero.data.currentData.currentHealth <= 0) yield break;
 
         HeroData heroData = _currentHero.data;
         if (heroData.currentData.currentHealth <= 0) yield break;

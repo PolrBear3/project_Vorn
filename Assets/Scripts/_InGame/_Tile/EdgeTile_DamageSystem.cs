@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class EdgeTile_DamageSystem : MonoBehaviour
 {
+    private EdgeTile_DamageSystemData _data = new();  // for save & load
+    public EdgeTile_DamageSystemData data => _data;
+    
+    
     // MonoBehaviour
     private void Awake()
     {
@@ -13,13 +17,17 @@ public class EdgeTile_DamageSystem : MonoBehaviour
     private void OnDestroy()
     {
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
+
+
+        // from Set_Data
+        GameManager.instance.stageManager.endTurnEventBus.UnRegister(Damage_EdgeTile_PlayerInteractables);
     }
 
 
     // Data
     private void Set_Data()
     {
-        // Damage_EdgeTile_PlayerInteractables end turn sequence to order 0 registeration
+        GameManager.instance.stageManager.endTurnEventBus.Register(0, Damage_EdgeTile_PlayerInteractables);
     }
 
 
@@ -31,7 +39,9 @@ public class EdgeTile_DamageSystem : MonoBehaviour
 
         for (int i = 0; i < tiles.Count; i++)
         {
-            IInteractable interactable = tiles[i].CurrentOccupant_Interactable();
+            Tile tile = tiles[i];
+            
+            IInteractable interactable = tile.CurrentOccupant_Interactable();
             if (interactable == null) continue;
 
             interactables.Add(interactable);
@@ -43,19 +53,21 @@ public class EdgeTile_DamageSystem : MonoBehaviour
     {
         List<IInteractable> damageInteractables = EdgeTile_Interactables();
 
-        for (int i = 0; i < damageInteractables.Count; i++)
+        for (int i = damageInteractables.Count - 1; i >= 0 ; i--)
         {
             IInteractable interactable = damageInteractables[i];
             if (interactable is Enemy) continue;
 
-            // get damage stacking data
+            InteractionData data = interactable.interactionData;
+            int damageCount = _data.Current_StackDamageCount(interactable) + 1;
 
-            // damage interactable
+            data.Update_CurrentHealth(data.currentHealth - damageCount);
+            _data.Update_StackDamage(interactable);
 
-            // wait for health update event bus to end
-
-            // update damage stacking data
+            yield return null;
+            while (data.healthUpdating) yield return null;
         }
+        
         yield break;
     }
 }

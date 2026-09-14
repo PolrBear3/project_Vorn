@@ -7,9 +7,6 @@ public class TileManager : MonoBehaviour
 {
     private const float _tileSpacing = 1.0625f;
 
-    private const float _generateXPos = 5.3125f; // -5.3125 to 5.3125 x
-    private const float _generateYPos = 2.125f; // -2.125 to 2.125 y
-
 
     [Space(20)]
     [SerializeField] private GameObject _generateTilePrefab;
@@ -321,36 +318,33 @@ public class TileManager : MonoBehaviour
     // Generate
     private void Generate_Tiles()
     {
-        float xWorldPos = -_generateXPos;
-        float yWorldPos = -_generateYPos;
+        Stage_ScrObj currentStage = GameManager.instance.currentGameData.stage;
 
-        int xPos = 0;
-        int yPos = 0;
+        int rowTileCount = currentStage.rowTileCount;
+        int columnTileCount = currentStage.columnTileCount;
+        
+        Vector2 centerPosition = Camera.main.transform.position;
 
-        for (int i = 0; i < 9999; i++)
+        float gridWidth = (rowTileCount - 1) * _tileSpacing;
+        float gridHeight = (columnTileCount - 1) * _tileSpacing;
+
+        float startingX = centerPosition.x - (gridWidth / 2f);
+        float startingY = centerPosition.y - (gridHeight / 2f);
+
+        for (int x = 0; x < rowTileCount; x++)
         {
-            GameObject spawnTile = Instantiate(_generateTilePrefab, new(xWorldPos, yWorldPos), Quaternion.identity);
+            for (int y = 0; y < columnTileCount; y++)
+            {
+                Vector2 spawnPosition = new(startingX + (x * _tileSpacing), startingY + (y * _tileSpacing));
+                GameObject spawnTile = Instantiate(_generateTilePrefab, spawnPosition, Quaternion.identity, transform);
+                
+                spawnTile.name = $"{spawnTile.name} {x}, {y}";
 
-            spawnTile.transform.SetParent(transform);
-            spawnTile.name = spawnTile.name + " " + i;
+                if (spawnTile.TryGetComponent(out Tile tile) == false) continue;
 
-            if (spawnTile.TryGetComponent(out Tile tile) == false) break;
-
-            _tiles.Add(tile);
-            tile.Set_Data(new(xPos, yPos));
-
-            yWorldPos += _tileSpacing;
-            yPos++;
-
-            if (yWorldPos <= _generateYPos) continue;
-
-            yWorldPos = -_generateYPos;
-            yPos = 0;
-
-            xWorldPos += _tileSpacing;
-            xPos++;
-
-            if (xWorldPos > _generateXPos) break;
+                _tiles.Add(tile);
+                tile.Set_Data(new(x, y));
+            }
         }
         _generateEventBus.RunSequential_BusEvents();
     }

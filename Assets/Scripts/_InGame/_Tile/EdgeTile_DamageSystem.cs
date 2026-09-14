@@ -6,8 +6,8 @@ public class EdgeTile_DamageSystem : MonoBehaviour
 {
     private EdgeTile_DamageSystemData _data = new();  // for save & load
     public EdgeTile_DamageSystemData data => _data;
-    
-    
+
+
     // MonoBehaviour
     private void Awake()
     {
@@ -32,15 +32,14 @@ public class EdgeTile_DamageSystem : MonoBehaviour
 
 
     // Damaging
-    private List<IInteractable> EdgeTile_Interactables()
+    private List<IInteractable> TargetTiles_DamageInteractables(List<Tile> targetTiles)
     {
-        List<Tile> tiles = GameManager.instance.tileManager.Edged_Tiles();
         List<IInteractable> interactables = new();
 
-        for (int i = 0; i < tiles.Count; i++)
+        for (int i = 0; i < targetTiles.Count; i++)
         {
-            Tile tile = tiles[i];
-            
+            Tile tile = targetTiles[i];
+
             IInteractable interactable = tile.CurrentOccupant_Interactable();
             if (interactable == null) continue;
 
@@ -48,12 +47,25 @@ public class EdgeTile_DamageSystem : MonoBehaviour
         }
         return interactables;
     }
+    private void Play_DamagingStates(List<Tile> statePlayTiles)
+    {
+        for (int i = 0; i < statePlayTiles.Count; i++)
+        {
+            Animator_Controller[] controllers = statePlayTiles[i].animatorControllers;
+
+            for (int j = 0; j < controllers.Length; j++)
+            {
+                controllers[j].Play_State(OccupantAnimation.Damaged);
+            }
+        }
+    }
 
     private IEnumerator Damage_EdgeTile_PlayerInteractables()
     {
-        List<IInteractable> damageInteractables = EdgeTile_Interactables();
+        List<Tile> tiles = GameManager.instance.tileManager.Edged_Tiles();
+        List<IInteractable> damageInteractables = TargetTiles_DamageInteractables(tiles);
 
-        for (int i = damageInteractables.Count - 1; i >= 0 ; i--)
+        for (int i = damageInteractables.Count - 1; i >= 0; i--)
         {
             IInteractable interactable = damageInteractables[i];
             if (interactable is Enemy) continue;
@@ -64,10 +76,12 @@ public class EdgeTile_DamageSystem : MonoBehaviour
             data.Update_CurrentHealth(data.currentHealth - damageCount);
             _data.Update_StackDamage(interactable);
 
+            Play_DamagingStates(tiles);
+
             yield return null;
             while (data.healthUpdating) yield return null;
         }
-        
+
         yield break;
     }
 }

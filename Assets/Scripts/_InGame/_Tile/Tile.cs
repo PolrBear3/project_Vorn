@@ -8,6 +8,9 @@ public class Tile : MonoBehaviour
     [SerializeField] private SpriteRenderer _spriteRenderer;
     public SpriteRenderer spriteRenderer => _spriteRenderer;
 
+    [SerializeField] private Animator_Controller[] _animatorControllers;
+    public Animator_Controller[] animatorControllers => _animatorControllers;
+
     [Space(20)]
     [SerializeField] private EventSystems_Controller _hoverDetector;
 

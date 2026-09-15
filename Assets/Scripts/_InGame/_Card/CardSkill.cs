@@ -14,39 +14,90 @@ public enum CardSkillTrigger
 }
 
 public enum CardSkillTarget
-{   CurrentTile, 
-    TargetingTile,
+{
+    CurrentTile,
+    ActionTargetingTile,
+    TargetingTiles,
     InteractRangeTile,
-    InteractRangeTiles 
+    InteractRangeTiles
 }
 
-public abstract class CardSkill : MonoBehaviour
+[System.Serializable]
+public class CardSkill_TriggerData
 {
-    [Space(20)]
-    [SerializeField] private Card _card;
-    public Card card => _card;
-
-    [Space(10)]
     [SerializeField] private CardSkillTrigger _trigger;
     public CardSkillTrigger trigger => _trigger;
 
     [SerializeField] private CardSkillTarget _target;
     public CardSkillTarget target => _target;
 
+    [Space(10)]
+    [SerializeField] private CardSkill[] _cardSkills;
+    public CardSkill[] cardSkills => _cardSkills;
+}
 
-    // Data
-    public EventBus_Controller SkillTrigger_EventBus()
+public abstract class CardSkill : MonoBehaviour
+{
+    private Card _card;
+    public Card card => _card;
+
+    private CardSkillTrigger _currentTrigger;
+    public CardSkillTrigger currentTrigger => _currentTrigger;
+
+    private CardSkillTarget _currentTarget;
+    public CardSkillTarget currentTarget => _currentTarget;
+
+
+    // CardSkillTarget
+    public List<Tile> CurrentTarget_Tiles()
     {
-        switch (_trigger)
+        List<Tile> targetTiles = new();
+
+        Tile placedTile = _card.placedTile;
+        int interactRange = card.data.currentData.interactRange;
+
+        List<Tile> targetingTiles = new(card.tileTargeting.recentTargetingTiles);
+
+        List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(placedTile, interactRange);
+        interactRangeTiles.Remove(placedTile);
+
+        switch (_currentTarget)
         {
-            case CardSkillTrigger.Place: return _card.placeUpdateActionBus;
-            case CardSkillTrigger.PreUpdate: return _card.preUpdateSkillBus;
-            case CardSkillTrigger.AfterUpdate: return _card.afterUpdateSkillBus;
-            case CardSkillTrigger.PreTargeting: return _card.preTargetingSkillBus;
-            case CardSkillTrigger.AfterTargeting: return _card.afterTargetingSkillBus;
-            case CardSkillTrigger.HealthUpdate: return _card.healthController.healthUpdateActionBus;
-            case CardSkillTrigger.Death: return _card.healthController.deathUpdateActionBus;
+            case CardSkillTarget.CurrentTile:
+                targetTiles.Add(placedTile);
+                break;
+
+            case CardSkillTarget.ActionTargetingTile:
+                Tile targetingTile = _card.targetingTile;
+                if (targetingTile == null) break;
+
+                targetTiles.Add(targetingTile);
+                break;
+
+            case CardSkillTarget.TargetingTiles:
+                return targetingTiles;
+
+            case CardSkillTarget.InteractRangeTile:
+                int rangeTileCount = interactRangeTiles.Count;
+                if (rangeTileCount <= 0) break;
+
+                targetTiles.Add(interactRangeTiles[Random.Range(0, rangeTileCount)]);
+                break;
+
+            case CardSkillTarget.InteractRangeTiles:
+                return interactRangeTiles;
         }
-        return null;
+        return targetTiles;
     }
+
+
+    // Main
+    public void Set_Data(Card card, CardSkillTrigger setTrigger, CardSkillTarget setTarget)
+    {
+        _card = card;
+        _currentTrigger = setTrigger;
+        _currentTarget = setTarget;
+    }
+
+    public abstract IEnumerator Trigger_Skill();
 }

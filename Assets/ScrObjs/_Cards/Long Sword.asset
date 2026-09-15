@@ -15,7 +15,7 @@ MonoBehaviour:
   _cardName: Long Sword
   _cardDescription: Deal damage to 2 targets within a range of 1.
   _contentSprite: {fileID: 31158166, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
-  _placePrefab: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+  _placePrefab: {fileID: 5745818195482502680, guid: ee081e33ec7964f7bbf16a2e2a9bb849, type: 3}
   _interactionData:
     _maxHealth: 3
     _healthModifyValue: -1

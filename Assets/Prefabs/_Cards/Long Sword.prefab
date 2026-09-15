@@ -131,9 +131,8 @@ GameObject:
   - component: {fileID: 1441753937466206074}
   - component: {fileID: 4373037325833083918}
   - component: {fileID: 8703480389208593341}
-  - component: {fileID: 8708016764475977682}
   m_Layer: 0
-  m_Name: HeroSpawner
+  m_Name: Long Sword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -190,13 +189,9 @@ MonoBehaviour:
   _contentAnimator: {fileID: 1511293945915075703}
   _skillDatas:
   - _trigger: 1
-    _target: 0
+    _target: 4
     _cardSkills:
     - {fileID: 8703480389208593341}
-  - _trigger: 6
-    _target: 0
-    _cardSkills:
-    - {fileID: 8708016764475977682}
 --- !u!114 &8703480389208593341
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210,20 +205,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _targetCards:
-  - {fileID: 11400000, guid: 985b99e3b79f84187bcb119b55878706, type: 2}
-  - {fileID: 11400000, guid: 3315c924a82ca49358b3067216bbf7d7, type: 2}
---- !u!114 &8708016764475977682
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5745818195482502680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec362369e9fee4048a96235849abe1d8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  - {fileID: 11400000, guid: 1624de9b54fcf40f7a7d5d03437357e1, type: 2}
+  - {fileID: 11400000, guid: 3a8d880d0900c40bcb51f3e3b20450c7, type: 2}
 --- !u!1 &7244696009784959202
 GameObject:
   m_ObjectHideFlags: 0
@@ -299,7 +282,7 @@ SpriteRenderer:
   m_SortingLayerID: -1275224273
   m_SortingLayer: 2
   m_SortingOrder: 1
-  m_Sprite: {fileID: 1120329142, guid: 670bf62ffb65a4c3d943af234a4a26c5, type: 3}
+  m_Sprite: {fileID: 31158166, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

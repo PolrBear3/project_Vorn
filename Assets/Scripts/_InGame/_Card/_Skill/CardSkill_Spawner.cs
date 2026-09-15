@@ -8,27 +8,6 @@ public class CardSkill_Spawner : CardSkill
     [SerializeField] private Card_ScrObj[] _spawnCards;
 
 
-    // MonoBehaviour
-    private void Awake()
-    {
-        card.OnSetData += Set_Data;
-    }
-
-    private void OnDestroy()
-    {
-        card.OnSetData -= Set_Data;
-
-        SkillTrigger_EventBus().UnRegister(SpawnCard_onTargetTile);
-    }
-
-
-    // Data
-    private void Set_Data()
-    {
-        SkillTrigger_EventBus().Register(0, SpawnCard_onTargetTile);
-    }
-
-
     // Spawn
     private Card_ScrObj SpawnCard()
     {
@@ -47,24 +26,24 @@ public class CardSkill_Spawner : CardSkill
         List<Tile> targetingTiles = new(card.tileTargeting.recentTargetingTiles);
         List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(placedTile, interactRange);
 
-        switch (target, trigger)
+        switch (currentTarget, currentTrigger)
         {
-            case (CardSkillTarget.TargetingTile, CardSkillTrigger.HealthUpdate): return targetingTiles;
-            case (CardSkillTarget.TargetingTile, CardSkillTrigger.Death): return targetingTiles;
+            case (CardSkillTarget.ActionTargetingTile, CardSkillTrigger.HealthUpdate): return targetingTiles;
+            case (CardSkillTarget.ActionTargetingTile, CardSkillTrigger.Death): return targetingTiles;
 
             case (CardSkillTarget.CurrentTile, _):
                 targetTiles.Add(placedTile);
                 break;
 
-            case (CardSkillTarget.TargetingTile, _):
+            case (CardSkillTarget.ActionTargetingTile, _):
                 targetTiles.Add(card.targetingTile);
                 break;
 
             case (CardSkillTarget.InteractRangeTiles, _): return new(interactRangeTiles);
 
             case (CardSkillTarget.InteractRangeTile, _):
-                
-                for (int i = interactRangeTiles.Count - 1; i >= 0 ; i--)
+
+                for (int i = interactRangeTiles.Count - 1; i >= 0; i--)
                 {
                     if (interactRangeTiles[i].currentOccupant == null) continue;
                     interactRangeTiles.RemoveAt(i);
@@ -79,7 +58,9 @@ public class CardSkill_Spawner : CardSkill
         return targetTiles;
     }
 
-    private IEnumerator SpawnCard_onTargetTile()
+
+    // from abstract Trigger_Skill
+    public override IEnumerator Trigger_Skill()
     {
         CardManager cardManager = GameManager.instance.cardManager;
         List<Tile> spawnTiles = CardSpawn_TargetTiles();

@@ -4,39 +4,8 @@ using UnityEngine;
 
 public class CardSkill_HeroSpawner : CardSkill
 {
-    // MonoBehaviour
-    private void Awake()
-    {
-        card.OnSetData += Set_Data;
-    }
-
-    private void OnDestroy()
-    {
-        card.OnSetData -= Set_Data;
-
-        SkillTrigger_EventBus().UnRegister(Destroy_Spawner);
-        card.healthController.deathUpdateActionBus.UnRegister(Spawn_CurrentHero);
-    }
-
-
-    // Data
-    private void Set_Data()
-    {
-        SkillTrigger_EventBus().Register(0, Destroy_Spawner);
-        card.healthController.deathUpdateActionBus.Register(0, Spawn_CurrentHero);
-    }
-
-
-    // Main
-    private IEnumerator Destroy_Spawner()
-    {
-        card.data.currentData.Update_CurrentHealth(0);
-        card.placedTile.Set_Occupant(null);
-
-        yield break;
-    }
-
-    private IEnumerator Spawn_CurrentHero()
+    // from abstract Trigger_Skill
+    public override IEnumerator Trigger_Skill()
     {
         GameManager manager = GameManager.instance;
 
@@ -53,7 +22,7 @@ public class CardSkill_HeroSpawner : CardSkill
             Destroy(spawnHeroObj);
             yield break;
         }
-        
+
         currentTile.Set_Occupant(spawnHeroObj);
 
         spawnHero.Set_Data(currentHero); // set data before tracking hero

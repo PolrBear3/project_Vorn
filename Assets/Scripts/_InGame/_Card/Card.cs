@@ -10,6 +10,10 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
     [SerializeField] private SpriteRenderer _contentSpriteRenderer;
 
     [Space(20)]
+    [SerializeField] private InteractableHealth_Controller _healthController;
+    public InteractableHealth_Controller healthController => _healthController;
+
+    [Space(20)]
     [SerializeField] private Animator_Controller _baseAnimator;
     public Animator_Controller baseAnimator => _baseAnimator;
 
@@ -17,8 +21,8 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
     public Animator_Controller contentAnimator => _contentAnimator;
 
     [Space(20)]
-    [SerializeField] private InteractableHealth_Controller _healthController;
-    public InteractableHealth_Controller healthController => _healthController;
+    [SerializeField] private CardSkill_TriggerData[] _skillDatas;
+    public CardSkill_TriggerData[] skillDatas => _skillDatas;
 
 
     private CardData _data;
@@ -74,6 +78,8 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
     // MonoBehaviour
     private void OnDestroy()
     {
+        UnRegister_SkillDatas();
+
         // from Set_Data
         _healthController.AfterDeathUpdate -= Remove_Data;
     }
@@ -94,6 +100,8 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
         _healthController.Set_Data(_data.currentData);
         _healthController.AfterDeathUpdate += Remove_Data;
 
+        Register_SkillDatas();
+
         OnSetData?.Invoke();
     }
     public void Set_Data(Card_ScrObj setData, Tile placeTile)
@@ -105,6 +113,62 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
     {
         GameManager.instance.cardManager.placedCards.Remove(this);
         Destroy(gameObject);
+    }
+
+
+    public EventBus_Controller SkillTrigger_EventBus(CardSkillTrigger triggerType)
+    {
+        switch (triggerType)
+        {
+            case CardSkillTrigger.Place: return _placeUpdateActionBus;
+            case CardSkillTrigger.PreUpdate: return _preUpdateSkillBus;
+            case CardSkillTrigger.AfterUpdate: return _afterUpdateSkillBus;
+            case CardSkillTrigger.PreTargeting: return _preTargetingSkillBus;
+            case CardSkillTrigger.AfterTargeting: return _afterTargetingSkillBus;
+            case CardSkillTrigger.HealthUpdate: return _healthController.healthUpdateActionBus;
+            case CardSkillTrigger.Death: return _healthController.deathUpdateActionBus;
+        }
+        return null;
+    }
+
+    private void Register_SkillDatas()
+    {
+        for (int i = 0; i < _skillDatas.Length; i++)
+        {
+            CardSkill_TriggerData data = _skillDatas[i];
+
+            EventBus_Controller triggerBus = SkillTrigger_EventBus(data.trigger);
+            if (triggerBus == null) return;
+
+            CardSkill[] triggerSkills = data.cardSkills;
+            for (int j = 0; j < triggerSkills.Length; j++)
+            {
+                CardSkill skill = triggerSkills[j];
+                if (skill == null) continue;
+
+                triggerBus.Register(j, skill.Trigger_Skill);
+                skill.Set_Data(this, data.trigger, data.target);
+            }
+        }
+    }
+    private void UnRegister_SkillDatas()
+    {
+        for (int i = 0; i < _skillDatas.Length; i++)
+        {
+            CardSkill_TriggerData data = _skillDatas[i];
+
+            EventBus_Controller triggerBus = SkillTrigger_EventBus(data.trigger);
+            if (triggerBus == null) return;
+
+            CardSkill[] triggerSkills = data.cardSkills;
+            for (int j = 0; j < triggerSkills.Length; j++)
+            {
+                CardSkill skill = triggerSkills[j];
+                if (skill == null) continue;
+
+                triggerBus.UnRegister(skill.Trigger_Skill);
+            }
+        }
     }
 
 

@@ -9,9 +9,11 @@ public class Animator_Controller : MonoBehaviour
 
     private Animator _animator;
 
-    private Sprite _defaultSprite;
-    private string _currentState;
 
+    private string _currentState;
+    public string currentState => _currentState;
+
+    private Sprite _defaultSprite;
     private const string None = "None";
 
 
@@ -23,7 +25,8 @@ public class Animator_Controller : MonoBehaviour
 
         if (gameObject.TryGetComponent(out SpriteRenderer sr) == false) return;
         _sr = sr;
-        
+
+        if (_sr.sprite == null) return;
         _defaultSprite = _sr.sprite;
     }
 
@@ -49,6 +52,7 @@ public class Animator_Controller : MonoBehaviour
     {
         _currentState = null;
         _animator.Play(None, 0, 0f);
+
         _sr.sprite = _defaultSprite;
     }
     public void Play_State(string stateName)

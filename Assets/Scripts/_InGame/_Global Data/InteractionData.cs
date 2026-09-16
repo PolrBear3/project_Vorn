@@ -3,10 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum InteractableAbility
+public enum InteractableState
 {
     Taunt,
-    Shield
+    Shield,
+    Frozen
 }
 
 public interface IInteractable
@@ -27,8 +28,8 @@ public class InteractionData
     public int healthModifyValue => _healthModifyValue;
 
     [Space(10)]
-    [SerializeField] private List<InteractableAbility> _abilities = new();
-    public List<InteractableAbility> abilities => _abilities;
+    [SerializeField] private List<InteractableState> _states = new();
+    public List<InteractableState> states => _states;
 
     [Space(10)]
     [SerializeField][Range(0, 10)] private int _interactRange;
@@ -46,12 +47,10 @@ public class InteractionData
     /// modified value
     /// </summary>
     public Action<int> OnHealthModifyUpdate;
+    public Action<InteractableState> OnStateUpdate;
 
-    public Action OnAbilityUpdate;
-
-
-    private bool _healthUpdating;
-    public bool healthUpdating => _healthUpdating;
+    private bool _dataUpdating;
+    public bool dataUpdating => _dataUpdating;
 
 
     // New
@@ -61,7 +60,7 @@ public class InteractionData
         _currentHealth = _maxHealth;
         _healthModifyValue = newData._healthModifyValue;
 
-        _abilities = new(newData.abilities);
+        _states = new(newData.states);
 
         _interactRange = newData._interactRange;
         _targetSelectCount = newData._targetSelectCount;
@@ -87,7 +86,7 @@ public class InteractionData
         int modifyValue = newValue - _currentHealth;
 
         if (modifyValue == 0) return;
-        if (modifyValue < 0 && Remove_Ability(InteractableAbility.Shield)) return;
+        if (modifyValue < 0 && Remove_State(InteractableState.Shield)) return;
 
         _currentHealth = newValue;
 
@@ -95,33 +94,33 @@ public class InteractionData
         OnHealthModifyUpdate?.Invoke(modifyValue);
     }
 
-    public void Toggle_HealthUpdatingState(bool toggle)
+    public void Toggle_UpdatingState(bool toggle)
     {
-        _healthUpdating = toggle;
+        _dataUpdating = toggle;
     }
 
 
     /// <returns> 
     /// true if add successful
     /// </returns>
-    public bool Add_Ability(InteractableAbility updateAbility)
+    public bool Add_State(InteractableState stateToUpdate)
     {
-        if (_abilities.Contains(updateAbility)) return false;
+        if (_states.Contains(stateToUpdate)) return false;
 
-        _abilities.Add(updateAbility);
-        OnAbilityUpdate?.Invoke();
+        _states.Add(stateToUpdate);
+        OnStateUpdate?.Invoke(stateToUpdate);
 
         return true;
     }
     /// <returns> 
     /// true if remove successful
     /// </returns>
-    public bool Remove_Ability(InteractableAbility removeAbility)
+    public bool Remove_State(InteractableState stateToRemove)
     {
-        if (_abilities.Contains(removeAbility) == false) return false;
+        if (_states.Contains(stateToRemove) == false) return false;
 
-        _abilities.Remove(removeAbility);
-        OnAbilityUpdate?.Invoke();
+        _states.Remove(stateToRemove);
+        OnStateUpdate?.Invoke(stateToRemove);
 
         return true;
     }

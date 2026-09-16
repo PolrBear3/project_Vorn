@@ -46,7 +46,7 @@ public class CardSkill_CardRemover : CardSkill
             data.Update_CurrentHealth(0);
 
             yield return null;
-            while (data.healthUpdating) yield return null;
+            while (data.dataUpdating) yield return null;
         }
         yield break;
     }

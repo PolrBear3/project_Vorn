@@ -79,7 +79,7 @@ public class EdgeTile_DamageSystem : MonoBehaviour
             Play_DamagingStates(tiles);
 
             yield return null;
-            while (data.healthUpdating) yield return null;
+            while (data.dataUpdating) yield return null;
         }
 
         yield break;

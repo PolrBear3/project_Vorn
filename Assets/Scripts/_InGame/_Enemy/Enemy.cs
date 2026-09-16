@@ -13,9 +13,9 @@ public class Enemy : MonoBehaviour, IInteractable
     public Animator_Controller animator => _animator;
 
     [Space(10)]
-    [SerializeField] private InteractableHealth_Controller _healthController;
-    public InteractableHealth_Controller healthController => _healthController;
-    
+    [SerializeField] private InteractionData_UpdateController _healthController;
+    public InteractionData_UpdateController healthController => _healthController;
+
     [SerializeField] private ActionClock _actionClock;
 
 
@@ -49,7 +49,7 @@ public class Enemy : MonoBehaviour, IInteractable
     public void Set_Data(Enemy_ScrObj setEnemy)
     {
         _data = new(setEnemy);
-        
+
         _healthController.Set_Data(_data.currentData);
         _healthController.AfterDeathUpdate += Remove_Data;
 
@@ -67,10 +67,10 @@ public class Enemy : MonoBehaviour, IInteractable
     private Tile Hero_TargetTile()
     {
         GameManager manager = GameManager.instance;
-        
+
         Hero currentHero = manager.heroManager.currentHero;
         if (currentHero == null) return null;
-        
+
         Tile targetTile = manager.tileManager.ClosestAvailable_SurroundingTile(_movement.currentTile, currentHero.movement.currentTile);
         if (targetTile == null) return null;
 
@@ -88,8 +88,8 @@ public class Enemy : MonoBehaviour, IInteractable
         for (int i = 0; i < closestCards.Count; i++)
         {
             Card card = closestCards[i];
-            
-            if (card.data.currentData.abilities.Contains(InteractableAbility.Taunt) == false) continue;
+
+            if (card.data.currentData.states.Contains(InteractableState.Taunt) == false) continue;
             return manager.tileManager.ClosestAvailable_SurroundingTile(currentTile, card.placedTile);
         }
         return null;
@@ -110,8 +110,8 @@ public class Enemy : MonoBehaviour, IInteractable
         _movement.Direction_FlipUpdate(routeTile);
         _movement.Moveto_Tile(routeTiles[0], _data.enemyScrObj.spawnOffset); // set routTile index value relative to movement range ?
     }
-    
-    
+
+
     // Damage
     private InteractionData DamageTarget_InteractionData()
     {
@@ -124,7 +124,7 @@ public class Enemy : MonoBehaviour, IInteractable
         int interactRange = _data.currentData.interactRange;
 
         // taunt card
-        Card tauntCard = cardManager.TileClosest_PlacedCard(currentTile, cardManager.TileClosest_PlacedCards(currentTile, InteractableAbility.Taunt));
+        Card tauntCard = cardManager.TileClosest_PlacedCard(currentTile, cardManager.TileClosest_PlacedCards(currentTile, InteractableState.Taunt));
         bool tauntCardDamageable = tauntCard != null && Utility.Chebyshev_Distance(currentTilePos, tauntCard.placedTile.data.position) <= interactRange;
 
         if (tauntCardDamageable) return tauntCard.interactionData;
@@ -177,7 +177,7 @@ public class Enemy : MonoBehaviour, IInteractable
         if (damageData != null)
         {
             yield return null;
-            while (damageData.healthUpdating) yield return null;
+            while (damageData.dataUpdating) yield return null;
         }
 
         yield return _afterMovementActionBus.RunSequential_DelayBusEvents();

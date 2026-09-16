@@ -10,8 +10,8 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
     [SerializeField] private SpriteRenderer _contentSpriteRenderer;
 
     [Space(20)]
-    [SerializeField] private InteractableHealth_Controller _healthController;
-    public InteractableHealth_Controller healthController => _healthController;
+    [SerializeField] private InteractionData_UpdateController _interactionDataUpdater;
+    public InteractionData_UpdateController interactionDataUpdater => _interactionDataUpdater;
 
     [Space(20)]
     [SerializeField] private Animator_Controller _baseAnimator;
@@ -25,10 +25,13 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
     public CardSkill_TriggerData[] skillDatas => _skillDatas;
 
 
+    private GameObject _cardRootObject;
+
     private CardData _data;
     public CardData data => _data;
 
     public Action OnSetData;
+
 
     private Tile _placedTile;
     public Tile placedTile => _placedTile;
@@ -81,13 +84,15 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
         UnRegister_SkillDatas();
 
         // from Set_Data
-        _healthController.AfterDeathUpdate -= Remove_Data;
+        _interactionDataUpdater.AfterDeathUpdate -= Remove_Data;
     }
 
 
     // Data
-    public void Set_Data(CardData setData, Tile placeTile)
+    public void Set_Data(GameObject cardRootObject, CardData setData, Tile placeTile)
     {
+        _cardRootObject = cardRootObject;
+
         if (setData == null) return;
 
         Card_ScrObj loadCard = setData.cardScrObj;
@@ -97,22 +102,22 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
         _placedTile = placeTile;
         _contentSpriteRenderer.sprite = loadCard.contentSprite;
 
-        _healthController.Set_Data(_data.currentData);
-        _healthController.AfterDeathUpdate += Remove_Data;
+        _interactionDataUpdater.Set_Data(_data.currentData);
+        _interactionDataUpdater.AfterDeathUpdate += Remove_Data;
 
         Register_SkillDatas();
 
         OnSetData?.Invoke();
     }
-    public void Set_Data(Card_ScrObj setData, Tile placeTile)
+    public void Set_Data(GameObject cardRootObject, Card_ScrObj setData, Tile placeTile)
     {
-        Set_Data(new CardData(setData), placeTile);
+        Set_Data(cardRootObject, new CardData(setData), placeTile);
     }
 
     private void Remove_Data()
     {
         GameManager.instance.cardManager.placedCards.Remove(this);
-        Destroy(gameObject);
+        Destroy(_cardRootObject);
     }
 
 
@@ -125,8 +130,8 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
             case CardSkillTrigger.AfterUpdate: return _afterUpdateSkillBus;
             case CardSkillTrigger.PreTargeting: return _preTargetingSkillBus;
             case CardSkillTrigger.AfterTargeting: return _afterTargetingSkillBus;
-            case CardSkillTrigger.HealthUpdate: return _healthController.healthUpdateActionBus;
-            case CardSkillTrigger.Death: return _healthController.deathUpdateActionBus;
+            case CardSkillTrigger.HealthUpdate: return _interactionDataUpdater.healthUpdateActionBus;
+            case CardSkillTrigger.Death: return _interactionDataUpdater.deathUpdateActionBus;
         }
         return null;
     }
@@ -173,46 +178,59 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
 
 
     // End Turn Action
+    private void Reset_TileTargeting()
+    {
+        _targetingTile = null;
+        _tileTargeting.targetingTiles.Clear();
+    }
+
     public IEnumerator Run_EndTurnActions()
     {
-        _actionsRunning = true;
+        if (_data.currentData.Remove_State(InteractableState.Frozen))
+        {
+            Reset_TileTargeting();
+            yield break;
+        }
 
+        _actionsRunning = true;
         yield return _preUpdateSkillBus.RunSequential_DelayBusEvents();
 
-        List<Tile> targetingTiles = new(_tileTargeting.targetingTiles);
-        for (int i = 0; i < targetingTiles.Count; i++)
+        if (_data.currentData.Remove_State(InteractableState.Frozen) == false)
         {
-            Tile tile = targetingTiles[i];
-            _targetingTile = tile;
-
-            yield return _preTargetingSkillBus.RunSequential_DelayBusEvents();
-
-            GameObject tileOccupant = tile.currentOccupant;
-            if (tileOccupant != null && tileOccupant.TryGetComponent(out IInteractable interactable))
+            List<Tile> targetingTiles = new(_tileTargeting.targetingTiles);
+            for (int i = 0; i < targetingTiles.Count; i++)
             {
-                InteractionData targetData = interactable.interactionData;
-                if (targetData == null) continue;
+                Tile tile = targetingTiles[i];
+                _targetingTile = tile;
 
-                int updateValue = targetData.currentHealth + _data.currentData.healthModifyValue;
+                yield return _preTargetingSkillBus.RunSequential_DelayBusEvents();
 
-                // run health updating animation (animation is set relative to updateValue) ?
-                while (_baseAnimator.CurrentState_Playing()) yield return null;
+                IInteractable tileInteractable = tile.CurrentOccupant_Interactable();
+                if (tileInteractable != null)
+                {
+                    InteractionData targetData = tileInteractable.interactionData;
+                    if (targetData == null) continue;
 
-                targetData.Update_CurrentHealth(updateValue);
+                    int updateValue = targetData.currentHealth + _data.currentData.healthModifyValue;
 
-                yield return null;
-                while (targetData.healthUpdating) yield return null;
+                    // run health updating animation (animation is set relative to updateValue) ?
+                    while (_baseAnimator.CurrentState_Playing()) yield return null;
+
+                    targetData.Update_CurrentHealth(updateValue);
+
+                    yield return null;
+                    while (targetData.dataUpdating) yield return null;
+                }
+
+                yield return _afterTargetingSkillBus.RunSequential_DelayBusEvents();
             }
-
-            yield return _afterTargetingSkillBus.RunSequential_DelayBusEvents();
         }
 
         yield return _afterUpdateSkillBus.RunSequential_DelayBusEvents();
 
-        _tileTargeting.targetingTiles.Clear();
-        _actionsRunning = false;
-        _targetingTile = null;
+        Reset_TileTargeting();
 
+        _actionsRunning = false;
         yield break;
     }
 }

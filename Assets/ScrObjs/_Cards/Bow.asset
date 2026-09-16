@@ -19,7 +19,7 @@ MonoBehaviour:
   _interactionData:
     _maxHealth: 3
     _healthModifyValue: -2
-    _abilities: 
+    _states: 01000000
     _interactRange: 2
     _targetSelectCount: 1
   _manaCost: 0

@@ -160,13 +160,13 @@ public class CardManager : MonoBehaviour
         });
         return placedCards;
     }
-    public List<Card> TileClosest_PlacedCards(Tile pivotTile, InteractableAbility targetAbility)
+    public List<Card> TileClosest_PlacedCards(Tile pivotTile, InteractableState targetAbility)
     {
         List<Card> placedCards = TileClosest_PlacedCards(pivotTile);
 
         for (int i = placedCards.Count - 1; i >= 0; i--)
         {
-            if (placedCards[i].data.currentData.abilities.Contains(targetAbility)) continue;
+            if (placedCards[i].data.currentData.states.Contains(targetAbility)) continue;
             placedCards.RemoveAt(i);
         }
         return placedCards;
@@ -184,13 +184,13 @@ public class CardManager : MonoBehaviour
         }
         return placedCards;
     }
-    public List<Card> DistanceRanged_PlacedCards(Tile pivotTile, int distance, InteractableAbility targetAbility)
+    public List<Card> DistanceRanged_PlacedCards(Tile pivotTile, int distance, InteractableState targetAbility)
     {
         List<Card> placedCards = DistanceRanged_PlacedCards(pivotTile, distance);
 
         for (int i = placedCards.Count - 1; i >= 0; i--)
         {
-            if (placedCards[i].data.currentData.abilities.Contains(targetAbility)) continue;
+            if (placedCards[i].data.currentData.states.Contains(targetAbility)) continue;
             placedCards.RemoveAt(i);
         }
         return placedCards;
@@ -219,14 +219,18 @@ public class CardManager : MonoBehaviour
         heroManager.Modify_CurrentManaCount(-cardManaCost);
 
         GameObject placeCardObj = Instantiate(cardPrefab, placeTile.transform.position, Quaternion.identity);
-        placeCardObj.transform.SetParent(transform);
 
+        placeCardObj.transform.SetParent(transform);
         placeTile.Set_Occupant(placeCardObj);
 
-        if (placeCardObj.TryGetComponent(out Card placeCard) == false) return false;
-        _placedCards.Add(placeCard);
+        Card placeCard = placeCardObj.GetComponent<Card>();
 
-        placeCard.Set_Data(placeCardData, placeTile);
+        if (placeCard == null) placeCard = placeCardObj.GetComponentInChildren<Card>();
+        if (placeCard == null) return false;
+
+        _placedCards.Add(placeCard);
+        placeCard.Set_Data(placeCardObj, placeCardData, placeTile);
+
         StartCoroutine(placeCard.placeUpdateActionBus.RunSequential_DelayBusEvents());
 
         Hover_PlacedCard();
@@ -258,7 +262,7 @@ public class CardManager : MonoBehaviour
         indicateStateString = UIAnimation.Toggle;
         return interactRangeTiles;
     }
-    
+
     private void Hover_PlacedCard()
     {
         GameManager manager = GameManager.instance;
@@ -329,7 +333,7 @@ public class CardManager : MonoBehaviour
     {
         Hero currentHero = GameManager.instance.heroManager.currentHero;
         if (currentHero != null && currentHero.data.currentData.currentHealth <= 0) yield break;
-        
+
         List<Card> runActionCards = new(_placedCards);
         for (int i = 0; i < runActionCards.Count; i++)
         {
@@ -339,9 +343,9 @@ public class CardManager : MonoBehaviour
             InteractionData cardData = card.data.currentData;
 
             StartCoroutine(card.Run_EndTurnActions());
-            while (card != null && card.actionsRunning || cardData.healthUpdating) yield return null;
+            while (card != null && card.actionsRunning || cardData.dataUpdating) yield return null;
         }
-        
+
         yield break;
     }
 
@@ -355,7 +359,9 @@ public class CardManager : MonoBehaviour
         if (selectedTile == null) return;
 
         Card selectedCard = PlacedCard(selectedTile);
+
         if (selectedCard == null) return;
+        if (selectedCard.data.currentData.states.Contains(InteractableState.Frozen)) return;
 
         bool toggled = manager.tileTargeting.Toggle_Targeting(selectedCard);
         if (toggled == false) return;

@@ -12,8 +12,8 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
     public Animator_Controller animator => _animator;
 
     [Space(10)]
-    [SerializeField] private InteractableHealth_Controller _healthController;
-    public InteractableHealth_Controller healthController => _healthController;
+    [SerializeField] private InteractionData_UpdateController _healthController;
+    public InteractionData_UpdateController healthController => _healthController;
 
 
     private HeroData _data;

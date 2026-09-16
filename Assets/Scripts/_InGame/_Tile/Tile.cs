@@ -62,9 +62,9 @@ public class Tile : MonoBehaviour
     public IInteractable CurrentOccupant_Interactable()
     {
         if (_currentOccupant == null) return null;
-        if (_currentOccupant.TryGetComponent(out IInteractable interactable) == false) return null;
+        if (_currentOccupant.TryGetComponent(out IInteractable interactable)) return interactable;
 
-        return interactable;
+        return _currentOccupant.GetComponentInChildren<IInteractable>();
     }
 
 

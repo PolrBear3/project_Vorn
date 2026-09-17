@@ -83,18 +83,18 @@ public class InteractionData
     public void Update_CurrentHealth(int newValue)
     {
         newValue = Mathf.Clamp(newValue, 0, _maxHealth);
-        int modifyValue = newValue - _currentHealth;
 
+        int modifyValue = newValue - _currentHealth;
         if (modifyValue == 0) return;
+
+        OnHealthModifyUpdate?.Invoke(modifyValue);
         if (modifyValue < 0 && Remove_State(InteractableState.Shield)) return;
 
         _currentHealth = newValue;
-
         OnHealthUpdate?.Invoke(_currentHealth, _maxHealth);
-        OnHealthModifyUpdate?.Invoke(modifyValue);
     }
 
-    public void Toggle_UpdatingState(bool toggle)
+    public void Toggle_DataUpdate(bool toggle)
     {
         _dataUpdating = toggle;
     }

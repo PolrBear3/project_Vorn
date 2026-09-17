@@ -219,19 +219,19 @@ public class CardManager : MonoBehaviour
         heroManager.Modify_CurrentManaCount(-cardManaCost);
 
         GameObject placeCardObj = Instantiate(cardPrefab, placeTile.transform.position, Quaternion.identity);
+        if (placeCardObj.TryGetComponent(out Card card) == false)
+        {
+            Destroy(placeCardObj);
+            return false;
+        }
 
         placeCardObj.transform.SetParent(transform);
         placeTile.Set_Occupant(placeCardObj);
 
-        Card placeCard = placeCardObj.GetComponent<Card>();
+        _placedCards.Add(card);
+        card.Set_Data(placeCardData, placeTile);
 
-        if (placeCard == null) placeCard = placeCardObj.GetComponentInChildren<Card>();
-        if (placeCard == null) return false;
-
-        _placedCards.Add(placeCard);
-        placeCard.Set_Data(placeCardObj, placeCardData, placeTile);
-
-        StartCoroutine(placeCard.placeUpdateActionBus.RunSequential_DelayBusEvents());
+        StartCoroutine(card.placeUpdateActionBus.RunSequential_DelayBusEvents());
 
         Hover_PlacedCard();
         return true;

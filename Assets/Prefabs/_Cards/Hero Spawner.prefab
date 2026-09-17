@@ -1,73 +1,12 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5745818195482502680
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1650737456328438102}
-  - component: {fileID: 8703480389208593341}
-  - component: {fileID: 8708016764475977682}
-  m_Layer: 0
-  m_Name: HeroSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1650737456328438102
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5745818195482502680}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 5012255933306587902}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8703480389208593341
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5745818195482502680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 933ebb576dcc043a2835b16736223f24, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _targetCards:
-  - {fileID: 11400000, guid: 985b99e3b79f84187bcb119b55878706, type: 2}
-  - {fileID: 11400000, guid: 3315c924a82ca49358b3067216bbf7d7, type: 2}
---- !u!114 &8708016764475977682
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5745818195482502680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec362369e9fee4048a96235849abe1d8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!1001 &6009918254120057768
+--- !u!1001 &2215993618174318028
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1650737456328438102}
+    m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1650737456328438102, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: m_LocalPosition.x
@@ -136,22 +75,55 @@ PrefabInstance:
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _skillDatas.Array.data[0]._cardSkills.Array.data[0]
       value: 
-      objectReference: {fileID: 8703480389208593341}
+      objectReference: {fileID: 708534178589641797}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _skillDatas.Array.data[1]._cardSkills.Array.data[0]
       value: 
-      objectReference: {fileID: 8708016764475977682}
+      objectReference: {fileID: 1564287657574099253}
     - target: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: m_Name
-      value: _Card
+      value: _Hero Spawner
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 708534178589641797}
+    - targetCorrespondingSourceObject: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1564287657574099253}
   m_SourcePrefab: {fileID: 100100000, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
---- !u!4 &5012255933306587902 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1650737456328438102, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
-  m_PrefabInstance: {fileID: 6009918254120057768}
+--- !u!1 &5872119147447841748 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+  m_PrefabInstance: {fileID: 2215993618174318028}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &708534178589641797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5872119147447841748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 933ebb576dcc043a2835b16736223f24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _targetCards:
+  - {fileID: 11400000, guid: 985b99e3b79f84187bcb119b55878706, type: 2}
+  - {fileID: 11400000, guid: 3315c924a82ca49358b3067216bbf7d7, type: 2}
+--- !u!114 &1564287657574099253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5872119147447841748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec362369e9fee4048a96235849abe1d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -25,11 +25,7 @@ MonoBehaviour:
   _rowTileCount: 12
   _columnTileCount: 5
   _enemySpawnDatas:
-  - _spawnCount: 0
+  - _spawnCount: 1
     _spawnRateDatas:
-    - _spawnEnemy: {fileID: 11400000, guid: 359cc0ed37bbf4d1b80f4e111345b083, type: 2}
-      _spawnRate: 1
-    - _spawnEnemy: {fileID: 11400000, guid: 1414017ed664b441e8a6637b11976d99, type: 2}
-      _spawnRate: 1
     - _spawnEnemy: {fileID: 11400000, guid: 37aaf961eaf0f416395ff451135461d6, type: 2}
       _spawnRate: 1

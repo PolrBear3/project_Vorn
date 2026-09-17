@@ -16,11 +16,11 @@ MonoBehaviour:
   _cardDescription: You cannot end your turn while this card is in your hand. This
     card is destroyed and spawns a Sorcerer hero on the current tile.
   _contentSprite: {fileID: -544282593, guid: 670bf62ffb65a4c3d943af234a4a26c5, type: 3}
-  _placePrefab: {fileID: 5745818195482502680, guid: 82ec451c02eba411983703042a09eb62, type: 3}
+  _placePrefab: {fileID: 5872119147447841748, guid: 79ddee0aa80cc4ce79de36498c2eb5c9, type: 3}
   _interactionData:
     _maxHealth: 1
     _healthModifyValue: -1
-    _abilities: 
+    _states: 
     _interactRange: 1
     _targetSelectCount: 4
   _manaCost: 0

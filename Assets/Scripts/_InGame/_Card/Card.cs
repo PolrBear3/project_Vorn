@@ -25,7 +25,6 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
     public CardSkill_TriggerData[] skillDatas => _skillDatas;
 
 
-    private GameObject _cardRootObject;
 
     private CardData _data;
     public CardData data => _data;
@@ -89,10 +88,8 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
 
 
     // Data
-    public void Set_Data(GameObject cardRootObject, CardData setData, Tile placeTile)
+    public void Set_Data(CardData setData, Tile placeTile)
     {
-        _cardRootObject = cardRootObject;
-
         if (setData == null) return;
 
         Card_ScrObj loadCard = setData.cardScrObj;
@@ -109,18 +106,19 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
 
         OnSetData?.Invoke();
     }
-    public void Set_Data(GameObject cardRootObject, Card_ScrObj setData, Tile placeTile)
+    public void Set_Data(Card_ScrObj setData, Tile placeTile)
     {
-        Set_Data(cardRootObject, new CardData(setData), placeTile);
+        Set_Data(new CardData(setData), placeTile);
     }
 
     private void Remove_Data()
     {
         GameManager.instance.cardManager.placedCards.Remove(this);
-        Destroy(_cardRootObject);
+        Destroy(gameObject);
     }
 
 
+    // Skill
     public EventBus_Controller SkillTrigger_EventBus(CardSkillTrigger triggerType)
     {
         switch (triggerType)
@@ -143,7 +141,7 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
             CardSkill_TriggerData data = _skillDatas[i];
 
             EventBus_Controller triggerBus = SkillTrigger_EventBus(data.trigger);
-            if (triggerBus == null) return;
+            if (triggerBus == null) continue;
 
             CardSkill[] triggerSkills = data.cardSkills;
             for (int j = 0; j < triggerSkills.Length; j++)
@@ -163,7 +161,7 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
             CardSkill_TriggerData data = _skillDatas[i];
 
             EventBus_Controller triggerBus = SkillTrigger_EventBus(data.trigger);
-            if (triggerBus == null) return;
+            if (triggerBus == null) continue;
 
             CardSkill[] triggerSkills = data.cardSkills;
             for (int j = 0; j < triggerSkills.Length; j++)
@@ -195,35 +193,32 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
         _actionsRunning = true;
         yield return _preUpdateSkillBus.RunSequential_DelayBusEvents();
 
-        if (_data.currentData.Remove_State(InteractableState.Frozen) == false)
+        List<Tile> targetingTiles = new(_tileTargeting.targetingTiles);
+        for (int i = 0; i < targetingTiles.Count; i++)
         {
-            List<Tile> targetingTiles = new(_tileTargeting.targetingTiles);
-            for (int i = 0; i < targetingTiles.Count; i++)
+            Tile tile = targetingTiles[i];
+            _targetingTile = tile;
+
+            yield return _preTargetingSkillBus.RunSequential_DelayBusEvents();
+
+            IInteractable tileInteractable = tile.CurrentOccupant_Interactable();
+            if (tileInteractable != null)
             {
-                Tile tile = targetingTiles[i];
-                _targetingTile = tile;
+                InteractionData targetData = tileInteractable.interactionData;
+                if (targetData == null) continue;
 
-                yield return _preTargetingSkillBus.RunSequential_DelayBusEvents();
+                int updateValue = targetData.currentHealth + _data.currentData.healthModifyValue;
 
-                IInteractable tileInteractable = tile.CurrentOccupant_Interactable();
-                if (tileInteractable != null)
-                {
-                    InteractionData targetData = tileInteractable.interactionData;
-                    if (targetData == null) continue;
+                // run health updating animation (animation is set relative to updateValue) ?
+                while (_baseAnimator.CurrentState_Playing()) yield return null;
 
-                    int updateValue = targetData.currentHealth + _data.currentData.healthModifyValue;
+                targetData.Update_CurrentHealth(updateValue);
 
-                    // run health updating animation (animation is set relative to updateValue) ?
-                    while (_baseAnimator.CurrentState_Playing()) yield return null;
-
-                    targetData.Update_CurrentHealth(updateValue);
-
-                    yield return null;
-                    while (targetData.dataUpdating) yield return null;
-                }
-
-                yield return _afterTargetingSkillBus.RunSequential_DelayBusEvents();
+                yield return null;
+                while (targetData.dataUpdating) yield return null;
             }
+
+            yield return _afterTargetingSkillBus.RunSequential_DelayBusEvents();
         }
 
         yield return _afterUpdateSkillBus.RunSequential_DelayBusEvents();

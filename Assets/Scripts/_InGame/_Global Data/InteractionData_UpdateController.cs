@@ -70,7 +70,7 @@ public class InteractionData_UpdateController : MonoBehaviour
         string animState = healthModifyValue <= 0 ? OccupantAnimation.Damaged : OccupantAnimation.Healed;
         Play_AnimatorState(animState);
 
-        _targetData.Toggle_UpdatingState(true);
+        _targetData.Toggle_DataUpdate(true);
         StartCoroutine(HealthUpdate_Handle());
     }
     private IEnumerator HealthUpdate_Handle()
@@ -91,7 +91,7 @@ public class InteractionData_UpdateController : MonoBehaviour
             AfterDeathUpdate?.Invoke();
         }
 
-        _targetData.Toggle_UpdatingState(false);
+        _targetData.Toggle_DataUpdate(false);
         yield break;
     }
 
@@ -99,22 +99,19 @@ public class InteractionData_UpdateController : MonoBehaviour
     // State
     private Animator_Controller Empty_StateUpdateAnimator()
     {
-        for (int i = 0; i < _stateUpdateAnimators.Length; i++)
-        {
-            Animator_Controller animator = _stateUpdateAnimators[i];
-
-            if (animator.currentState != null) continue;
-            return animator;
-        }
-        return null;
+        int currentStateCount = _targetData.states.Count;
+        if (currentStateCount >= _stateUpdateAnimators.Length) return null;
+        
+        return _stateUpdateAnimators[currentStateCount];
     }
-    private Animator_Controller StateUpdated_Animator(string updatedState)
+    private Animator_Controller StateUpdated_Animator(InteractableState updatedState)
     {
         for (int i = 0; i < _stateUpdateAnimators.Length; i++)
         {
             Animator_Controller animator = _stateUpdateAnimators[i];
+            string stateName = InteractableState_Animation.InteractableState_AnimationName(updatedState, true);
 
-            if (animator.currentState != updatedState) continue;
+            if (animator.currentState != stateName) continue;
             return animator;
         }
         return null;
@@ -122,18 +119,13 @@ public class InteractionData_UpdateController : MonoBehaviour
 
     private void Handle_StateUpdate(InteractableState updatedState)
     {
-        string updatedStateName = updatedState.ToString();
         bool stateAdded = _targetData.states.Contains(updatedState);
 
-        Animator_Controller updateAnimator = stateAdded ? Empty_StateUpdateAnimator() : StateUpdated_Animator(updatedStateName);
+        Animator_Controller updateAnimator = stateAdded ? Empty_StateUpdateAnimator() : StateUpdated_Animator(updatedState);
         if (updateAnimator == null) return;
 
-        if (stateAdded)
-        {
-            updateAnimator.Play_State(updatedStateName);
-            return;
-        }
-        updateAnimator.StopCurrent_PlayingState();
+        string updateStateName = InteractableState_Animation.InteractableState_AnimationName(updatedState, stateAdded);
+        updateAnimator.Play_State(updateStateName);
     }
     private void Handle_StateUpdate()
     {

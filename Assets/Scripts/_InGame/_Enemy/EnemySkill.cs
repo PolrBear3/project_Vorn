@@ -2,53 +2,50 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum CardSkillTrigger
+public enum EnemySkillTrigger
 {
-    Place,
-    PreUpdate,
-    AfterUpdate,
-    PreTargeting,
-    AfterTargeting,
-    HealthUpdate,
-    Death
+    PreMovement,
+    AfterMovement,
+    PreDamaging,
+    AfterDamaging
 }
 
-public enum CardSkillTarget
+public enum EnemySkillTarget
 {
     CurrentTile,
-    ActionTargetingTile,
-    TargetingTiles,
+    DamagingTargetTile,
     InteractRangeTile,
     InteractRangeTiles
 }
 
 [System.Serializable]
-public class CardSkill_TriggerData
+public class EnemySkill_TriggerData
 {
-    [SerializeField] private CardSkillTrigger _trigger;
-    public CardSkillTrigger trigger => _trigger;
+    [SerializeField] private EnemySkillTrigger _trigger;
+    public EnemySkillTrigger trigger => _trigger;
 
-    [SerializeField] private CardSkillTarget _target;
-    public CardSkillTarget target => _target;
+    [SerializeField] private EnemySkillTarget _target;
+    public EnemySkillTarget target => _target;
 
     [Space(10)]
-    [SerializeField] private CardSkill[] _cardSkills;
-    public CardSkill[] cardSkills => _cardSkills;
+    [SerializeField] private EnemySkill[] _enemySkills;
+    public EnemySkill[] enemySkills => _enemySkills;
 }
 
-public abstract class CardSkill : MonoBehaviour
+public abstract class EnemySkill : MonoBehaviour
 {
-    private Card _card;
-    public Card card => _card;
+    private Enemy _enemy;
+    public Enemy enemy => _enemy;
 
-    private CardSkillTrigger _currentTrigger;
-    public CardSkillTrigger currentTrigger => _currentTrigger;
+    private EnemySkillTrigger _currentTrigger;
+    public EnemySkillTrigger currentTrigger => _currentTrigger;
 
-    private CardSkillTarget _currentTarget;
-    public CardSkillTarget currentTarget => _currentTarget;
+    private EnemySkillTarget _currentTarget;
+    public EnemySkillTarget currentTarget => _currentTarget;
 
 
-    // CardSkillTarget
+    // EnemySkillTarget
+    /*
     public List<Tile> CurrentTarget_Tiles()
     {
         List<Tile> targetTiles = new();
@@ -89,13 +86,13 @@ public abstract class CardSkill : MonoBehaviour
         }
         return targetTiles;
     }
+    */
 
 
     // Main
-    public void Set_Data(Card card, CardSkillTrigger setTrigger, CardSkillTarget setTarget)
+    public void Set_Data(Enemy enemy, EnemySkillTrigger setTrigger, EnemySkillTarget setTarget)
     {
-        _card = card;
-        
+        _enemy = enemy;
         _currentTrigger = setTrigger;
         _currentTarget = setTarget;
     }

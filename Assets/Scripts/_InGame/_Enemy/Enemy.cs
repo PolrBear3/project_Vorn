@@ -13,21 +13,32 @@ public class Enemy : MonoBehaviour, IInteractable
     public Animator_Controller animator => _animator;
 
     [Space(10)]
-    [SerializeField] private InteractionData_UpdateController _healthController;
-    public InteractionData_UpdateController healthController => _healthController;
+    [SerializeField] private InteractionData_UpdateController _interactionDataUpdater;
+    public InteractionData_UpdateController interactionDataUpdater => _interactionDataUpdater;
 
     [SerializeField] private ActionClock _actionClock;
+
+    [Space(20)]
+    [SerializeField] private EnemySkill_TriggerData[] _skillDatas;
+    public EnemySkill_TriggerData[] skillDatas => _skillDatas;
 
 
     private EnemyData _data;
     public EnemyData data => _data;
 
 
-    private EventBus_Controller _preMovementActionBus = new();
-    public EventBus_Controller preMovementActionBus => _preMovementActionBus;
+    private EventBus_Controller _preMovementSkillBus = new();
+    public EventBus_Controller preMovementSkillBus => _preMovementSkillBus;
 
-    private EventBus_Controller _afterMovementActionBus = new();
-    public EventBus_Controller afterMovementActionBus => _afterMovementActionBus;
+    private EventBus_Controller _afterMovementSkillBus = new();
+    public EventBus_Controller afterMovementSkillBus => _afterMovementSkillBus;
+
+    private EventBus_Controller _preDamageSkillBus = new();
+    public EventBus_Controller preDamageSkillBus => _preDamageSkillBus;
+
+    private EventBus_Controller _afterDamageSkillBus = new();
+    public EventBus_Controller afterDamageSkillBus => _afterDamageSkillBus;
+
 
     private bool _actionsRunning;
     public bool actionsRunning => _actionsRunning;
@@ -40,8 +51,10 @@ public class Enemy : MonoBehaviour, IInteractable
     // MonoBehaviour
     private void OnDestroy()
     {
+        UnRegister_SkillDatas();
+
         // from Set_Data
-        _healthController.AfterDeathUpdate -= Remove_Data;
+        _interactionDataUpdater.AfterDeathUpdate -= Remove_Data;
     }
 
 
@@ -50,12 +63,13 @@ public class Enemy : MonoBehaviour, IInteractable
     {
         _data = new(setEnemy);
 
-        _healthController.Set_Data(_data.currentData);
-        _healthController.AfterDeathUpdate += Remove_Data;
+        Register_SkillDatas();
+
+        _interactionDataUpdater.Set_Data(_data.currentData);
+        _interactionDataUpdater.AfterDeathUpdate += Remove_Data;
 
         _actionClock.Toggle(false);
     }
-
     private void Remove_Data()
     {
         GameManager.instance.enemyManager.spawnedEnemies.Remove(this);
@@ -158,13 +172,67 @@ public class Enemy : MonoBehaviour, IInteractable
     }
 
 
+    // Skill
+    private EventBus_Controller SkillTrigger_EventBus(EnemySkillTrigger trigger)
+    {
+        switch (trigger)
+        {
+            case EnemySkillTrigger.PreMovement: return _preMovementSkillBus;
+            case EnemySkillTrigger.AfterMovement: return _afterMovementSkillBus;
+            case EnemySkillTrigger.PreDamaging: return _preDamageSkillBus;
+            case EnemySkillTrigger.AfterDamaging: return _afterDamageSkillBus;
+        }
+        return null;
+    }
+
+    private void Register_SkillDatas()
+    {
+        for (int i = 0; i < _skillDatas.Length; i++)
+        {
+            EnemySkill_TriggerData data = _skillDatas[i];
+
+            EventBus_Controller triggerBus = SkillTrigger_EventBus(data.trigger);
+            if (triggerBus == null) continue;
+
+            EnemySkill[] triggerSkills = data.enemySkills;
+            for (int j = 0; j < triggerSkills.Length; j++)
+            {
+                EnemySkill skill = triggerSkills[j];
+                if (skill == null) continue;
+
+                triggerBus.Register(j, skill.Trigger_Skill);
+                skill.Set_Data(this, data.trigger, data.target);
+            }
+        }
+    }
+    private void UnRegister_SkillDatas()
+    {
+        for (int i = 0; i < _skillDatas.Length; i++)
+        {
+            EnemySkill_TriggerData data = _skillDatas[i];
+
+            EventBus_Controller triggerBus = SkillTrigger_EventBus(data.trigger);
+            if (triggerBus == null) return;
+
+            EnemySkill[] triggerSkills = data.enemySkills;
+            for (int j = 0; j < triggerSkills.Length; j++)
+            {
+                EnemySkill skill = triggerSkills[j];
+                if (skill == null) continue;
+
+                triggerBus.UnRegister(skill.Trigger_Skill);
+            }
+        }
+    }
+
+
     // End Turn
     public IEnumerator Run_EndTurnActions()
     {
         _actionsRunning = true;
         _actionClock.Toggle(_actionsRunning);
 
-        yield return _preMovementActionBus.RunSequential_DelayBusEvents();
+        yield return _preMovementSkillBus.RunSequential_DelayBusEvents();
 
         int movementRange = _data.movementRange; // movement
         for (int i = 0; i < movementRange; i++)
@@ -172,15 +240,17 @@ public class Enemy : MonoBehaviour, IInteractable
             Moveto_TargetTile();
             while (_movement.movementCoroutine != null) yield return null;
         }
+        yield return _afterMovementSkillBus.RunSequential_DelayBusEvents();
 
+        yield return _preDamageSkillBus.RunSequential_DelayBusEvents();
         InteractionData damageData = Damage_RangedInteractable(); // damage interactable
+
         if (damageData != null)
         {
             yield return null;
             while (damageData.dataUpdating) yield return null;
         }
-
-        yield return _afterMovementActionBus.RunSequential_DelayBusEvents();
+        yield return _afterDamageSkillBus.RunSequential_DelayBusEvents();
 
         _actionsRunning = false;
         _actionClock.Toggle(_actionsRunning);

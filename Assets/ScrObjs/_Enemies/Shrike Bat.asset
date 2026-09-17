@@ -12,13 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2deb12b5a7ac74dfabd0ba54611fadcf, type: 3}
   m_Name: Shrike Bat
   m_EditorClassIdentifier: 
-  _spawnPrefab: {fileID: 2898224727119453378, guid: 7298ab9f09637488fb4eaa8f4dd9cd59, type: 3}
-  _spawnOffset: {x: 0, y: 0.125}
+  _characterName: 
+  _characterDescription: 
+  _toolTipBaseSprite: {fileID: 1900431164, guid: b548ee7a6c7ae400da33152279ccbab9, type: 3}
+  _spawnPrefab: {fileID: 7544319682452765955, guid: 7e2d743a7e5b843ce980d3d2928aa5d0, type: 3}
+  _spawnOffset: {x: 0, y: 0.4375}
   _interactionData:
-    _mana: 0
     _maxHealth: 5
     _healthModifyValue: -1
-    _abilities: 
+    _states: 
     _interactRange: 1
     _targetSelectCount: 0
   _movementRange: 1

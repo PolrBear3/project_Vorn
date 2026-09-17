@@ -54,6 +54,7 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
     private EventBus_Controller _afterTargetingSkillBus = new();
     public EventBus_Controller afterTargetingSkillBus => _afterTargetingSkillBus;
 
+
     private Tile _targetingTile;
     public Tile targetingTile => _targetingTile;
 

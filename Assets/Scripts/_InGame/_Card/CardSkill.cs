@@ -52,14 +52,7 @@ public abstract class CardSkill : MonoBehaviour
     public List<Tile> CurrentTarget_Tiles()
     {
         List<Tile> targetTiles = new();
-
         Tile placedTile = _card.placedTile;
-        int interactRange = card.data.currentData.interactRange;
-
-        List<Tile> targetingTiles = new(card.tileTargeting.recentTargetingTiles);
-
-        List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(placedTile, interactRange);
-        interactRangeTiles.Remove(placedTile);
 
         switch (_currentTarget)
         {
@@ -75,17 +68,27 @@ public abstract class CardSkill : MonoBehaviour
                 break;
 
             case CardSkillTarget.TargetingTiles:
-                return targetingTiles;
+                return new(_card.tileTargeting.recentTargetingTiles);
 
             case CardSkillTarget.InteractRangeTile:
-                int rangeTileCount = interactRangeTiles.Count;
-                if (rangeTileCount <= 0) break;
+                {
+                    List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(placedTile, _card.data.currentData.interactRange);
+                    interactRangeTiles.Remove(placedTile);
 
-                targetTiles.Add(interactRangeTiles[Random.Range(0, rangeTileCount)]);
-                break;
+                    int rangeTileCount = interactRangeTiles.Count;
+                    if (rangeTileCount <= 0) break;
+
+                    targetTiles.Add(interactRangeTiles[Random.Range(0, rangeTileCount)]);
+                    break;
+                }
 
             case CardSkillTarget.InteractRangeTiles:
-                return interactRangeTiles;
+                {
+                    List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(placedTile, _card.data.currentData.interactRange);
+                    interactRangeTiles.Remove(placedTile);
+
+                    return interactRangeTiles;
+                }
         }
         return targetTiles;
     }
@@ -95,7 +98,7 @@ public abstract class CardSkill : MonoBehaviour
     public void Set_Data(Card card, CardSkillTrigger setTrigger, CardSkillTarget setTarget)
     {
         _card = card;
-        
+
         _currentTrigger = setTrigger;
         _currentTarget = setTarget;
     }

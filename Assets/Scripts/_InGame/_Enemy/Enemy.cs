@@ -40,6 +40,9 @@ public class Enemy : MonoBehaviour, IInteractable
     public EventBus_Controller afterDamageSkillBus => _afterDamageSkillBus;
 
 
+    private Tile _damagingTile;
+    public Tile damagingTile => _damagingTile;
+
     private bool _actionsRunning;
     public bool actionsRunning => _actionsRunning;
 
@@ -127,8 +130,10 @@ public class Enemy : MonoBehaviour, IInteractable
 
 
     // Damage
-    private InteractionData DamageTarget_InteractionData()
+    private InteractionData Damageable_InteractionData(out Tile damageTargetTile)
     {
+        damageTargetTile = null;
+
         GameManager manager = GameManager.instance;
         CardManager cardManager = manager.cardManager;
 
@@ -141,13 +146,18 @@ public class Enemy : MonoBehaviour, IInteractable
         Card tauntCard = cardManager.TileClosest_PlacedCard(currentTile, cardManager.TileClosest_PlacedCards(currentTile, InteractableState.Taunt));
         bool tauntCardDamageable = tauntCard != null && Utility.Chebyshev_Distance(currentTilePos, tauntCard.placedTile.data.position) <= interactRange;
 
-        if (tauntCardDamageable) return tauntCard.interactionData;
+        if (tauntCardDamageable)
+        {
+            damageTargetTile = tauntCard.placedTile;
+            return tauntCard.interactionData;
+        }
         if (tauntCard != null) return null; // restrict damaging if taunt cards are not in range
 
         // hero
         Hero currentHero = manager.heroManager.currentHero;
-        if (currentHero != null && Utility.Chebyshev_Distance(currentTile.data.position, currentHero.movement.currentTile.data.position) <= interactRange)
+        if (currentHero != null && Utility.Chebyshev_Distance(currentTilePos, currentHero.movement.currentTile.data.position) <= interactRange)
         {
+            damageTargetTile = currentHero.movement.currentTile;
             return currentHero.interactionData;
         }
 
@@ -155,20 +165,18 @@ public class Enemy : MonoBehaviour, IInteractable
         Card damageCard = cardManager.TileClosest_PlacedCard(currentTile);
         if (damageCard == null) return null;
 
-        int distanceToCard = Utility.Chebyshev_Distance(currentTile.data.position, damageCard.placedTile.data.position);
+        int distanceToCard = Utility.Chebyshev_Distance(currentTilePos, damageCard.placedTile.data.position);
         if (distanceToCard > interactRange) return null;
 
+        damageTargetTile = damageCard.placedTile;
         return damageCard.interactionData;
     }
-    private InteractionData Damage_RangedInteractable()
+    private void Damage_InteractionData(InteractionData damageData)
     {
-        InteractionData damageTargetData = DamageTarget_InteractionData();
-        if (damageTargetData == null) return null;
+        if (damageData == null) return;
 
-        int damageUpdateValue = damageTargetData.currentHealth + _data.currentData.healthModifyValue;
-        damageTargetData.Update_CurrentHealth(damageUpdateValue);
-
-        return damageTargetData;
+        int damageUpdateValue = damageData.currentHealth + _data.currentData.healthModifyValue;
+        damageData.Update_CurrentHealth(damageUpdateValue);
     }
 
 
@@ -232,9 +240,9 @@ public class Enemy : MonoBehaviour, IInteractable
         _actionsRunning = true;
         _actionClock.Toggle(_actionsRunning);
 
-        yield return _preMovementSkillBus.RunSequential_DelayBusEvents();
+        yield return _preMovementSkillBus.RunSequential_DelayBusEvents(); // movement
+        int movementRange = _data.movementRange;
 
-        int movementRange = _data.movementRange; // movement
         for (int i = 0; i < movementRange; i++)
         {
             Moveto_TargetTile();
@@ -242,19 +250,25 @@ public class Enemy : MonoBehaviour, IInteractable
         }
         yield return _afterMovementSkillBus.RunSequential_DelayBusEvents();
 
-        yield return _preDamageSkillBus.RunSequential_DelayBusEvents();
-        InteractionData damageData = Damage_RangedInteractable(); // damage interactable
+        InteractionData damageData = Damageable_InteractionData(out Tile damageTargetTile); // damage interactable
+        _damagingTile = damageTargetTile;
 
         if (damageData != null)
         {
+            yield return _preDamageSkillBus.RunSequential_DelayBusEvents();
+
+            Damage_InteractionData(damageData);
+
             yield return null;
             while (damageData.dataUpdating) yield return null;
+
+            yield return _afterDamageSkillBus.RunSequential_DelayBusEvents();
         }
-        yield return _afterDamageSkillBus.RunSequential_DelayBusEvents();
 
+        _damagingTile = null;
         _actionsRunning = false;
-        _actionClock.Toggle(_actionsRunning);
 
+        _actionClock.Toggle(_actionsRunning);
         yield break;
     }
 }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2deb12b5a7ac74dfabd0ba54611fadcf, type: 3}
   m_Name: Decaying Zombie
   m_EditorClassIdentifier: 
-  _characterName: 
+  _characterName: Decaying Zombie
   _characterDescription: 
   _toolTipBaseSprite: {fileID: -517804842, guid: b548ee7a6c7ae400da33152279ccbab9, type: 3}
   _spawnPrefab: {fileID: 7544319682452765955, guid: e21305e2e57814f578345c5440ae664b, type: 3}

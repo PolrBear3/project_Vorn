@@ -81,25 +81,13 @@ public class Enemy : MonoBehaviour, IInteractable
 
 
     // Movement
-    private Tile Hero_TargetTile()
-    {
-        GameManager manager = GameManager.instance;
-
-        Hero currentHero = manager.heroManager.currentHero;
-        if (currentHero == null) return null;
-
-        Tile targetTile = manager.tileManager.ClosestAvailable_SurroundingTile(_movement.currentTile, currentHero.movement.currentTile);
-        if (targetTile == null) return null;
-
-        return targetTile;
-    }
     private Tile TauntCard_TargetTile()
     {
-        Tile currentTile = _movement.currentTile;
-
         GameManager manager = GameManager.instance;
 
+        Tile currentTile = _movement.currentTile;
         List<Card> closestCards = manager.cardManager.TileClosest_PlacedCards(currentTile);
+
         if (closestCards.Count <= 0) return null;
 
         for (int i = 0; i < closestCards.Count; i++)
@@ -107,19 +95,34 @@ public class Enemy : MonoBehaviour, IInteractable
             Card card = closestCards[i];
 
             if (card.data.currentData.states.Contains(InteractableState.Taunt) == false) continue;
-            return manager.tileManager.ClosestAvailable_SurroundingTile(currentTile, card.placedTile);
+            return card.placedTile;
         }
         return null;
     }
+    private Tile Hero_TargetTile()
+    {
+        GameManager manager = GameManager.instance;
 
+        Hero currentHero = manager.heroManager.currentHero;
+        if (currentHero == null) return null;
+
+        return currentHero.movement.currentTile;
+    }
+
+    public Tile TargetTile()
+    {
+        return TauntCard_TargetTile() ?? Hero_TargetTile();
+    }
     private void Moveto_TargetTile()
     {
+        TileManager tileManager = GameManager.instance.tileManager;
+
         Tile currentTile = _movement.currentTile;
-        Tile destinationTile = TauntCard_TargetTile() ?? Hero_TargetTile();
+        Tile destinationTile = tileManager.ClosestAvailable_SurroundingTile(currentTile, TargetTile());
 
         if (destinationTile == null || currentTile == destinationTile) return;
 
-        List<Tile> routeTiles = GameManager.instance.tileManager.PathFind_RouteTiles(currentTile, destinationTile);
+        List<Tile> routeTiles = tileManager.PathFind_RouteTiles(currentTile, destinationTile);
         if (routeTiles.Count <= 0) return;
 
         Tile routeTile = routeTiles[0];

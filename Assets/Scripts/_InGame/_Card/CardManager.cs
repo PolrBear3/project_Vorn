@@ -238,28 +238,29 @@ public class CardManager : MonoBehaviour
     }
 
 
-    private List<Tile> HoverIndicate_Tiles(Card hoverCard, out string indicateStateString)
+    // Hover
+    private List<Tile> HoverIndicate_Tiles(Card hoverCard, out string animationState)
     {
         if (hoverCard == null)
         {
-            indicateStateString = null;
+            animationState = null;
             return null;
         }
 
         List<Tile> targetingTiles = new(hoverCard.targetingData.targetingTiles);
-
         if (targetingTiles.Count > 0)
         {
-            indicateStateString = UIAnimation.Available;
+            animationState = UIAnimation.Available;
             return targetingTiles;
         }
 
         Tile hoverCardTile = hoverCard.placedTile;
+        int interactRange = hoverCard.data.currentData.interactRange;
 
-        List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(hoverCardTile, hoverCard.data.currentData.interactRange);
+        List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(hoverCardTile, interactRange);
         interactRangeTiles.Remove(hoverCardTile);
 
-        indicateStateString = UIAnimation.Toggle;
+        animationState = UIAnimation.Toggle;
         return interactRangeTiles;
     }
 
@@ -273,18 +274,17 @@ public class CardManager : MonoBehaviour
         TileManager tileManager = manager.tileManager;
         Tile hoveringTile = tileManager.hoveringTile;
 
-        if (hoveringTile == null)
+        Card placedCard = PlacedCard(hoveringTile);
+        bool cardPlaced = placedCard != null;
+
+        _placedCardHoverToolTip.Toggle(placedCard);
+
+        if (hoveringTile == null || hoveringTile.currentOccupant == null)
         {
             tileManager.Reset_TileIndicators();
-            _placedCardHoverToolTip.Toggle(false);
-
             return;
         }
-
-        Card placedCard = PlacedCard(hoveringTile);
-        _placedCardHoverToolTip.Toggle(placedCard != null);
-
-        if (placedCard == null) return;
+        if (cardPlaced == false) return;
 
         List<Tile> indicateTiles = HoverIndicate_Tiles(placedCard, out string indicateStateString);
         foreach (Tile tile in indicateTiles)
@@ -309,6 +309,7 @@ public class CardManager : MonoBehaviour
     }
 
 
+    // Actions
     public bool CardPlace_ActionRunning()
     {
         for (int i = 0; i < _placedCards.Count; i++)

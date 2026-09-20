@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2deb12b5a7ac74dfabd0ba54611fadcf, type: 3}
   m_Name: Shrike Bat
   m_EditorClassIdentifier: 
-  _characterName: 
+  _characterName: Shrike Bat
   _characterDescription: 
   _toolTipBaseSprite: {fileID: 1900431164, guid: b548ee7a6c7ae400da33152279ccbab9, type: 3}
   _spawnPrefab: {fileID: 7544319682452765955, guid: 7e2d743a7e5b843ce980d3d2928aa5d0, type: 3}

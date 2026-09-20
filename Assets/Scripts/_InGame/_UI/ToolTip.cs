@@ -4,12 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using Unity.VisualScripting;
 
 public class ToolTip : MonoBehaviour
 {
     [Space(20)]
     [SerializeField] private RectTransform _positionUpdateBoundary;
-    
+
     [Space(10)]
     [SerializeField] private Image _panel;
     public Image panel => _panel;
@@ -66,7 +67,9 @@ public class ToolTip : MonoBehaviour
     public void Update_Contents(Sprite baseSprite, Sprite iconSprite, string nameString, string descriptionString)
     {
         _baseImage.sprite = baseSprite != null ? baseSprite : _defaultBaseSprite;
+
         _iconImage.sprite = iconSprite;
+        _iconImage.gameObject.SetActive(iconSprite != null);
 
         Update_NameText(nameString);
         _descriptionText.text = descriptionString;
@@ -170,7 +173,7 @@ public class ToolTip : MonoBehaviour
     private void UpdatePosition_CursorPoint()
     {
         GameManager manager = GameManager.instance;
-        
+
         RectTransform cursorPointer = manager.cursor.pointerIconRect;
         RectTransform panelRect = _panel.rectTransform;
 

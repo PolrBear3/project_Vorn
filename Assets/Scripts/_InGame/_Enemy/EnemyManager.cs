@@ -14,6 +14,10 @@ public class EnemyManager : MonoBehaviour
     private Coroutine _spawnCoroutine;
 
 
+    [Space(20)]
+    [SerializeField] private ToolTip _enemyHoverToolTip;
+
+
     // MonoBehaviour
     private void Awake()
     {
@@ -26,20 +30,48 @@ public class EnemyManager : MonoBehaviour
 
 
         // from Set_Data
-        StageManager stageManager = GameManager.instance.stageManager;
+        GameManager manager = GameManager.instance;
+
+        StageManager stageManager = manager.stageManager;
+        EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
         stageManager.stageSetEventBus.UnRegister(Run_DelaySpawn);
-        stageManager.endTurnEventBus.UnRegister(Run_EnemyActions);
+        endTurnBus.UnRegister(Run_EnemyActions);
+
+        manager.tileManager.tileHoverEventBus.UnRegister(Hover_Enemy);
+        endTurnBus.OnSequentialDelayFinish -= Hover_Enemy;
+
+        endTurnBus.UnRegister(_enemyHoverToolTip.UnToggle);
     }
 
 
     // Data
     private void Set_Data()
     {
-        StageManager stageManager = GameManager.instance.stageManager;
+        GameManager manager = GameManager.instance;
+
+        StageManager stageManager = manager.stageManager;
+        EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
         stageManager.stageSetEventBus.Register(0, Run_DelaySpawn);
-        stageManager.endTurnEventBus.Register(3, Run_EnemyActions);
+        endTurnBus.Register(3, Run_EnemyActions);
+
+        manager.tileManager.tileHoverEventBus.Register(0, Hover_Enemy);
+        endTurnBus.OnSequentialDelayFinish += Hover_Enemy;
+
+        endTurnBus.Register(0, _enemyHoverToolTip.UnToggle);
+    }
+
+    private Enemy Spawned_Enemy(Tile targetTile)
+    {
+        for (int i = 0; i < _spawnedEnemies.Count; i++)
+        {
+            Enemy enemy = _spawnedEnemies[i];
+
+            if (enemy.movement.currentTile != targetTile) continue;
+            return enemy;
+        }
+        return null;
     }
 
 
@@ -102,7 +134,67 @@ public class EnemyManager : MonoBehaviour
     }
 
 
-    // Spawned Enemies
+    // Hover
+    private List<Tile> HoverIndicate_InteractRangeTiles(Enemy hoverEnemy)
+    {
+        if (hoverEnemy == null) return null;
+
+        Tile currentTile = hoverEnemy.movement.currentTile;
+        int interactRange = hoverEnemy.data.currentData.interactRange;
+
+        List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(currentTile, interactRange);
+        interactRangeTiles.Remove(currentTile);
+
+        return interactRangeTiles;
+    }
+    private void HoverIndicate_TargetTile(Enemy hoverEnemy)
+    {
+        Tile indicateTargetTile = hoverEnemy.TargetTile();
+        if (indicateTargetTile == null) return;
+
+        indicateTargetTile.indicatorAnimController.Play_State(UIAnimation.Restricted);
+    }
+
+    private void Hover_Enemy()
+    {
+        GameManager manager = GameManager.instance;
+        if (manager.stageManager.endTurnEventBus.DelayBus_Running()) return;
+
+        TileManager tileManager = manager.tileManager;
+        Tile hoveringTile = tileManager.hoveringTile;
+
+        Enemy hoveringEnemy = Spawned_Enemy(hoveringTile);
+        bool enemyStanding = hoveringEnemy != null;
+
+        _enemyHoverToolTip.Toggle(enemyStanding);
+
+        if (hoveringTile == null || hoveringTile.currentOccupant == null)
+        {
+            tileManager.Reset_TileIndicators();
+            return;
+        }
+        if (enemyStanding == false) return;
+
+        List<Tile> indicateTiles = HoverIndicate_InteractRangeTiles(hoveringEnemy);
+        foreach (Tile tile in indicateTiles)
+        {
+            tile.indicatorAnimController.Play_State(UIAnimation.Toggle);
+        }
+        HoverIndicate_TargetTile(hoveringEnemy);
+
+        // ToolTip
+        CharacterScrObj enemyScrObj = hoveringEnemy.data.enemyScrObj;
+
+        _enemyHoverToolTip.ToggleOn_CursorPoint(true);
+        _enemyHoverToolTip.Update_Contents(enemyScrObj.toolTipBaseSprite, null, enemyScrObj.characterName, enemyScrObj.characterDescription);
+    }
+    private void Hover_Enemy(bool tileTargetingToggled)
+    {
+
+    }
+
+
+    // Actions
     private IEnumerator Run_EnemyActions()
     {
         Hero currentHero = GameManager.instance.heroManager.currentHero;

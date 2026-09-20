@@ -276,7 +276,7 @@ public class HandInventory : MonoBehaviour
     }
 
 
-    // HandCard Hover
+    // Hover
     public void Update_HoveringCard(HandCard hoveringCard)
     {
         _hoveringCard = hoveringCard;
@@ -330,6 +330,8 @@ public class HandInventory : MonoBehaviour
         hoveringTile.indicatorAnimController.Play_State(playState);
     }
 
+
+    // Drag Drop
     private bool Place_DraggingCard()
     {
         if (_dragDropData == null) return false;

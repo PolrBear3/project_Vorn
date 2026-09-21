@@ -194,7 +194,7 @@ public class HandInventory : MonoBehaviour
     private void Update_CardPlatform()
     {
         int currentCardCount = _handCards.Count;
-        bool toggle = currentCardCount > 0;
+        bool toggle = currentCardCount > 0 && GameManager.instance.stageManager.Is_BattleStage();
 
         _cardPlatform.gameObject.SetActive(toggle);
 
@@ -245,6 +245,8 @@ public class HandInventory : MonoBehaviour
 
     public void Draw_Card(int drawCount)
     {
+        if (GameManager.instance.stageManager.Is_BattleStage() == false) return;
+        
         List<CardData> deckCardDatas = _data.deckCardDatas;
         if (deckCardDatas == null || deckCardDatas.Count <= 0) return;
 

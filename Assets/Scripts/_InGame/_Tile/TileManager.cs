@@ -319,9 +319,14 @@ public class TileManager : MonoBehaviour
     private void Generate_Tiles()
     {
         Stage_ScrObj currentStage = GameManager.instance.currentGameData.stage;
+        if (currentStage is not BattleStage_ScrObj battleStage)
+        {
+            _generateEventBus.RunSequential_BusEvents();
+            return;
+        }
 
-        int rowTileCount = currentStage.rowTileCount;
-        int columnTileCount = currentStage.columnTileCount;
+        int rowTileCount = battleStage.rowTileCount;
+        int columnTileCount = battleStage.columnTileCount;
         
         Vector2 centerPosition = Camera.main.transform.position;
 
@@ -351,12 +356,13 @@ public class TileManager : MonoBehaviour
     private void Update_TileSprites()
     {
         Stage_ScrObj currentStage = GameManager.instance.currentGameData.stage;
+        if (currentStage is not BattleStage_ScrObj battleStage) return;
 
         for (int i = 0; i < _tiles.Count; i++)
         {
             Tile tile = _tiles[i];
 
-            Sprite updateSprite = PivotSurrounding_Tiles(tile).Count >= 8 ? currentStage.Default_TileSprite() : currentStage.Edge_TileSprite();
+            Sprite updateSprite = PivotSurrounding_Tiles(tile).Count >= 8 ? battleStage.Default_TileSprite() : battleStage.Edge_TileSprite();
             tile.spriteRenderer.sprite = updateSprite;
         }
     }

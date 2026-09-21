@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 205b206b49f1e4d8582012b440f2251d, type: 3}
-  m_Name: Tutorial
+  m_Script: {fileID: 11500000, guid: 9487d218a24be4b43a8cbb88687ff9c3, type: 3}
+  m_Name: Decayed World
   m_EditorClassIdentifier: 
   _defaultTileSprites:
   - {fileID: -1975314735, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
@@ -25,11 +25,7 @@ MonoBehaviour:
   _rowTileCount: 12
   _columnTileCount: 5
   _enemySpawnDatas:
-  - _spawnCount: 1
+  - _spawnCount: 3
     _spawnRateDatas:
     - _spawnEnemy: {fileID: 11400000, guid: 37aaf961eaf0f416395ff451135461d6, type: 2}
-      _spawnRate: 1
-    - _spawnEnemy: {fileID: 11400000, guid: 359cc0ed37bbf4d1b80f4e111345b083, type: 2}
-      _spawnRate: 1
-    - _spawnEnemy: {fileID: 11400000, guid: 1414017ed664b441e8a6637b11976d99, type: 2}
-      _spawnRate: 1
+      _spawnRate: 0

@@ -20,6 +20,9 @@ public class HeroManager : MonoBehaviour
     [Space(10)]
     [SerializeField][Range(0, 1000)] private float _statPanelsSpacingValue;
 
+    [Space(20)]
+    [SerializeField] private ToolTip _heroHoverToolTip;
+
 
     // MonoBehaviour
     private void Awake()
@@ -31,6 +34,13 @@ public class HeroManager : MonoBehaviour
     {
         // from Set_Data
         GameManager manager = GameManager.instance;
+
+        StageManager stageManager = manager.stageManager;
+        EventBus_Controller stageSetBus = stageManager.stageSetEventBus;
+
+        stageSetBus.UnRegister(Update_HealthPanel);
+        stageSetBus.UnRegister(Update_ManaPanel);
+
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
 
         endTurnBus.UnRegister(Hero_Unavailable);
@@ -57,6 +67,11 @@ public class HeroManager : MonoBehaviour
         placeCardEventBus.UnRegister(Cancel_TileMovementTargeting_OnRouteBlocked);
         placeCardEventBus.UnRegister(UpdateMana_OnTileMovementTarget);
 
+        tileHoverEventBus.UnRegister(Hover_CurrentHero);
+        endTurnBus.OnSequentialDelayFinish -= Hover_CurrentHero;
+
+        endTurnBus.UnRegister(_heroHoverToolTip.UnToggle);
+
         // from Track_CurrentHero
         if (_currentHero == null) return;
         _currentHero.interactionData.OnHealthUpdate -= _healthPanel.Update_ValueText;
@@ -67,12 +82,15 @@ public class HeroManager : MonoBehaviour
     // Data
     private void Set_Data()
     {
-        Update_HealthPanel();
-        Update_ManaPanel();
-
-
         GameManager manager = GameManager.instance;
-        EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
+
+        StageManager stageManager = manager.stageManager;
+        EventBus_Controller stageSetBus = stageManager.stageSetEventBus;
+
+        stageSetBus.Register(0, Update_HealthPanel);
+        stageSetBus.Register(0, Update_ManaPanel);
+
+        EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
         endTurnBus.Register(Hero_Unavailable);
         endTurnBus.Register(_heroDeathEventBus.DelayBus_Running);
@@ -97,6 +115,11 @@ public class HeroManager : MonoBehaviour
 
         placeCardEventBus.Register(0, Cancel_TileMovementTargeting_OnRouteBlocked);
         placeCardEventBus.Register(0, UpdateMana_OnTileMovementTarget);
+
+        tileHoverEventBus.Register(0, Hover_CurrentHero);
+        endTurnBus.OnSequentialDelayFinish += Hover_CurrentHero;
+
+        endTurnBus.Register(0, _heroHoverToolTip.UnToggle);
     }
     public void Track_CurrentHero(Hero heroToTrack)
     {
@@ -319,6 +342,26 @@ public class HeroManager : MonoBehaviour
     }
 
 
+    // Hover
+    private void Hover_CurrentHero()
+    {
+        GameManager manager = GameManager.instance;
+        if (manager.stageManager.endTurnEventBus.DelayBus_Running()) return;
+
+        Tile hoveringTile = manager.tileManager.hoveringTile;
+        bool toggleToolTip = _currentHero != null && hoveringTile == _currentHero.movement.currentTile;
+
+        _heroHoverToolTip.Toggle(toggleToolTip);
+        if (toggleToolTip == false) return;
+
+        // ToolTip
+        CharacterScrObj heroScrObj = _currentHero.data.heroScrObj;
+
+        _heroHoverToolTip.ToggleOn_CursorPoint(true);
+        _heroHoverToolTip.Update_Contents(heroScrObj.toolTipBaseSprite, null, heroScrObj.characterName, heroScrObj.characterDescription);
+    }
+
+
     // Stat Panels
     private float Update_Direction(float xPosition)
     {
@@ -349,6 +392,12 @@ public class HeroManager : MonoBehaviour
 
     private void Update_HealthPanel()
     {
+        if (GameManager.instance.stageManager.Is_BattleStage() == false)
+        {
+            _healthPanel.gameObject.SetActive(false);
+            return;
+        }
+        
         if (_currentHero == null)
         {
             _healthPanel.Update_ValueText(0, 0);
@@ -360,6 +409,12 @@ public class HeroManager : MonoBehaviour
     }
     private void Update_ManaPanel()
     {
+        if (GameManager.instance.stageManager.Is_BattleStage() == false)
+        {
+            _manaPanel.gameObject.SetActive(false);
+            return;
+        }
+
         if (_currentHero == null)
         {
             _manaPanel.Update_ValueText(0, 0);

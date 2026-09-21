@@ -29,7 +29,9 @@ public class StageData
     // Data
     public Enemy_SpawnData Update_EnemySpawnData()
     {
-        Enemy_SpawnData[] spawnDatas = _stage.enemySpawnDatas;
+        if (_stage is not BattleStage_ScrObj battleStage) return null;
+        
+        Enemy_SpawnData[] spawnDatas = battleStage.enemySpawnDatas;
         _enemySpawnIndex++;
 
         if (_enemySpawnIndex > spawnDatas.Length - 1) return null;

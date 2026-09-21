@@ -67,6 +67,13 @@ public class StageManager : MonoBehaviour
     }
 
 
+    public bool Is_BattleStage()
+    {
+        if (_currentData == null) return false;
+        return _currentData.stage is BattleStage_ScrObj;
+    }
+
+
     // Gameplay
     private void End_Turn(bool isPressed)
     {

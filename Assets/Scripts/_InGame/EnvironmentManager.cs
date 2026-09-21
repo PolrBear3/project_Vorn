@@ -76,9 +76,10 @@ public class EnvironmentManager : MonoBehaviour
     private void Update_CameraSize()
     {
         Stage_ScrObj currentStage = GameManager.instance.currentGameData.stage;
+        if (currentStage is not BattleStage_ScrObj battleStage) return;
 
-        int rowTileCount = currentStage.rowTileCount;
-        int columnTileCount = currentStage.columnTileCount;
+        int rowTileCount = battleStage.rowTileCount;
+        int columnTileCount = battleStage.columnTileCount;
 
         for (int i = 0; i < _cameraSizeDatas.Length; i++)
         {

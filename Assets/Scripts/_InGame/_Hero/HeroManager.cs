@@ -36,10 +36,16 @@ public class HeroManager : MonoBehaviour
         GameManager manager = GameManager.instance;
 
         StageManager stageManager = manager.stageManager;
+
         EventBus_Controller stageSetBus = stageManager.stageSetEventBus;
 
         stageSetBus.UnRegister(Update_HealthPanel);
         stageSetBus.UnRegister(Update_ManaPanel);
+
+        EventBus_Controller stageEndBus = stageManager.stageEndEventBus;
+
+        stageEndBus.UnRegister(Update_HealthPanel);
+        stageEndBus.UnRegister(Update_ManaPanel);
 
         EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
 
@@ -85,10 +91,16 @@ public class HeroManager : MonoBehaviour
         GameManager manager = GameManager.instance;
 
         StageManager stageManager = manager.stageManager;
+
         EventBus_Controller stageSetBus = stageManager.stageSetEventBus;
 
         stageSetBus.Register(0, Update_HealthPanel);
         stageSetBus.Register(0, Update_ManaPanel);
+
+        EventBus_Controller stageEndBus = stageManager.stageEndEventBus;
+
+        stageEndBus.Register(0, Update_HealthPanel);
+        stageEndBus.Register(0, Update_ManaPanel);
 
         EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
@@ -342,7 +354,7 @@ public class HeroManager : MonoBehaviour
     }
 
 
-    // Hover
+    // Current Hero
     private void Hover_CurrentHero()
     {
         GameManager manager = GameManager.instance;
@@ -392,12 +404,13 @@ public class HeroManager : MonoBehaviour
 
     private void Update_HealthPanel()
     {
-        if (GameManager.instance.stageManager.Is_BattleStage() == false)
-        {
-            _healthPanel.gameObject.SetActive(false);
-            return;
-        }
-        
+        GameManager manager = GameManager.instance;
+
+        bool toggle = manager.stageManager.Is_BattleStage() && manager.enemyManager.StageEnemies_NotCleared();
+
+        _healthPanel.gameObject.SetActive(toggle);
+        if (toggle == false) return;
+
         if (_currentHero == null)
         {
             _healthPanel.Update_ValueText(0, 0);
@@ -409,11 +422,12 @@ public class HeroManager : MonoBehaviour
     }
     private void Update_ManaPanel()
     {
-        if (GameManager.instance.stageManager.Is_BattleStage() == false)
-        {
-            _manaPanel.gameObject.SetActive(false);
-            return;
-        }
+        GameManager manager = GameManager.instance;
+
+        bool toggle = manager.stageManager.Is_BattleStage() && manager.enemyManager.StageEnemies_NotCleared();
+        _manaPanel.gameObject.SetActive(toggle);
+
+        if (toggle == false) return;
 
         if (_currentHero == null)
         {

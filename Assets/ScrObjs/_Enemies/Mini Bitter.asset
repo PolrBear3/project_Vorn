@@ -18,7 +18,7 @@ MonoBehaviour:
   _spawnPrefab: {fileID: 7544319682452765955, guid: 978141d4089df4426a7e03b0a876c550, type: 3}
   _spawnOffset: {x: 0, y: 0.625}
   _interactionData:
-    _maxHealth: 5
+    _maxHealth: 1
     _healthModifyValue: -1
     _states: 
     _interactRange: 1

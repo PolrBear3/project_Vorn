@@ -36,7 +36,12 @@ public class EnemyManager : MonoBehaviour
         EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
         stageManager.stageSetEventBus.UnRegister(Run_DelaySpawn);
+        endTurnBus.UnRegister(Run_DelaySpawn);
+
         endTurnBus.UnRegister(Run_EnemyActions);
+
+        endTurnBus.UnRegister(StageEnemies_Cleared);
+        stageManager.stageEndEventBus.UnRegister(StageEnemies_NotCleared);
 
         manager.tileManager.tileHoverEventBus.UnRegister(Hover_Enemy);
         endTurnBus.OnSequentialDelayFinish -= Hover_Enemy;
@@ -54,7 +59,12 @@ public class EnemyManager : MonoBehaviour
         EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
         stageManager.stageSetEventBus.Register(0, Run_DelaySpawn);
+        endTurnBus.Register(6, Run_DelaySpawn);
+
         endTurnBus.Register(3, Run_EnemyActions);
+
+        endTurnBus.Register(StageEnemies_Cleared);
+        stageManager.stageEndEventBus.Register(StageEnemies_NotCleared);
 
         manager.tileManager.tileHoverEventBus.Register(0, Hover_Enemy);
         endTurnBus.OnSequentialDelayFinish += Hover_Enemy;
@@ -72,6 +82,18 @@ public class EnemyManager : MonoBehaviour
             return enemy;
         }
         return null;
+    }
+    
+    public bool StageEnemies_NotCleared()
+    {
+        if (_spawnedEnemies.Count > 0) return true;
+        
+        StageData currentStageData = GameManager.instance.stageManager.currentData;
+        return currentStageData.Next_EnemySpawnData() != null;
+    }
+    private bool StageEnemies_Cleared()
+    {
+        return StageEnemies_NotCleared() == false;
     }
 
 
@@ -124,10 +146,15 @@ public class EnemyManager : MonoBehaviour
     }
     private IEnumerator Run_DelaySpawn()
     {
-        Enemy_SpawnData spawnData = GameManager.instance.stageManager.currentData.Update_EnemySpawnData();
-        if (spawnData == null) yield break;
+        StageData currentStageData = GameManager.instance.stageManager.currentData;
+        if (currentStageData == null) yield break;
 
-        _spawnCoroutine = StartCoroutine(DelaySpawn(spawnData));
+        if (_spawnedEnemies.Count > 0) yield break;
+
+        Enemy_SpawnData nextSpawnData = GameManager.instance.stageManager.currentData.Update_EnemySpawnData();
+        if (nextSpawnData == null) yield break;
+
+        _spawnCoroutine = StartCoroutine(DelaySpawn(nextSpawnData));
 
         while (_spawnCoroutine != null) yield return null;
         yield break;

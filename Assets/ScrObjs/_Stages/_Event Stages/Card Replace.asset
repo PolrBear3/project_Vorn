@@ -15,6 +15,6 @@ MonoBehaviour:
   _stageIcon: {fileID: 0}
   _stageDescription: Card Replace
   _sequntialEvents:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 49f55dab659ce4e7995af9ffd1774e92, type: 2}
   - {fileID: 11400000, guid: 964d2e58e93bc4b978202d5f7d93b66c, type: 2}
   _randomSelectEvents: []

@@ -83,7 +83,7 @@ public class HandInventory : MonoBehaviour
     private void Awake()
     {
         _defaultPlatformWidth = _cardPlatform.rectTransform.rect.width;
-
+        
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
         EventBus_GlobalController.Register(EventBus.StartLoad, LoadCards_toDeck);
     }
@@ -106,12 +106,12 @@ public class HandInventory : MonoBehaviour
         input.OnRightClickPressed -= Return_DraggingCard;
 
         StageManager stageManager = manager.stageManager;
-        stageManager.stageSetEventBus.UnRegister(DrawCard_Delay);
-
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
 
+        stageManager.stageSetEventBus.UnRegister(DrawCard);
+        endTurnEventBus.UnRegister(DrawCard);
+
         endTurnEventBus.UnRegister(Return_DraggingCard);
-        endTurnEventBus.UnRegister(DrawCard_Delay);
     }
 
 
@@ -121,9 +121,7 @@ public class HandInventory : MonoBehaviour
         _data = new(new()); // load saved data
 
         GameManager manager = GameManager.instance;
-
         _cardPlatform.sprite = manager.currentGameData.hero.cardPlatformSprite;
-        Update_CardPlatform();
 
 
         manager.tileManager.tileHoverEventBus.Register(0, HoverTile_DraggingCard);
@@ -135,12 +133,12 @@ public class HandInventory : MonoBehaviour
         input.OnRightClickPressed += Return_DraggingCard;
 
         StageManager stageManager = manager.stageManager;
-        stageManager.stageSetEventBus.Register(1, DrawCard_Delay);
-
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
+        
+        stageManager.stageSetEventBus.Register(1, DrawCard);
+        endTurnEventBus.Register(4, DrawCard);
 
         endTurnEventBus.Register(0, Return_DraggingCard);
-        endTurnEventBus.Register(4, DrawCard_Delay);
     }
 
     private void LoadCards_toDeck()
@@ -194,8 +192,8 @@ public class HandInventory : MonoBehaviour
     private void Update_CardPlatform()
     {
         int currentCardCount = _handCards.Count;
-        bool toggle = currentCardCount > 0 && GameManager.instance.stageManager.Is_BattleStage();
 
+        bool toggle = currentCardCount > 0;
         _cardPlatform.gameObject.SetActive(toggle);
 
         if (toggle == false)
@@ -243,38 +241,37 @@ public class HandInventory : MonoBehaviour
         }
     }
 
-    public void Draw_Card(int drawCount)
-    {
-        if (GameManager.instance.stageManager.Is_BattleStage() == false) return;
-        
+    private void DrawCard_UpdateDeck()
+    { 
         List<CardData> deckCardDatas = _data.deckCardDatas;
         if (deckCardDatas == null || deckCardDatas.Count <= 0) return;
 
+        int drawCardIndex = deckCardDatas.Count - 1;
+        CardData drawCardData = deckCardDatas[drawCardIndex];
+
+        deckCardDatas.RemoveAt(drawCardIndex);
+        AddCard_toHand(drawCardData);
+    }
+    
+    private IEnumerator DrawCard(int drawCount)
+    {
         for (int i = 0; i < drawCount; i++)
         {
-            int drawCardIndex = deckCardDatas.Count - 1;
-            CardData drawCardData = deckCardDatas[drawCardIndex];
+            DrawCard_UpdateDeck();
 
-            deckCardDatas.RemoveAt(drawCardIndex);
-            AddCard_toHand(drawCardData);
+            yield return null;
+            // wait AddCard_toHand animation
 
-            _drawCardFromDeck.RunSequential_BusEvents();
+            Update_HandCardPositions();
+            Update_CardPlatform();
+
+            _drawCardFromDeck.RunSequential_DelayBusEvents();
+            while (_drawCardFromDeck.DelayBus_Running()) yield return null;
         }
-
-        Update_HandCardPositions();
-        Update_CardPlatform();
     }
-    private void Draw_Card()
+    private IEnumerator DrawCard()
     {
-        Draw_Card(1);
-    }
-
-    private IEnumerator DrawCard_Delay()
-    {
-        // draw card lean tween effect ?
-
-        Draw_Card();
-        yield break;
+        yield return DrawCard(1);
     }
 
 

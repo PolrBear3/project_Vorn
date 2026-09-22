@@ -223,7 +223,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -244,7 +244,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -252,6 +252,27 @@ TextureImporter:
       bones: []
       spriteID: 8381e9491f2244808b21709a5fdddc85
       internalID: 1900431164
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Enemies_7
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e7275b50e1ba34e1e8105a9aa14896dc
+      internalID: -1182369404
       vertices: []
       indices: 
       edges: []
@@ -274,6 +295,7 @@ TextureImporter:
       Enemies_4: -138261926
       Enemies_5: -517804842
       Enemies_6: 1900431164
+      Enemies_7: -1182369404
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

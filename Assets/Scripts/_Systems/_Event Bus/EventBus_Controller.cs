@@ -31,7 +31,7 @@ public class EventBus_Controller
         _runConditionBus.Remove(condition);
     }
 
-    private bool RunCondition_Available()
+    public bool RunCondition_Available()
     {
         for (int i = 0; i < _runConditionBus.Count; i++)
         {

@@ -47,9 +47,12 @@ public class TileManager : MonoBehaviour
 
         // from Set_Data
         _generateEventBus.UnRegister(Update_TileSprites);
-
         _generateEventBus.UnRegister(Reset_TileIndicators);
-        GameManager.instance.stageManager.endTurnEventBus.Register(0, Reset_TileIndicators);
+
+        StageManager stageManager = GameManager.instance.stageManager;
+
+        stageManager.endTurnEventBus.UnRegister(Reset_TileIndicators);
+        stageManager.stageEndEventBus.UnRegister(Reset_TileIndicators);
 
         Input_Controller.instance.OnLeftClickPressed -= Select_HoveringTile;
     }
@@ -59,9 +62,12 @@ public class TileManager : MonoBehaviour
     private void Set_Data()
     {
         _generateEventBus.Register(0, Update_TileSprites);
-
         _generateEventBus.Register(0, Reset_TileIndicators);
-        GameManager.instance.stageManager.endTurnEventBus.Register(0, Reset_TileIndicators);
+
+        StageManager stageManager = GameManager.instance.stageManager;
+        
+        stageManager.endTurnEventBus.Register(0, Reset_TileIndicators);
+        stageManager.stageEndEventBus.Register(0, Reset_TileIndicators);
 
         Input_Controller.instance.OnLeftClickPressed += Select_HoveringTile;
     }
@@ -383,7 +389,7 @@ public class TileManager : MonoBehaviour
     }
 
 
-    // UI Animation
+    // Visuals
     public void Reset_TileIndicators()
     {
         foreach (Tile tile in _tiles)

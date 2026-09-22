@@ -63,7 +63,8 @@ public class CardManager : MonoBehaviour
         tileManager.tileHoverEventBus.UnRegister(Hover_PlacedCard);
         tileManager.tileSelectEventBus.UnRegister(Toggle_TileTargeting);
 
-        EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
+        StageManager stageManager = manager.stageManager;
+        EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
         endTurnBus.UnRegister(CardPlace_ActionRunning);
         endTurnBus.UnRegister(Run_CardActions);
@@ -85,7 +86,8 @@ public class CardManager : MonoBehaviour
         tileManager.tileHoverEventBus.Register(0, Hover_PlacedCard);
         tileManager.tileSelectEventBus.Register(0, Toggle_TileTargeting);
 
-        EventBus_Controller endTurnBus = manager.stageManager.endTurnEventBus;
+        StageManager stageManager = manager.stageManager;
+        EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
         endTurnBus.Register(CardPlace_ActionRunning);
         endTurnBus.Register(2, Run_CardActions);

@@ -18,7 +18,7 @@ public class StageManager : MonoBehaviour
     public EventBus_Controller stageEndEventBus => _stageEndEventBus;
 
 
-    [Space(20)]
+    [Space(10)]
     [SerializeField] private GameObject _battleStageContents;
 
 

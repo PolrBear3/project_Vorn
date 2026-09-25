@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b0c6f9b8b149460985eb465c33b2511, type: 3}
   m_Name: Card Remove
   m_EditorClassIdentifier: 
-  _stageIcon: {fileID: 0}
+  _stageType: 1
+  _stageIcon: {fileID: -380325764, guid: 77c7dff379a2b40bcb8e18c0ac618efe, type: 3}
   _stageDescription: Card Remove
   _sequntialEvents: []
   _randomSelectEvents:

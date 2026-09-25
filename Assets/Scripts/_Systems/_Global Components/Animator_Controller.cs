@@ -51,6 +51,8 @@ public class Animator_Controller : MonoBehaviour
     public void StopCurrent_PlayingState()
     {
         _currentState = null;
+        
+        if (_animator.gameObject.activeInHierarchy == false) return;
         _animator.Play(None, 0, 0f);
 
         _sr.sprite = _defaultSprite;

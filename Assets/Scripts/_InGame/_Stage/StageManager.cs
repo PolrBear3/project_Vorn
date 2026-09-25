@@ -108,6 +108,6 @@ public class StageManager : MonoBehaviour
         if (_stageEndEventBus.RunCondition_Available() == false) yield break;
         while (_stageEndEventBus.DelayBus_Running()) yield return null;
 
-        _battleStageContents.SetActive(false);
+        _battleStageContents.gameObject.SetActive(false);
     }
 }

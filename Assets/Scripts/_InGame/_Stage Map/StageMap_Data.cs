@@ -51,7 +51,7 @@ public class StageMap_Data
     public List<StageData> TargetLevel_StageDatas(int targetLevel)
     {
         int levelCount = _stagesByLevelDatas.Count;
-        if (levelCount <= 0) return null;
+        if (levelCount <= 0) return new();
 
         targetLevel = Mathf.Clamp(targetLevel, 0, levelCount - 1);
         return _stagesByLevelDatas[targetLevel];

@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9487d218a24be4b43a8cbb88687ff9c3, type: 3}
-  m_Name: Bit Size World
+  m_Name: Big Bit Size Arena
   m_EditorClassIdentifier: 
   _stageType: 0
-  _stageIcon: {fileID: -138261926, guid: b548ee7a6c7ae400da33152279ccbab9, type: 3}
+  _stageIcon: {fileID: -1182369404, guid: b548ee7a6c7ae400da33152279ccbab9, type: 3}
   _stageDescription: 
   _defaultTileSprites:
   - {fileID: -1975314735, guid: 4b917073cce7341fcba731fb6454e26d, type: 3}
@@ -28,7 +28,7 @@ MonoBehaviour:
   _rowTileCount: 12
   _columnTileCount: 5
   _enemySpawnDatas:
-  - _spawnCount: 1
+  - _spawnCount: 10
     _spawnRateDatas:
-    - _spawnEnemy: {fileID: 11400000, guid: 37aaf961eaf0f416395ff451135461d6, type: 2}
+    - _spawnEnemy: {fileID: 11400000, guid: 359cc0ed37bbf4d1b80f4e111345b083, type: 2}
       _spawnRate: 1

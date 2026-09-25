@@ -31,7 +31,7 @@ Material:
     m_Floats:
     - _Brightness: 1
     - _PixelSize: 12
-    - _Speed: 0.7
+    - _Speed: 0
     - _UVScale: 1
     m_Colors:
     - _ColorA: {r: 0.50980395, g: 0.20392157, b: 0.22352941, a: 1}

@@ -6,24 +6,24 @@ using UnityEngine.UI;
 [System.Serializable]
 public class StageCount_Probability
 {
-    [SerializeField][Range(0, 100)] private int[] _stageCountProbability;
+    [SerializeField][Range(0, 100)] private int[] _stageCountWeights;
 
     public int WeightRandom_StageCount()
     {
-        if (_stageCountProbability.Length <= 0) return 0;
-        
+        if (_stageCountWeights.Length <= 0) return 0;
+
         int totalWeight = 0;
-        for (int i = 0; i < _stageCountProbability.Length; i++)
+        for (int i = 0; i < _stageCountWeights.Length; i++)
         {
-            totalWeight += _stageCountProbability[i];
+            totalWeight += _stageCountWeights[i];
         }
         if (totalWeight <= 0) return 0;
 
         int randWeight = Random.Range(0, totalWeight);
-        for (int i = 0; i < _stageCountProbability.Length; i++)
+        for (int i = 0; i < _stageCountWeights.Length; i++)
         {
-            if (randWeight < _stageCountProbability[i]) return i;
-            randWeight -= _stageCountProbability[i];
+            if (randWeight < _stageCountWeights[i]) return i;
+            randWeight -= _stageCountWeights[i];
         }
         return 0;
     }
@@ -33,7 +33,7 @@ public class StageCount_Probability
 public class LevelSet_StagesData
 {
     [SerializeField] private Stage_ScrObj[] _setStages;
-    [SerializeField][Range(0, 3)]  private int _fixedMaxStageCount;
+    [SerializeField][Range(0, 3)] private int _fixedMaxStageCount;
 
     public int Fixed_MaxStageCount()
     {
@@ -119,14 +119,14 @@ public class StageMap_Manager : MonoBehaviour
 
 
     // Data
-    private int StageCount(List<StageData> targetDatas)
+    private int Available_StageCount(List<StageData> targetDatas)
     {
         int count = 0;
 
         for (int i = 0; i < targetDatas.Count; i++)
         {
             if (targetDatas[i] == null) continue;
-            count ++;
+            count++;
         }
         return count;
     }
@@ -140,47 +140,47 @@ public class StageMap_Manager : MonoBehaviour
             if (data == null) continue;
 
             if (targetType != targetDatas[i].stage.stageType) continue;
-            count ++;
+            count++;
         }
         return count;
     }
-    
-    private List<StageData> NewRun_StageDatas(LevelSet_StagesData levelStageData, int totalStageCount, int eventStageCount)
+
+    private void AddRandomStages_toTargetData(List<StageData> targetData, List<Stage_ScrObj> addStages, int addAmount)
+    {
+        if (targetData == null || addStages == null) return;
+
+        for (int i = 0; i < addAmount; i++)
+        {
+            if (addStages.Count <= 0) return;
+            int randStageIndex = UnityEngine.Random.Range(0, addStages.Count);
+
+            targetData.Add(new(addStages[randStageIndex]));
+            addStages.RemoveAt(randStageIndex);
+        }
+    }
+    private List<StageData> NewRun_StageDatas(LevelSet_StagesData newLevelStageDatas, int totalStageCount, int eventStageCount)
     {
         List<StageData> newRunDatas = new();
 
-        List<Stage_ScrObj> eventStages = levelStageData.SetAvailable_Stages(StageType.Event);
+        List<Stage_ScrObj> eventStages = newLevelStageDatas.SetAvailable_Stages(StageType.Event);
+        AddRandomStages_toTargetData(newRunDatas, eventStages, eventStageCount);
 
-        for (int i = 0; i < eventStageCount; i++) // event stage
-        {
-            if (eventStages.Count <= 0) break;
-            int randStageIndex = UnityEngine.Random.Range(0, eventStages.Count);
+        List<Stage_ScrObj> battleStages = newLevelStageDatas.SetAvailable_Stages(StageType.Battle);
+        AddRandomStages_toTargetData(newRunDatas, battleStages, totalStageCount - newRunDatas.Count);
 
-            newRunDatas.Add(new(eventStages[randStageIndex]));
-            eventStages.RemoveAt(randStageIndex);
-        }
+        // duplicate stage fill
+        List<Stage_ScrObj> availableStages = newLevelStageDatas.SetAvailable_Stages();
+        AddRandomStages_toTargetData(newRunDatas, availableStages, totalStageCount - newRunDatas.Count);
 
-        List<Stage_ScrObj> battleStages = levelStageData.SetAvailable_Stages(StageType.Battle);
-        int battleStageCount = totalStageCount - newRunDatas.Count;
-
-        for (int i = 0; i < battleStageCount; i++) // battle stage
-        {
-            if (battleStages.Count <= 0) break;
-            int randStageIndex = UnityEngine.Random.Range(0, battleStages.Count);
-
-            newRunDatas.Add(new(battleStages[randStageIndex]));
-            battleStages.RemoveAt(randStageIndex);
-        }
-
-        if (newRunDatas.Count <= 0) newRunDatas.Add(new(levelStageData.Random_SetAvailableStage()));
-
-        for (int j = 0; j < _maxStagePerLevel; j++) // empty stage fill
+        // empty stage fill
+        for (int i = 0; i < _maxStagePerLevel; i++)
         {
             if (newRunDatas.Count >= _maxStagePerLevel) break;
             newRunDatas.Add(null);
         }
 
-        for (int i = 0; i < newRunDatas.Count; i++) // shuffle
+        // shuffle
+        for (int i = 0; i < newRunDatas.Count; i++)
         {
             StageData tempData = newRunDatas[i];
             int randIndex = UnityEngine.Random.Range(i, newRunDatas.Count);
@@ -190,6 +190,7 @@ public class StageMap_Manager : MonoBehaviour
         }
         return newRunDatas;
     }
+
     private List<List<StageData>> NewRun_StageDatas_byLevel()
     {
         int levelCount = _levelSetStageDatas.Length;
@@ -206,23 +207,23 @@ public class StageMap_Manager : MonoBehaviour
             randStageCount = Mathf.Clamp(randStageCount, 1, levelSetStagesData.Fixed_MaxStageCount()); // set available stage count
 
             int previousLevelEventCount = generatedDatas.Count > 0 ? StageType_Count(generatedDatas[i - 1], StageType.Event) : 0;
-            
+
             int randEventStageCount = _ifPreviousEventCountIs[previousLevelEventCount].WeightRandom_StageCount(); // set event stage count
             randEventStageCount = Mathf.Min(randEventStageCount, randStageCount);
 
             List<StageData> newStageDatas = NewRun_StageDatas(levelSetStagesData, randStageCount, randEventStageCount); // combine set stages
-            previousStageCount = StageCount(newStageDatas);
+            previousStageCount = Available_StageCount(newStageDatas);
 
             generatedDatas.Add(newStageDatas); // add to level
         }
         return generatedDatas;
     }
-    
     private void Set_Data()
     {
         _data = new(NewRun_StageDatas_byLevel());
         Update_MapIcons();
     }
+
     private void Set_Subscriptions()
     {
         StageManager stageManager = GameManager.instance.stageManager;

@@ -386,7 +386,7 @@ MonoBehaviour:
   - _stageCountWeights: 000000000000000000000000
   - _stageCountWeights: 000000000000000000000000
   _ifPreviousEventCountIs:
-  - _stageCountWeights: 000000000000000000000000
+  - _stageCountWeights: 00000000000000000a000000
   - _stageCountWeights: 000000000000000000000000
   - _stageCountWeights: 000000000000000000000000
   - _stageCountWeights: 000000000000000000000000

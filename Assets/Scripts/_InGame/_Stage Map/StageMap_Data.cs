@@ -5,11 +5,14 @@ using UnityEngine;
 [System.Serializable]
 public class StageMap_Data
 {
-    [SerializeField] private List<List<StageData>> _stagesByLevelDatas = new();
+    private List<List<StageData>> _stagesByLevelDatas = new();
     public List<List<StageData>> stagesByLevelDatas => _stagesByLevelDatas;
 
     private int _currentLevel;
     public int currentLevel => _currentLevel;
+
+    private StageData _currentStage;
+    public StageData currentStage => _currentStage;
 
 
     // New
@@ -30,30 +33,43 @@ public class StageMap_Data
 
         _stagesByLevelDatas = loadData._stagesByLevelDatas;
         _currentLevel = loadData._currentLevel;
+        _currentStage = loadData._currentStage;
     }
 
 
     // Data
-    public List<StageData> StageDatas()
+    public List<StageData> StageDatas(bool containEmptyStages)
     {
         List<StageData> allStageDatas = new();
+
         for (int i = 0; i < _stagesByLevelDatas.Count; i++)
         {
             List<StageData> stageDatas = _stagesByLevelDatas[i];
+
             foreach (StageData data in stageDatas)
             {
+                if (containEmptyStages == false && data == null) continue;
                 allStageDatas.Add(data);
             }
         }
         return allStageDatas;
     }
-    public List<StageData> TargetLevel_StageDatas(int targetLevel)
+    public List<StageData> TargetLevel_StageDatas(int targetLevel, bool containEmptyStages)
     {
         int levelCount = _stagesByLevelDatas.Count;
         if (levelCount <= 0) return new();
 
         targetLevel = Mathf.Clamp(targetLevel, 0, levelCount - 1);
-        return _stagesByLevelDatas[targetLevel];
+        List<StageData> targetLevelStages = new(_stagesByLevelDatas[targetLevel]);
+
+        for (int i = targetLevelStages.Count - 1; i >= 0; i--)
+        {
+            if (containEmptyStages) continue;
+            if (targetLevelStages[i] != null) continue;
+
+            targetLevelStages.RemoveAt(i);
+        }
+        return targetLevelStages;
     }
 
     public int TargetStage_CurrentLevel(StageData targetStageData)
@@ -71,6 +87,11 @@ public class StageMap_Data
         return _stagesByLevelDatas[currentLevel].Contains(targetStageData);
     }
 
+    public void Update_CurrentStage(StageData targetStage)
+    {
+        if (StageDatas(false).Contains(targetStage) == false) return;
+        _currentStage = targetStage;
+    }
     public void Increase_CurrentLevel()
     {
         _currentLevel = Mathf.Min(_currentLevel + 1, _stagesByLevelDatas.Count);

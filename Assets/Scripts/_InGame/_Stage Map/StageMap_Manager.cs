@@ -156,7 +156,7 @@ public class StageMap_Manager : MonoBehaviour
 
         if (currentHero.data.currentData.currentHealth <= 0) return;
 
-        // get current stage data > toggle completed ??
+        _data.currentStage.Toggle_CompleteState(true);
         _data.Increase_CurrentLevel();
     }
 
@@ -237,9 +237,12 @@ public class StageMap_Manager : MonoBehaviour
     private void Set_Data()
     {
         _data = new(NewRun_StageDatas_byLevel());
+
+        List<StageData> startingLevelStages = _data.TargetLevel_StageDatas(0, false);
+        _data.Update_CurrentStage(startingLevelStages[UnityEngine.Random.Range(0, startingLevelStages.Count)]);
+
         ToggleMenu(false);
     }
-    
 
     private void Set_Subscriptions()
     {
@@ -279,7 +282,7 @@ public class StageMap_Manager : MonoBehaviour
     {
         if (_data == null) return;
 
-        List<StageData> updateDatas = _data.StageDatas();
+        List<StageData> updateDatas = _data.StageDatas(true);
         if (updateDatas == null || updateDatas.Count <= 0) return;
 
         for (int i = 0; i < _icons.Length; i++)
@@ -291,7 +294,7 @@ public class StageMap_Manager : MonoBehaviour
             icon.image.color = stageAvailable ? Color.white : Color.clear;
 
             if (stageAvailable == false) continue;
-            
+
             icon.image.sprite = dataToUpdate.stage.stageIcon;
             Animator_Controller animController = icon.animController;
 
@@ -311,7 +314,7 @@ public class StageMap_Manager : MonoBehaviour
     public void SelectStage_byMapIcon(StageMap_Icon selectedIcon)
     {
         if (_data == null) return;
-        List<StageData> currentStageDatas = _data.StageDatas();
+        List<StageData> currentStageDatas = _data.StageDatas(true);
 
         for (int i = 0; i < _icons.Length; i++)
         {

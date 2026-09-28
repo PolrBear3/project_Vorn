@@ -23,6 +23,7 @@ public class StageManager : MonoBehaviour
 
     [Space(20)]
     [SerializeField] private GameObject _battleStageContents;
+    public GameObject battleStageContents => _battleStageContents;
 
 
     // MonoBehaviour
@@ -109,10 +110,6 @@ public class StageManager : MonoBehaviour
         StartCoroutine(_stageEndEventBus.RunSequential_DelayBusEvents());
 
         if (_stageEndEventBus.RunCondition_Available() == false) yield break;
-
-        _stageMap.data.Increase_CurrentLevel();
         while (_stageEndEventBus.DelayBus_Running()) yield return null;
-
-        _battleStageContents.gameObject.SetActive(false);
     }
 }

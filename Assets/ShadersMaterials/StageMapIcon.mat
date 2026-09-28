@@ -133,7 +133,7 @@ Material:
     - _GrassRadialBend: 0.1
     - _GrassSpeed: 18.4
     - _GrassWind: 20
-    - _GreyscaleBlend: 1
+    - _GreyscaleBlend: 0
     - _GreyscaleLuminosity: 0.5
     - _GreyscaleOutline: 0
     - _HandDrawnAmount: 5.07

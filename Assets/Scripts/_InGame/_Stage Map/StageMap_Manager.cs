@@ -110,7 +110,9 @@ public class StageMap_Manager : MonoBehaviour
         // from Set_Subscriptions
         StageManager stageManager = GameManager.instance.stageManager;
 
+        stageManager.stageEndEventBus.UnRegister(Complete_CurrentStage);
         stageManager.stageEndEventBus.UnRegister(ToggleMenu);
+
         stageManager.endTurnEventBus.UnRegister(MenuToggled);
 
 
@@ -144,6 +146,20 @@ public class StageMap_Manager : MonoBehaviour
         }
         return count;
     }
+
+    private void Complete_CurrentStage()
+    {
+        if (_data == null) return;
+
+        Hero currentHero = GameManager.instance.heroManager.currentHero;
+        if (currentHero == null) return;
+
+        if (currentHero.data.currentData.currentHealth <= 0) return;
+
+        // get current stage data > toggle completed ??
+        _data.Increase_CurrentLevel();
+    }
+
 
     private void AddRandomStages_toTargetData(List<StageData> targetData, List<Stage_ScrObj> addStages, int addAmount)
     {
@@ -221,14 +237,17 @@ public class StageMap_Manager : MonoBehaviour
     private void Set_Data()
     {
         _data = new(NewRun_StageDatas_byLevel());
-        Update_MapIcons();
+        ToggleMenu(false);
     }
+    
 
     private void Set_Subscriptions()
     {
         StageManager stageManager = GameManager.instance.stageManager;
 
+        stageManager.stageEndEventBus.Register(0, Complete_CurrentStage);
         stageManager.stageEndEventBus.Register(0, ToggleMenu);
+
         stageManager.endTurnEventBus.Register(MenuToggled);
 
 
@@ -242,7 +261,7 @@ public class StageMap_Manager : MonoBehaviour
         _menuPanel.SetActive(toggle);
 
         if (toggle == false) return;
-        Update_MapIcons();
+        Update_MapIconVisuals();
     }
     private void ToggleMenu()
     {
@@ -255,8 +274,8 @@ public class StageMap_Manager : MonoBehaviour
     }
 
 
-    // StageMap Icon
-    private void Update_MapIcons()
+    // Stage Map Icon
+    private void Update_MapIconVisuals()
     {
         if (_data == null) return;
 
@@ -265,13 +284,44 @@ public class StageMap_Manager : MonoBehaviour
 
         for (int i = 0; i < _icons.Length; i++)
         {
+            StageMap_Icon icon = _icons[i];
             StageData dataToUpdate = i < updateDatas.Count ? updateDatas[i] : null;
 
             bool stageAvailable = dataToUpdate != null & dataToUpdate?.stage != null;
-            _icons[i].image.color = stageAvailable ? Color.white : Color.clear;
+            icon.image.color = stageAvailable ? Color.white : Color.clear;
 
             if (stageAvailable == false) continue;
-            _icons[i].image.sprite = dataToUpdate.stage.stageIcon;
+            
+            icon.image.sprite = dataToUpdate.stage.stageIcon;
+            Animator_Controller animController = icon.animController;
+
+            if (_data.TargetStage_onCurrentLevel(dataToUpdate))
+            {
+                animController.Play_State(UIAnimation.Available); // white
+                continue;
+            }
+            if (dataToUpdate.completed || _data.TargetStage_CurrentLevel(dataToUpdate) > _data.currentLevel)
+            {
+                animController.Play_State(UIAnimation.Toggle); // brown
+                continue;
+            }
+            animController.Play_State(UIAnimation.Restricted); // grey
+        }
+    }
+    public void SelectStage_byMapIcon(StageMap_Icon selectedIcon)
+    {
+        if (_data == null) return;
+        List<StageData> currentStageDatas = _data.StageDatas();
+
+        for (int i = 0; i < _icons.Length; i++)
+        {
+            if (selectedIcon != _icons[i]) continue;
+
+            StageData selectedData = currentStageDatas[i];
+            if (selectedData == null) return;
+
+            Debug.Log(selectedData.stage);
+            return;
         }
     }
 }

@@ -18,7 +18,10 @@ public class StageManager : MonoBehaviour
     public EventBus_Controller stageEndEventBus => _stageEndEventBus;
 
 
-    [Space(10)]
+    [SerializeField] private StageMap_Manager _stageMap;
+    public StageMap_Manager stageMap => _stageMap;
+
+    [Space(20)]
     [SerializeField] private GameObject _battleStageContents;
 
 
@@ -106,6 +109,8 @@ public class StageManager : MonoBehaviour
         StartCoroutine(_stageEndEventBus.RunSequential_DelayBusEvents());
 
         if (_stageEndEventBus.RunCondition_Available() == false) yield break;
+
+        _stageMap.data.Increase_CurrentLevel();
         while (_stageEndEventBus.DelayBus_Running()) yield return null;
 
         _battleStageContents.gameObject.SetActive(false);

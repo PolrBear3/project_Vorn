@@ -47,7 +47,6 @@ public class StageMap_Data
         }
         return allStageDatas;
     }
-
     public List<StageData> TargetLevel_StageDatas(int targetLevel)
     {
         int levelCount = _stagesByLevelDatas.Count;
@@ -55,5 +54,25 @@ public class StageMap_Data
 
         targetLevel = Mathf.Clamp(targetLevel, 0, levelCount - 1);
         return _stagesByLevelDatas[targetLevel];
+    }
+
+    public int TargetStage_CurrentLevel(StageData targetStageData)
+    {
+        for (int i = 0; i < _stagesByLevelDatas.Count; i++)
+        {
+            if (_stagesByLevelDatas[i].Contains(targetStageData) == false) continue;
+            return i;
+        }
+        return -1;
+    }
+    public bool TargetStage_onCurrentLevel(StageData targetStageData)
+    {
+        int currentLevel = Mathf.Clamp(_currentLevel, 0, _stagesByLevelDatas.Count - 1);
+        return _stagesByLevelDatas[currentLevel].Contains(targetStageData);
+    }
+
+    public void Increase_CurrentLevel()
+    {
+        _currentLevel = Mathf.Min(_currentLevel + 1, _stagesByLevelDatas.Count);
     }
 }

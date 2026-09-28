@@ -11,6 +11,9 @@ public class StageData
     private int _enemySpawnIndex;
     public int enemySpawnIndex => _enemySpawnIndex;
 
+    private bool _completed;
+    public bool completed => _completed;
+
 
     // New
     public StageData(StageData loadStage)
@@ -56,5 +59,11 @@ public class StageData
 
         if (_enemySpawnIndex > spawnDatas.Length - 1) return null;
         return spawnDatas[_enemySpawnIndex];
+    }
+
+
+    public void Toggle_CompleteState(bool toggle)
+    {
+        _completed = toggle;
     }
 }

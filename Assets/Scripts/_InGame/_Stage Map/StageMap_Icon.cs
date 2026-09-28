@@ -8,10 +8,15 @@ public class StageMap_Icon : MonoBehaviour
     [Space(10)]
     [SerializeField] private Image _image;
     public Image image => _image;
+    
+    [SerializeField] private Animator_Controller _animController;
+    public Animator_Controller animController => _animController;
 
-    [SerializeField] private Animator _animator;
 
-
-    private StageData _data;
-    public StageData data => _data;
+    // Button
+    public void Select()
+    {
+        StageMap_Manager stageMap = GameManager.instance.stageManager.stageMap;
+        stageMap.SelectStage_byMapIcon(this);
+    }
 }

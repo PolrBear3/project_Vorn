@@ -73,16 +73,15 @@ public class LevelSet_StagesData
     }
 }
 
-public class StageMap_Manager : MonoBehaviour
+public class StageMap_Manager : MonoBehaviour, ISaveLoadable
 {
-    [Space(10)]
-    [SerializeField] private GameObject _menuPanel;
+    [Space(20)]
+    [SerializeField] private UIPanel_ToggleController _menuPanelController;
     [SerializeField] private StageMap_Icon[] _icons;
 
     [Space(20)]
     [SerializeField] private LevelSet_StagesData[] _levelSetStageDatas;
 
-    [Space(20)]
     [SerializeField] private StageCount_Probability[] _ifPreviousStageCountIs; // index + 1 is previous level stage count
     [SerializeField] private StageCount_Probability[] _ifPreviousEventCountIs; // index is previous event stage count
 
@@ -97,13 +96,11 @@ public class StageMap_Manager : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Subscriptions);
     }
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Subscriptions);
 
 
@@ -116,7 +113,24 @@ public class StageMap_Manager : MonoBehaviour
         stageManager.endTurnEventBus.UnRegister(MenuToggled);
 
 
-        Input_Controller.instance.OnAction1 -= Set_Data;
+        Input_Controller.instance.OnAction1 -= Set_NewData;
+    }
+
+
+    // ISaveLoadable
+    public void Save_Data()
+    {
+        ES3.Save("StageMap_Manager/StageMap_Data", _data);
+    }
+
+    public void Load_Data()
+    {
+        if (ES3.KeyExists("StageMap_Manager/StageMap_Data") == false)
+        {
+            Set_NewData();
+            return;
+        }
+        _data = ES3.Load<StageMap_Data>("StageMap_Manager/StageMap_Data");
     }
 
 
@@ -234,14 +248,12 @@ public class StageMap_Manager : MonoBehaviour
         }
         return generatedDatas;
     }
-    private void Set_Data()
+    private void Set_NewData()
     {
         _data = new(NewRun_StageDatas_byLevel());
 
         List<StageData> startingLevelStages = _data.TargetLevel_StageDatas(0, false);
         _data.Update_CurrentStage(startingLevelStages[UnityEngine.Random.Range(0, startingLevelStages.Count)]);
-
-        ToggleMenu(false);
     }
 
     private void Set_Subscriptions()
@@ -254,14 +266,14 @@ public class StageMap_Manager : MonoBehaviour
         stageManager.endTurnEventBus.Register(MenuToggled);
 
 
-        Input_Controller.instance.OnAction1 += Set_Data;
+        Input_Controller.instance.OnAction1 += Set_NewData;
     }
 
 
     // Menu
     private void ToggleMenu(bool toggle)
     {
-        _menuPanel.SetActive(toggle);
+        _menuPanelController.Toggle(toggle);
 
         if (toggle == false) return;
         Update_MapIconVisuals();
@@ -273,7 +285,7 @@ public class StageMap_Manager : MonoBehaviour
 
     private bool MenuToggled()
     {
-        return _menuPanel.activeSelf;
+        return _menuPanelController.toggled;
     }
 
 

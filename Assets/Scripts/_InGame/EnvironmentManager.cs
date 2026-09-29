@@ -19,7 +19,7 @@ public class CameraSize_Data
 public class EnvironmentManager : MonoBehaviour
 {
     [Space(20)]
-    [SerializeField] private Camera _camera;
+    [SerializeField] private Camera _mainCamera;
     [SerializeField] private CameraSize_Data[] _cameraSizeDatas;
 
     [Space(20)]
@@ -66,8 +66,8 @@ public class EnvironmentManager : MonoBehaviour
     }
     private void Update_BackgroundSize()
     {
-        float cameraHeight = _camera.orthographicSize * 2f;
-        float cameraWidth = cameraHeight * _camera.aspect;
+        float cameraHeight = _mainCamera.orthographicSize * 2f;
+        float cameraWidth = cameraHeight * _mainCamera.aspect;
 
         Vector2 spriteSize = _materialBackground.sprite.bounds.size;
         _materialBackground.transform.localScale = new Vector3(cameraWidth / spriteSize.x, cameraHeight / spriteSize.y, 1f);
@@ -75,7 +75,7 @@ public class EnvironmentManager : MonoBehaviour
 
     private void Update_CameraSize()
     {
-        Stage_ScrObj currentStage = GameManager.instance.currentGameData.stage;
+        Stage_ScrObj currentStage = GameManager.instance.stageManager.stageMap.data.currentStage.stage;
         if (currentStage is not BattleStage_ScrObj battleStage) return;
 
         int rowTileCount = battleStage.rowTileCount;
@@ -86,9 +86,9 @@ public class EnvironmentManager : MonoBehaviour
             CameraSize_Data data = _cameraSizeDatas[i];
             if (rowTileCount > data.rowTileCount || columnTileCount > data.columnTileCount) continue;
 
-            _camera.orthographicSize = data.cameraSize;
+            _mainCamera.orthographicSize = data.cameraSize;
             return;
         }
-        _camera.orthographicSize = _cameraSizeDatas[_cameraSizeDatas.Length - 1].cameraSize;
+        _mainCamera.orthographicSize = _cameraSizeDatas[_cameraSizeDatas.Length - 1].cameraSize;
     }
 }

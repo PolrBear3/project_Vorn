@@ -324,7 +324,7 @@ public class TileManager : MonoBehaviour
     // Generate
     private void Generate_Tiles()
     {
-        Stage_ScrObj currentStage = GameManager.instance.currentGameData.stage;
+        Stage_ScrObj currentStage = GameManager.instance.stageManager.stageMap.data.currentStage.stage;
         if (currentStage is not BattleStage_ScrObj battleStage)
         {
             _generateEventBus.RunSequential_BusEvents();
@@ -361,7 +361,7 @@ public class TileManager : MonoBehaviour
     }
     private void Update_TileSprites()
     {
-        Stage_ScrObj currentStage = GameManager.instance.currentGameData.stage;
+        Stage_ScrObj currentStage = GameManager.instance.stageManager.stageMap.data.currentStage.stage;
         if (currentStage is not BattleStage_ScrObj battleStage) return;
 
         for (int i = 0; i < _tiles.Count; i++)

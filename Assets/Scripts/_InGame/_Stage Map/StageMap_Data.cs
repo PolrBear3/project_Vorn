@@ -5,13 +5,13 @@ using UnityEngine;
 [System.Serializable]
 public class StageMap_Data
 {
-    private List<List<StageData>> _stagesByLevelDatas = new();
+    [SerializeField][ES3Serializable] private List<List<StageData>> _stagesByLevelDatas = new();
     public List<List<StageData>> stagesByLevelDatas => _stagesByLevelDatas;
 
-    private int _currentLevel;
+    [SerializeField][ES3Serializable] private int _currentLevel;
     public int currentLevel => _currentLevel;
 
-    private StageData _currentStage;
+    [SerializeField][ES3Serializable] private StageData _currentStage;
     public StageData currentStage => _currentStage;
 
 

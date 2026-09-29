@@ -18,12 +18,13 @@ public class StageManager : MonoBehaviour
     public EventBus_Controller stageEndEventBus => _stageEndEventBus;
 
 
+    [Space(20)]
     [SerializeField] private StageMap_Manager _stageMap;
     public StageMap_Manager stageMap => _stageMap;
 
     [Space(20)]
-    [SerializeField] private GameObject _battleStageContents;
-    public GameObject battleStageContents => _battleStageContents;
+    [SerializeField] private UIPanel_ToggleController[] _battleStagePanelToggles;
+    [SerializeField] private Component_ToggleController[] _battleStageComponentToggles;
 
 
     // MonoBehaviour
@@ -71,6 +72,20 @@ public class StageManager : MonoBehaviour
     }
 
 
+    // UIPanel_ToggleController
+    private void Toggle_BattleStage(bool toggle)
+    {
+        for (int i = 0; i < _battleStagePanelToggles.Length; i++)
+        {
+            _battleStagePanelToggles[i].Toggle(toggle);
+        }
+        for (int i = 0; i < _battleStageComponentToggles.Length; i++)
+        {
+            _battleStageComponentToggles[i].Toggle(toggle);
+        }
+    }
+
+
     // Set Stage
     private void Set_Stage(Stage_ScrObj stage)
     {
@@ -83,11 +98,14 @@ public class StageManager : MonoBehaviour
 
         _stageSetEventBus.RunSequential_BusEvents();
         StartCoroutine(_stageSetEventBus.RunSequential_DelayBusEvents());
+
+        while (_stageEndEventBus.DelayBus_Running()) yield return null;
+        Toggle_BattleStage(true);
     }
 
     private void Load_CurrentStage()
     {
-        Set_Stage(GameManager.instance.currentGameData.stage);
+        Set_Stage(_stageMap.data.currentStage.stage);
     }
 
 
@@ -103,13 +121,13 @@ public class StageManager : MonoBehaviour
     {
         _endTurnEventBus.RunSequential_BusEvents();
         StartCoroutine(_endTurnEventBus.RunSequential_DelayBusEvents());
-
         while (_endTurnEventBus.DelayBus_Running()) yield return null;
+
+        if (_stageEndEventBus.RunCondition_Available() == false) yield break;
+        Toggle_BattleStage(false);
 
         _stageEndEventBus.RunSequential_BusEvents();
         StartCoroutine(_stageEndEventBus.RunSequential_DelayBusEvents());
-
-        if (_stageEndEventBus.RunCondition_Available() == false) yield break;
         while (_stageEndEventBus.DelayBus_Running()) yield return null;
     }
 }

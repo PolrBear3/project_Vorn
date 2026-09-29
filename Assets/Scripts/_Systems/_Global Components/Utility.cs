@@ -2,6 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum Direction
+{
+    Left,
+    Right,
+    Up,
+    Down
+}
+
 public static class Utility
 {
     public static float worldSpacePixelValue = 0.0625f;
@@ -11,7 +19,6 @@ public static class Utility
     {
         return Mathf.Round(value / worldSpacePixelValue) * worldSpacePixelValue;
     }
-
     public static float Snap_ScreenSpacePixel(float value)
     {
         return Mathf.Round(value / screenSpacePixelValue) * screenSpacePixelValue;
@@ -31,7 +38,6 @@ public static class Utility
         }
         return directions;
     }
-
     public static List<Vector2> Surrounding_Positions(Vector2 pivotPos)
     {
         List<Vector2> positions = new();

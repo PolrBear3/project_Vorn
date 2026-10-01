@@ -183,12 +183,12 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
         if (_data == null) return;
 
         Hero currentHero = GameManager.instance.heroManager.currentHero;
+        
         if (currentHero == null) return;
-
         if (currentHero.data.currentData.currentHealth <= 0) return;
 
-        _data.Increase_CurrentLevel();
         _data.Current_StageData().Toggle_CompleteState(true);
+        _data.Increase_CurrentLevel();
     }
 
 
@@ -270,16 +270,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
         _data = new(NewRun_StageDatas_byLevel());
 
         List<StageData> startingStageDatas = _data.TargetLevel_StageDatas(0, false);
-        StageData startingStageData = startingStageDatas[UnityEngine.Random.Range(0, startingStageDatas.Count)];
-
-        List<StageData> allStageDatas = _data.StageDatas(true);
-        for (int i = 0; i < allStageDatas.Count; i++)
-        {
-            if (startingStageData != allStageDatas[i]) continue;
-
-            _data.Update_CurrentStageIndex(i);
-            return;
-        }
+        _data.Update_CurrentLevel_StageIndex(UnityEngine.Random.Range(0, startingStageDatas.Count - 1));
     }
 
 
@@ -348,7 +339,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
             StageData selectedData = currentStageDatas[i];
             if (selectedData == null) return;
 
-            _data.Update_CurrentStageIndex(i);
+            // _data.Update_CurrentStageIndex(i);
             Save_Data();
 
             EventBus_GlobalController.UnSubscribeAll_SubscriptionHandlers();

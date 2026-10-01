@@ -11,8 +11,8 @@ public class StageMap_Data
     [ES3Serializable] private int _currentLevel;
     public int currentLevel => _currentLevel;
 
-    [ES3Serializable] private int _currentStageIndex;
-    public int currentStageIndex => _currentStageIndex;
+    [ES3Serializable] private int _currentLevelStageIndex;
+    public int currentLevelStageIndex => _currentLevelStageIndex;
 
 
     // New
@@ -23,7 +23,6 @@ public class StageMap_Data
         _stagesByLevelDatas = new(newStagesByLevel);
         _currentLevel = 0;
     }
-
     public StageMap_Data(StageMap_Data loadData)
     {
         if (loadData == null) return;
@@ -33,7 +32,7 @@ public class StageMap_Data
 
         _stagesByLevelDatas = loadData._stagesByLevelDatas;
         _currentLevel = loadData._currentLevel;
-        _currentStageIndex = loadData._currentStageIndex;
+        _currentLevelStageIndex = loadData._currentLevelStageIndex;
     }
 
 
@@ -72,16 +71,13 @@ public class StageMap_Data
         return targetLevelStages;
     }
 
-    public StageData StageData_byIndex(int stageIndex)
-    {
-        List<StageData> stageDatas = StageDatas(true);
-        if (stageDatas == null || stageDatas.Count <= 0) return null;
-
-        return stageDatas[Mathf.Clamp(stageIndex, 0, stageDatas.Count - 1)];
-    }
     public StageData Current_StageData()
     {
-        return StageData_byIndex(_currentStageIndex);
+        List<StageData> currentLevelStageDatas = TargetLevel_StageDatas(_currentLevel, true);
+        if (currentLevelStageDatas == null || currentLevelStageDatas.Count <= 0) return null;
+        
+        int currentStageIndex = Mathf.Clamp(_currentLevelStageIndex, 0, currentLevelStageDatas.Count - 1);
+        return currentLevelStageDatas[currentLevelStageIndex];
     }
 
     public int TargetStage_CurrentLevel(StageData targetStageData)
@@ -99,12 +95,15 @@ public class StageMap_Data
         return _stagesByLevelDatas[currentLevel].Contains(targetStageData);
     }
 
-    public void Update_CurrentStageIndex(int stageIndex)
-    {
-        _currentStageIndex = Mathf.Clamp(stageIndex, 0, StageDatas(true).Count - 1);
-    }
     public void Increase_CurrentLevel()
     {
         _currentLevel = Mathf.Min(_currentLevel + 1, _stagesByLevelDatas.Count - 1);
+    }
+    public void Update_CurrentLevel_StageIndex(int stageIndex)
+    {
+        List<StageData> currentLevelStageDatas = TargetLevel_StageDatas(_currentLevel, true);
+        if (currentLevelStageDatas == null) return;
+
+        _currentLevelStageIndex = Mathf.Clamp(stageIndex, 0, currentLevelStageDatas.Count - 1);
     }
 }

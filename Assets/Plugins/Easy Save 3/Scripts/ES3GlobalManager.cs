@@ -6,10 +6,12 @@ using UnityEngine.Scripting;
 [assembly: AlwaysLinkAssembly]
 public class ES3GlobalManager : MonoBehaviour
 {
+    private static readonly WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
+
     // Indicates whether an event has indicated that the cache should be stored to file at the end of this frame.
     bool storeCache = false;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void Run()
     {
         var gameObject = new GameObject("Easy Save 3 Global Manager");
@@ -24,9 +26,9 @@ public class ES3GlobalManager : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForEndOfFrame();
+            yield return waitForEndOfFrame;
 
-            if(ES3Settings.defaultSettings.location == ES3.Location.Cache && ES3Settings.defaultSettings.storeCacheAtEndOfEveryFrame || storeCache)
+            if((ES3Settings.defaultSettings.location == ES3.Location.Cache && ES3Settings.defaultSettings.storeCacheAtEndOfEveryFrame) || storeCache)
             {
                 ES3File.StoreAll();
                 storeCache = false;

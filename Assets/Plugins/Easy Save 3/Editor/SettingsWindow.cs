@@ -89,22 +89,45 @@ namespace ES3Editor
 
                     if (editorSettings.autoUpdateReferences)
                     {
-                        using (new EditorGUILayout.HorizontalScope())
+                        using (new EditorGUI.IndentLevelScope())
                         {
-                            var content = new GUIContent("-- When changes are made", "Should Easy Save update the reference manager when objects in your scene changes?");
-                            editorSettings.updateReferencesWhenSceneChanges = EditorGUILayout.Toggle(content, editorSettings.updateReferencesWhenSceneChanges);
-                        }
+                            EditorGUILayout.LabelField("When:");
+                            using (new EditorGUI.IndentLevelScope())
+                            {
+                                using (new EditorGUILayout.HorizontalScope())
+                                {
+                                    var content = new GUIContent("Changes are made", "Should Easy Save update the reference manager when objects in your scene changes?");
+                                    editorSettings.updateReferencesWhenSceneChanges = EditorGUILayout.Toggle(content, editorSettings.updateReferencesWhenSceneChanges);
+                                }
 
-                        using (new EditorGUILayout.HorizontalScope())
-                        {
-                            var content = new GUIContent("-- When scene is saved", "Should Easy Save update the reference manager when objects in your scene is saved?");
-                            editorSettings.updateReferencesWhenSceneIsSaved = EditorGUILayout.Toggle(content, editorSettings.updateReferencesWhenSceneIsSaved);
-                        }
+                                using (new EditorGUILayout.HorizontalScope())
+                                {
+                                    var content = new GUIContent("Scene is saved", "Should Easy Save update the reference manager when objects in your scene is saved?");
+                                    editorSettings.updateReferencesWhenSceneIsSaved = EditorGUILayout.Toggle(content, editorSettings.updateReferencesWhenSceneIsSaved);
+                                }
 
-                        using (new EditorGUILayout.HorizontalScope())
-                        {
-                            var content = new GUIContent("-- When scene is opened", "Should Easy Save update the reference manager you open a scene in the Editor?");
-                            editorSettings.updateReferencesWhenSceneIsOpened = EditorGUILayout.Toggle(content, editorSettings.updateReferencesWhenSceneIsOpened);
+                                using (new EditorGUILayout.HorizontalScope())
+                                {
+                                    var content = new GUIContent("Scene is opened", "Should Easy Save update the reference manager you open a scene in the Editor?");
+                                    editorSettings.updateReferencesWhenSceneIsOpened = EditorGUILayout.Toggle(content, editorSettings.updateReferencesWhenSceneIsOpened);
+                                }
+                            }
+
+                
+                            using (new EditorGUILayout.VerticalScope())
+                            {
+                                EditorGUILayout.LabelField("Only add references from objects:");
+                                using (new EditorGUI.IndentLevelScope())
+                                {
+                                    float prev = EditorGUIUtility.labelWidth;
+                                    EditorGUIUtility.labelWidth = 250f;
+
+                                    var content = new GUIContent("With ES3Referenceable Component", "Only dependencies of GameObjects with an ES3Referenceable Component will be added to the manager.");
+                                    editorSettings.onlyAddReferencesFromObjectsWithES3Referenceable = EditorGUILayout.Toggle(content, editorSettings.onlyAddReferencesFromObjectsWithES3Referenceable);
+
+                                    EditorGUIUtility.labelWidth = prev;
+                                }
+                            }
                         }
                         EditorGUILayout.Space();
                     }
@@ -138,15 +161,18 @@ namespace ES3Editor
                         bool useGlobalReferences = !ES3ScriptingDefineSymbols.HasDefineSymbol(disableGlobalDefineName);
                         if(EditorGUILayout.Toggle(useGlobalReferences) != useGlobalReferences)
                         {
-                            // If global references is currently enabled, we want to disable it.
-                            if (!useGlobalReferences)
+                            // If global references is currently enabled, we want to disable it by adding the DISABLE precompiler directive.
+                            if (useGlobalReferences)
                             {
-                                ES3ScriptingDefineSymbols.RemoveDefineSymbol(disableGlobalDefineName);
-                                EditorUtility.DisplayDialog("Global references disabled for build platform", "This will only disable Global References for this build platform. To disable it for other build platforms, open that platform in the Build Settings and uncheck this box again.", "Ok");
-                            }
-                            // Else we want to enable it.
-                            else
                                 ES3ScriptingDefineSymbols.SetDefineSymbol(disableGlobalDefineName);
+                                EditorUtility.DisplayDialog("Global references disabled for build platform", "This will only disable Global References for this build platform. To disable it for other build platforms, open that platform in the Build Settings and uncheck this box again.", "Ok");
+
+                            }
+                            // Else we want to enable it by removing the DISABLE precompiler directive.
+                            else
+                                ES3ScriptingDefineSymbols.RemoveDefineSymbol(disableGlobalDefineName);
+
+                            AssetDatabase.Refresh();
                         }
                     }
 

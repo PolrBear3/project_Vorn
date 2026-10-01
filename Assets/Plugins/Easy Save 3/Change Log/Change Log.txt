@@ -1,3 +1,23 @@
+3.5.27
+- Performance enhancements.
+- Updates for Unity 6.6.
+- Reference manager now ignores all objects from namespaces prefixed with 'UnityEditor' to account for assets with incorrect hide flags.
+- Added explicit support for SortedDictionary.
+
+3.5.26
+- Updates for Unity 6.5
+- Performance and UX updates for referencing.
+- You can now specify that only GameObjects with ES3Referenceable Components will be added to the reference manager from within settings.
+- Reuse of WaitForSeconds to reduce GC.
+- Added RuntimeInitializeOnLoad attributes to ES3Type templates as required by latest version of Unity.
+
+3.5.25
+- Added ES3.LoadImageInto methods allowing you to load data into an existing Texture2D.
+
+3.5.24
+- Resolved issue where a lower priority ES3Type might be used instead of the higher priority one.
+- Worked around bug at Unity's end where initialisation method wasn't called, so Easy Save's global manager never gets created.
+
 3.5.23
 - Added 'Auto cache file on load' option to the settings.
 - Resolved edge case where ES3Spreadsheet would return an empty string rather than null.

@@ -16,7 +16,7 @@ public class CameraSize_Data
     public int columnTileCount => _columnTileCount;
 }
 
-public class EnvironmentManager : MonoBehaviour
+public class EnvironmentManager : MonoBehaviour, ISubscriptionHandler
 {
     [Space(20)]
     [SerializeField] private Camera _mainCamera;
@@ -33,29 +33,36 @@ public class EnvironmentManager : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
+        EventBus_GlobalController.Register(this);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
     }
 
     private void OnDestroy()
     {
-        EventBus_Controller stageSet = GameManager.instance.stageManager.stageSetEventBus;
+        UnSubscribe_All();
 
-        stageSet.UnRegister(Update_CameraSize);
-
-        stageSet.UnRegister(Update_BackgroundSize);
-        stageSet.UnRegister(Run_BackgroundEffects);
+        EventBus_GlobalController.UnRegister(this);
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
     }
 
 
-    // Data
-    private void Set_Data()
+    // ISubscriptionHandler
+    public void Subscribe_All()
     {
         EventBus_Controller stageSet = GameManager.instance.stageManager.stageSetEventBus;
 
         stageSet.Register(0, Update_CameraSize);
-
         stageSet.Register(0, Update_BackgroundSize);
         stageSet.Register(0, Run_BackgroundEffects);
+    }
+
+    public void UnSubscribe_All()
+    {
+        EventBus_Controller stageSet = GameManager.instance.stageManager.stageSetEventBus;
+
+        stageSet.UnRegister(Update_CameraSize);
+        stageSet.UnRegister(Update_BackgroundSize);
+        stageSet.UnRegister(Run_BackgroundEffects);
     }
 
 
@@ -75,7 +82,7 @@ public class EnvironmentManager : MonoBehaviour
 
     private void Update_CameraSize()
     {
-        Stage_ScrObj currentStage = GameManager.instance.stageManager.stageMap.data.currentStage.stage;
+        Stage_ScrObj currentStage = GameManager.instance.stageManager.stageMap.data.Current_StageData().stage;
         if (currentStage is not BattleStage_ScrObj battleStage) return;
 
         int rowTileCount = battleStage.rowTileCount;

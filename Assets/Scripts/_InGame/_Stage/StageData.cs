@@ -5,13 +5,13 @@ using UnityEngine;
 [System.Serializable]
 public class StageData
 {
-    private Stage_ScrObj _stage;
+    [ES3Serializable] private Stage_ScrObj _stage;
     public Stage_ScrObj stage => _stage;
 
-    private int _enemySpawnIndex;
+    [ES3Serializable] private int _enemySpawnIndex;
     public int enemySpawnIndex => _enemySpawnIndex;
 
-    private bool _completed;
+    [ES3Serializable] private bool _completed;
     public bool completed => _completed;
 
 

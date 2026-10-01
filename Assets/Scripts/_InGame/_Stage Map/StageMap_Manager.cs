@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [System.Serializable]
@@ -73,7 +74,7 @@ public class LevelSet_StagesData
     }
 }
 
-public class StageMap_Manager : MonoBehaviour, ISaveLoadable
+public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 {
     [Space(20)]
     [SerializeField] private UIPanel_ToggleController _menuPanelController;
@@ -96,22 +97,38 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable
     // MonoBehaviour
     private void Awake()
     {
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Subscriptions);
+        EventBus_GlobalController.Register(this);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
     }
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Subscriptions);
+        UnSubscribe_All();
+
+        EventBus_GlobalController.UnRegister(this);
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+    }
 
 
-        // from Set_Subscriptions
+    // ISubscriptionHandler
+    public void Subscribe_All()
+    {
+        StageManager stageManager = GameManager.instance.stageManager;
+
+        stageManager.stageEndEventBus.Register(0, Complete_CurrentStage);
+        stageManager.stageEndEventBus.Register(0, ToggleMenu);
+        stageManager.endTurnEventBus.Register(MenuToggled);
+
+        Input_Controller.instance.OnAction1 += Set_NewData;
+    }
+
+    public void UnSubscribe_All()
+    {
         StageManager stageManager = GameManager.instance.stageManager;
 
         stageManager.stageEndEventBus.UnRegister(Complete_CurrentStage);
         stageManager.stageEndEventBus.UnRegister(ToggleMenu);
-
         stageManager.endTurnEventBus.UnRegister(MenuToggled);
-
 
         Input_Controller.instance.OnAction1 -= Set_NewData;
     }
@@ -170,8 +187,8 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable
 
         if (currentHero.data.currentData.currentHealth <= 0) return;
 
-        _data.currentStage.Toggle_CompleteState(true);
         _data.Increase_CurrentLevel();
+        _data.Current_StageData().Toggle_CompleteState(true);
     }
 
 
@@ -252,21 +269,17 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable
     {
         _data = new(NewRun_StageDatas_byLevel());
 
-        List<StageData> startingLevelStages = _data.TargetLevel_StageDatas(0, false);
-        _data.Update_CurrentStage(startingLevelStages[UnityEngine.Random.Range(0, startingLevelStages.Count)]);
-    }
+        List<StageData> startingStageDatas = _data.TargetLevel_StageDatas(0, false);
+        StageData startingStageData = startingStageDatas[UnityEngine.Random.Range(0, startingStageDatas.Count)];
 
-    private void Set_Subscriptions()
-    {
-        StageManager stageManager = GameManager.instance.stageManager;
+        List<StageData> allStageDatas = _data.StageDatas(true);
+        for (int i = 0; i < allStageDatas.Count; i++)
+        {
+            if (startingStageData != allStageDatas[i]) continue;
 
-        stageManager.stageEndEventBus.Register(0, Complete_CurrentStage);
-        stageManager.stageEndEventBus.Register(0, ToggleMenu);
-
-        stageManager.endTurnEventBus.Register(MenuToggled);
-
-
-        Input_Controller.instance.OnAction1 += Set_NewData;
+            _data.Update_CurrentStageIndex(i);
+            return;
+        }
     }
 
 
@@ -335,7 +348,12 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable
             StageData selectedData = currentStageDatas[i];
             if (selectedData == null) return;
 
-            Debug.Log(selectedData.stage);
+            _data.Update_CurrentStageIndex(i);
+            Save_Data();
+
+            EventBus_GlobalController.UnSubscribeAll_SubscriptionHandlers();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
             return;
         }
     }

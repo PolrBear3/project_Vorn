@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyManager : MonoBehaviour
+public class EnemyManager : MonoBehaviour, ISubscriptionHandler
 {
     private EnemyManager_Data _data = new();  // for save & load
     public EnemyManager_Data data => _data;
@@ -21,14 +21,43 @@ public class EnemyManager : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
+        EventBus_GlobalController.Register(this);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
     }
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
+        UnSubscribe_All();
+
+        EventBus_GlobalController.UnRegister(this);
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+    }
 
 
+    // ISubscriptionHandler
+    public void Subscribe_All()
+    {
+        GameManager manager = GameManager.instance;
+
+        StageManager stageManager = manager.stageManager;
+        EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
+
+        stageManager.stageSetEventBus.Register(0, Run_DelaySpawn);
+        endTurnBus.Register(6, Run_DelaySpawn);
+
+        endTurnBus.Register(3, Run_EnemyActions);
+
+        endTurnBus.Register(StageEnemies_Cleared);
+        stageManager.stageEndEventBus.Register(StageEnemies_NotCleared);
+
+        manager.tileManager.tileHoverEventBus.Register(0, Hover_Enemy);
+        endTurnBus.OnSequentialDelayFinish += Hover_Enemy;
+
+        endTurnBus.Register(0, _enemyHoverToolTip.UnToggle);
+    }
+
+    public void UnSubscribe_All()
+    {
         // from Set_Data
         GameManager manager = GameManager.instance;
 
@@ -51,27 +80,6 @@ public class EnemyManager : MonoBehaviour
 
 
     // Data
-    private void Set_Data()
-    {
-        GameManager manager = GameManager.instance;
-
-        StageManager stageManager = manager.stageManager;
-        EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
-
-        stageManager.stageSetEventBus.Register(0, Run_DelaySpawn);
-        endTurnBus.Register(6, Run_DelaySpawn);
-
-        endTurnBus.Register(3, Run_EnemyActions);
-
-        endTurnBus.Register(StageEnemies_Cleared);
-        stageManager.stageEndEventBus.Register(StageEnemies_NotCleared);
-
-        manager.tileManager.tileHoverEventBus.Register(0, Hover_Enemy);
-        endTurnBus.OnSequentialDelayFinish += Hover_Enemy;
-
-        endTurnBus.Register(0, _enemyHoverToolTip.UnToggle);
-    }
-
     private Enemy Spawned_Enemy(Tile targetTile)
     {
         for (int i = 0; i < _spawnedEnemies.Count; i++)

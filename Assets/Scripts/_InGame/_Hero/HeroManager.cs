@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HeroManager : MonoBehaviour
+public class HeroManager : MonoBehaviour, ISubscriptionHandler
 {
     private Hero _currentHero;
     public Hero currentHero => _currentHero;
@@ -27,16 +27,72 @@ public class HeroManager : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
+        EventBus_GlobalController.Register(this);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
     }
 
     private void OnDestroy()
     {
-        // from Set_Data
+        UnSubscribe_All();
+
+        EventBus_GlobalController.UnRegister(this);
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+    }
+
+
+    // ISubscriptionHandler
+    public void Subscribe_All()
+    {
         GameManager manager = GameManager.instance;
 
         StageManager stageManager = manager.stageManager;
+        EventBus_Controller stageSetBus = stageManager.stageSetEventBus;
 
+        stageSetBus.Register(0, Update_HealthPanel);
+        stageSetBus.Register(0, Update_ManaPanel);
+
+        EventBus_Controller stageEndBus = stageManager.stageEndEventBus;
+
+        stageEndBus.Register(0, Update_HealthPanel);
+        stageEndBus.Register(0, Update_ManaPanel);
+
+        EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
+
+        endTurnBus.Register(Hero_Unavailable);
+        endTurnBus.Register(_heroDeathEventBus.DelayBus_Running);
+
+        endTurnBus.Register(1, Run_HeroActions);
+        endTurnBus.Register(5, Refill_CurrentManaCount);
+        endTurnBus.Register(6, EndStage_OnHeroDeath);
+
+        TileManager tileManager = manager.tileManager;
+        EventBus_Controller tileHoverEventBus = tileManager.tileHoverEventBus;
+
+        tileHoverEventBus.Register(0, Update_MovementRoute_OnHeroHover);
+        tileHoverEventBus.Register(1, Update_MovementRoute_OnTileTargeting);
+
+        tileManager.tileSelectEventBus.Register(0, Toggle_TileMovementTargeting);
+        manager.tileTargeting.OnTargetTile += UpdateMana_OnTileMovementTarget;
+
+        HandInventory handInventory = manager.handInventory;
+        handInventory.OnPlatformWidthUpdate += Update_StatPanelPositions;
+
+        EventBus_Controller placeCardEventBus = handInventory.placeCardEventBus;
+
+        placeCardEventBus.Register(0, Cancel_TileMovementTargeting_OnRouteBlocked);
+        placeCardEventBus.Register(0, UpdateMana_OnTileMovementTarget);
+
+        tileHoverEventBus.Register(0, Hover_CurrentHero);
+        endTurnBus.OnSequentialDelayFinish += Hover_CurrentHero;
+
+        endTurnBus.Register(0, _heroHoverToolTip.UnToggle);
+    }
+    
+    public void UnSubscribe_All()
+    {
+        GameManager manager = GameManager.instance;
+
+        StageManager stageManager = manager.stageManager;
         EventBus_Controller stageSetBus = stageManager.stageSetEventBus;
 
         stageSetBus.UnRegister(Update_HealthPanel);
@@ -86,53 +142,6 @@ public class HeroManager : MonoBehaviour
 
 
     // Data
-    private void Set_Data()
-    {
-        GameManager manager = GameManager.instance;
-
-        StageManager stageManager = manager.stageManager;
-
-        EventBus_Controller stageSetBus = stageManager.stageSetEventBus;
-
-        stageSetBus.Register(0, Update_HealthPanel);
-        stageSetBus.Register(0, Update_ManaPanel);
-
-        EventBus_Controller stageEndBus = stageManager.stageEndEventBus;
-
-        stageEndBus.Register(0, Update_HealthPanel);
-        stageEndBus.Register(0, Update_ManaPanel);
-
-        EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
-
-        endTurnBus.Register(Hero_Unavailable);
-        endTurnBus.Register(_heroDeathEventBus.DelayBus_Running);
-
-        endTurnBus.Register(1, Run_HeroActions);
-        endTurnBus.Register(5, Refill_CurrentManaCount);
-        endTurnBus.Register(6, EndStage_OnHeroDeath);
-
-        TileManager tileManager = manager.tileManager;
-        EventBus_Controller tileHoverEventBus = tileManager.tileHoverEventBus;
-
-        tileHoverEventBus.Register(0, Update_MovementRoute_OnHeroHover);
-        tileHoverEventBus.Register(1, Update_MovementRoute_OnTileTargeting);
-
-        tileManager.tileSelectEventBus.Register(0, Toggle_TileMovementTargeting);
-        manager.tileTargeting.OnTargetTile += UpdateMana_OnTileMovementTarget;
-
-        HandInventory handInventory = manager.handInventory;
-        handInventory.OnPlatformWidthUpdate += Update_StatPanelPositions;
-
-        EventBus_Controller placeCardEventBus = handInventory.placeCardEventBus;
-
-        placeCardEventBus.Register(0, Cancel_TileMovementTargeting_OnRouteBlocked);
-        placeCardEventBus.Register(0, UpdateMana_OnTileMovementTarget);
-
-        tileHoverEventBus.Register(0, Hover_CurrentHero);
-        endTurnBus.OnSequentialDelayFinish += Hover_CurrentHero;
-
-        endTurnBus.Register(0, _heroHoverToolTip.UnToggle);
-    }
     public void Track_CurrentHero(Hero heroToTrack)
     {
         if (heroToTrack == null) return;

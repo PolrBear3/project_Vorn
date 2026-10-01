@@ -5,14 +5,14 @@ using UnityEngine;
 [System.Serializable]
 public class StageMap_Data
 {
-    [SerializeField][ES3Serializable] private List<List<StageData>> _stagesByLevelDatas = new();
+    [ES3Serializable] private List<List<StageData>> _stagesByLevelDatas = new();
     public List<List<StageData>> stagesByLevelDatas => _stagesByLevelDatas;
 
-    [SerializeField][ES3Serializable] private int _currentLevel;
+    [ES3Serializable] private int _currentLevel;
     public int currentLevel => _currentLevel;
 
-    [SerializeField][ES3Serializable] private StageData _currentStage;
-    public StageData currentStage => _currentStage;
+    [ES3Serializable] private int _currentStageIndex;
+    public int currentStageIndex => _currentStageIndex;
 
 
     // New
@@ -33,7 +33,7 @@ public class StageMap_Data
 
         _stagesByLevelDatas = loadData._stagesByLevelDatas;
         _currentLevel = loadData._currentLevel;
-        _currentStage = loadData._currentStage;
+        _currentStageIndex = loadData._currentStageIndex;
     }
 
 
@@ -72,6 +72,18 @@ public class StageMap_Data
         return targetLevelStages;
     }
 
+    public StageData StageData_byIndex(int stageIndex)
+    {
+        List<StageData> stageDatas = StageDatas(true);
+        if (stageDatas == null || stageDatas.Count <= 0) return null;
+
+        return stageDatas[Mathf.Clamp(stageIndex, 0, stageDatas.Count - 1)];
+    }
+    public StageData Current_StageData()
+    {
+        return StageData_byIndex(_currentStageIndex);
+    }
+
     public int TargetStage_CurrentLevel(StageData targetStageData)
     {
         for (int i = 0; i < _stagesByLevelDatas.Count; i++)
@@ -87,13 +99,12 @@ public class StageMap_Data
         return _stagesByLevelDatas[currentLevel].Contains(targetStageData);
     }
 
-    public void Update_CurrentStage(StageData targetStage)
+    public void Update_CurrentStageIndex(int stageIndex)
     {
-        if (StageDatas(false).Contains(targetStage) == false) return;
-        _currentStage = targetStage;
+        _currentStageIndex = Mathf.Clamp(stageIndex, 0, StageDatas(true).Count - 1);
     }
     public void Increase_CurrentLevel()
     {
-        _currentLevel = Mathf.Min(_currentLevel + 1, _stagesByLevelDatas.Count);
+        _currentLevel = Mathf.Min(_currentLevel + 1, _stagesByLevelDatas.Count - 1);
     }
 }

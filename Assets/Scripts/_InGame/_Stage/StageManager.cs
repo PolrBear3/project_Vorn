@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StageManager : MonoBehaviour
+public class StageManager : MonoBehaviour, ISubscriptionHandler
 {
     private StageData _currentData;
     public StageData currentData => _currentData;
@@ -30,27 +30,21 @@ public class StageManager : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
+        EventBus_GlobalController.Register(this);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
     }
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
+        UnSubscribe_All();
 
-
-        // from Set_Data
-        GameManager.instance.tileManager.generateEventBus.UnRegister(Load_CurrentStage);
-
-        _endTurnEventBus.UnRegister(Is_EventStage);
-        _endTurnEventBus.UnRegister(_endTurnEventBus.DelayBus_Running);
-        _endTurnEventBus.UnRegister(_stageSetEventBus.DelayBus_Running);
-
-        Input_Controller.instance.OnInteractPressed -= End_Turn;
+        EventBus_GlobalController.UnRegister(this);
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
     }
 
 
-    // Data
-    private void Set_Data()
+    // ISubscriptionHandler
+    public void Subscribe_All()
     {
         GameManager.instance.tileManager.generateEventBus.Register(0, Load_CurrentStage);
 
@@ -60,6 +54,18 @@ public class StageManager : MonoBehaviour
 
         Input_Controller.instance.OnInteractPressed += End_Turn;
     }
+    
+    public void UnSubscribe_All()
+    {
+        GameManager.instance.tileManager.generateEventBus.UnRegister(Load_CurrentStage);
+
+        _endTurnEventBus.UnRegister(Is_EventStage);
+        _endTurnEventBus.UnRegister(_endTurnEventBus.DelayBus_Running);
+        _endTurnEventBus.UnRegister(_stageSetEventBus.DelayBus_Running);
+
+        Input_Controller.instance.OnInteractPressed -= End_Turn;
+    }
+
 
     public bool Is_BattleStage()
     {
@@ -105,7 +111,7 @@ public class StageManager : MonoBehaviour
 
     private void Load_CurrentStage()
     {
-        Set_Stage(_stageMap.data.currentStage.stage);
+        Set_Stage(_stageMap.data.Current_StageData().stage);
     }
 
 

@@ -35,10 +35,11 @@ public class HandInventory : MonoBehaviour
 {
     [Space(20)]
     [SerializeField] private GameObject _handCardPrefab;
+    [SerializeField] private Transform _handCardsPositionPoint;
 
-    [Space(10)]
-    [SerializeField] private Transform _allHandCards;
+    [Space(20)]
     [SerializeField] private Image _cardPlatform;
+    [SerializeField] private UIPanel_ToggleController _cardPlatformToggler;
 
     [Space(20)]
     [SerializeField][Range(0, 1000)] private float _handCardsSpacingValue;
@@ -191,10 +192,13 @@ public class HandInventory : MonoBehaviour
     }
     private void Update_CardPlatform()
     {
-        int currentCardCount = _handCards.Count;
+        GameManager manager = GameManager.instance;
+        bool gameStateToggle = manager.stageManager.Is_BattleStage() && manager.enemyManager.StageEnemies_NotCleared();
 
-        bool toggle = currentCardCount > 0;
-        _cardPlatform.gameObject.SetActive(toggle);
+        int currentCardCount = _handCards.Count;
+        bool toggle = currentCardCount > 0 & gameStateToggle;
+
+        _cardPlatformToggler.Toggle(toggle);
 
         if (toggle == false)
         {
@@ -214,7 +218,7 @@ public class HandInventory : MonoBehaviour
     {
         if (_handCards.Count >= _maxHandCardCount) return null;
 
-        GameObject addCardObject = Instantiate(_handCardPrefab, _allHandCards);
+        GameObject addCardObject = Instantiate(_handCardPrefab, _handCardsPositionPoint);
         if (addCardObject.TryGetComponent(out HandCard addCard) == false) return null;
 
         addCard.Load(addCardData);

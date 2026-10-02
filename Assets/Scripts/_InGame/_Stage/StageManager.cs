@@ -32,6 +32,8 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     {
         EventBus_GlobalController.Register(this);
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
+
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Load_CurrentStage);
     }
 
     private void OnDestroy()
@@ -40,14 +42,14 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
 
         EventBus_GlobalController.UnRegister(this);
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Load_CurrentStage);
     }
 
 
     // ISubscriptionHandler
     public void Subscribe_All()
     {
-        GameManager.instance.tileManager.generateEventBus.Register(0, Load_CurrentStage);
-
         _endTurnEventBus.Register(Is_EventStage);
         _endTurnEventBus.Register(_endTurnEventBus.DelayBus_Running);
         _endTurnEventBus.Register(_stageSetEventBus.DelayBus_Running);
@@ -57,8 +59,6 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     
     public void UnSubscribe_All()
     {
-        GameManager.instance.tileManager.generateEventBus.UnRegister(Load_CurrentStage);
-
         _endTurnEventBus.UnRegister(Is_EventStage);
         _endTurnEventBus.UnRegister(_endTurnEventBus.DelayBus_Running);
         _endTurnEventBus.UnRegister(_stageSetEventBus.DelayBus_Running);
@@ -78,7 +78,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     }
 
 
-    // UIPanel_ToggleController
+    // ToggleController
     private void Toggle_BattleStage(bool toggle)
     {
         for (int i = 0; i < _battleStagePanelToggles.Length; i++)
@@ -106,6 +106,8 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         StartCoroutine(_stageSetEventBus.RunSequential_DelayBusEvents());
 
         while (_stageEndEventBus.DelayBus_Running()) yield return null;
+
+        if (_stageSetEventBus.RunCondition_Available() == false) yield break;
         Toggle_BattleStage(true);
     }
 
@@ -127,6 +129,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     {
         _endTurnEventBus.RunSequential_BusEvents();
         StartCoroutine(_endTurnEventBus.RunSequential_DelayBusEvents());
+
         while (_endTurnEventBus.DelayBus_Running()) yield return null;
 
         if (_stageEndEventBus.RunCondition_Available() == false) yield break;
@@ -134,6 +137,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
 
         _stageEndEventBus.RunSequential_BusEvents();
         StartCoroutine(_stageEndEventBus.RunSequential_DelayBusEvents());
+        
         while (_stageEndEventBus.DelayBus_Running()) yield return null;
     }
 }

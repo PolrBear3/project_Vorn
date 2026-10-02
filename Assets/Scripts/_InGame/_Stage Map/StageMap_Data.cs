@@ -14,6 +14,9 @@ public class StageMap_Data
     [ES3Serializable] private int _currentLevelStageIndex;
     public int currentLevelStageIndex => _currentLevelStageIndex;
 
+    [ES3Serializable] private bool _stageSelected;
+    public bool stageSelected => _stageSelected;
+
 
     // New
     public StageMap_Data(List<List<StageData>> newStagesByLevel)
@@ -21,18 +24,6 @@ public class StageMap_Data
         if (newStagesByLevel == null || newStagesByLevel.Count <= 0) return;
 
         _stagesByLevelDatas = new(newStagesByLevel);
-        _currentLevel = 0;
-    }
-    public StageMap_Data(StageMap_Data loadData)
-    {
-        if (loadData == null) return;
-
-        List<List<StageData>> stagesByLevel = loadData._stagesByLevelDatas;
-        if (stagesByLevel == null || stagesByLevel.Count <= 0) return;
-
-        _stagesByLevelDatas = loadData._stagesByLevelDatas;
-        _currentLevel = loadData._currentLevel;
-        _currentLevelStageIndex = loadData._currentLevelStageIndex;
     }
 
 
@@ -71,13 +62,28 @@ public class StageMap_Data
         return targetLevelStages;
     }
 
+    /// <summary>
+    /// Auto updates _currentLevelStageIndex if stage was not selected before data save
+    /// </summary>
     public StageData Current_StageData()
     {
         List<StageData> currentLevelStageDatas = TargetLevel_StageDatas(_currentLevel, true);
         if (currentLevelStageDatas == null || currentLevelStageDatas.Count <= 0) return null;
         
         int currentStageIndex = Mathf.Clamp(_currentLevelStageIndex, 0, currentLevelStageDatas.Count - 1);
-        return currentLevelStageDatas[currentLevelStageIndex];
+        StageData currentStageData = currentLevelStageDatas[currentStageIndex];
+
+        if (currentStageData != null) return currentStageData;
+
+        for (int i = 0; i < currentLevelStageDatas.Count; i++)
+        {
+            currentStageData = currentLevelStageDatas[i];
+            if (currentStageData == null) continue;
+
+            _currentLevelStageIndex = i;
+            break;
+        }
+        return currentStageData;
     }
 
     public int TargetStage_CurrentLevel(StageData targetStageData)
@@ -89,15 +95,26 @@ public class StageMap_Data
         }
         return -1;
     }
-    public bool TargetStage_onCurrentLevel(StageData targetStageData)
+    public bool TargetStage_onCurrentLevel(StageData targetStageData, out int levelStageIndex)
     {
         int currentLevel = Mathf.Clamp(_currentLevel, 0, _stagesByLevelDatas.Count - 1);
-        return _stagesByLevelDatas[currentLevel].Contains(targetStageData);
+        List<StageData> currentLevelStageDatas = _stagesByLevelDatas[currentLevel];
+        
+        for (int i = 0; i < currentLevelStageDatas.Count; i++)
+        {
+            if (targetStageData != currentLevelStageDatas[i]) continue;
+
+            levelStageIndex = i;
+            return true;
+        }
+        levelStageIndex = 0;
+        return false;
     }
 
     public void Increase_CurrentLevel()
     {
         _currentLevel = Mathf.Min(_currentLevel + 1, _stagesByLevelDatas.Count - 1);
+        _stageSelected = false;
     }
     public void Update_CurrentLevel_StageIndex(int stageIndex)
     {
@@ -105,5 +122,6 @@ public class StageMap_Data
         if (currentLevelStageDatas == null) return;
 
         _currentLevelStageIndex = Mathf.Clamp(stageIndex, 0, currentLevelStageDatas.Count - 1);
+        _stageSelected = true;
     }
 }

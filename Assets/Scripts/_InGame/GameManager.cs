@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
     {
         instance = this;
 
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Load_GameData);
+        EventBus_GlobalController.Register(EventBus.DataLoad, Load_GameData);
     }
 
     private void Start()
@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Load_GameData);
+        EventBus_GlobalController.UnRegister(EventBus.DataLoad, Load_GameData);
     }
 
 

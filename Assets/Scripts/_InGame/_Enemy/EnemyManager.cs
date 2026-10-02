@@ -42,9 +42,9 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         StageManager stageManager = manager.stageManager;
         EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
-        stageManager.stageSetEventBus.Register(0, Run_DelaySpawn);
+        stageManager.stageSetEventBus.Register(1, Run_DelaySpawn);
+        
         endTurnBus.Register(6, Run_DelaySpawn);
-
         endTurnBus.Register(3, Run_EnemyActions);
 
         endTurnBus.Register(StageEnemies_Cleared);

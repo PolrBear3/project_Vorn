@@ -5,9 +5,10 @@ using UnityEngine;
 
 public enum EventBus
 {
-    AwakeLoad = 0,
-    StartLoad = 1,
-    SubLoad = 2
+    DataLoad = 0,
+    AwakeLoad = 1,
+    StartLoad = 2,
+    SubLoad = 3
 }
 
 public interface ISubscriptionHandler

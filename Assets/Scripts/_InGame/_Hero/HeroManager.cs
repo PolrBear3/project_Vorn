@@ -411,11 +411,15 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
         _manaPanel.rectTransform.anchoredPosition = manaPos;
     }
 
-    private void Update_HealthPanel()
+    private bool PanelToggle_Available()
     {
         GameManager manager = GameManager.instance;
+        return manager.stageManager.Is_BattleStage() && manager.enemyManager.StageEnemies_NotCleared();
+    }
 
-        bool toggle = manager.stageManager.Is_BattleStage() && manager.enemyManager.StageEnemies_NotCleared();
+    private void Update_HealthPanel()
+    {
+        bool toggle = PanelToggle_Available();
 
         _healthPanel.gameObject.SetActive(toggle);
         if (toggle == false) return;
@@ -431,11 +435,9 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
     }
     private void Update_ManaPanel()
     {
-        GameManager manager = GameManager.instance;
+        bool toggle = PanelToggle_Available();
 
-        bool toggle = manager.stageManager.Is_BattleStage() && manager.enemyManager.StageEnemies_NotCleared();
         _manaPanel.gameObject.SetActive(toggle);
-
         if (toggle == false) return;
 
         if (_currentHero == null)

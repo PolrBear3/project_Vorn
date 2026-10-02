@@ -19,8 +19,15 @@ public class SaveLoad_Controller : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        
-        LoadAll_ISaveLoadable();
+
+        EventBus_GlobalController.Register(EventBus.DataLoad, LoadAll_ISaveLoadable);
+    }
+
+    private void OnDestroy()
+    {
+        SaveAll_ISaveLoadable();
+
+        EventBus_GlobalController.UnRegister(EventBus.DataLoad, LoadAll_ISaveLoadable);
     }
 
     private void OnApplicationQuit()

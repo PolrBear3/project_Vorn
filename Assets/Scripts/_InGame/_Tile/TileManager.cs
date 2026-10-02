@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileManager : MonoBehaviour
+public class TileManager : MonoBehaviour, ISubscriptionHandler
 {
     private const float _tileSpacing = 1.0625f;
 
@@ -22,9 +22,6 @@ public class TileManager : MonoBehaviour
     public Tile hoveringTile => _hoveringTile;
 
 
-    private EventBus_Controller _generateEventBus = new();
-    public EventBus_Controller generateEventBus => _generateEventBus;
-
     private EventBus_Controller _tileHoverEventBus = new();
     public EventBus_Controller tileHoverEventBus => _tileHoverEventBus;
 
@@ -35,41 +32,50 @@ public class TileManager : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Generate_Tiles);
+        EventBus_GlobalController.Register(this);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
     }
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Generate_Tiles);
+        UnSubscribe_All();
+
+        EventBus_GlobalController.UnRegister(this);
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+    }
 
 
-        // from Set_Data
-        _generateEventBus.UnRegister(Update_TileSprites);
-        _generateEventBus.UnRegister(Reset_TileIndicators);
-
+    // ISubscriptionHandler
+    public void Subscribe_All()
+    {
         StageManager stageManager = GameManager.instance.stageManager;
+        
+        EventBus_Controller stageSet = stageManager.stageSetEventBus;
+
+        stageSet.Register(0, Generate_Tiles);
+        stageSet.Register(0, Update_TileSprites);
+        stageSet.Register(0, Reset_TileIndicators);
+
+        stageManager.endTurnEventBus.Register(0, Reset_TileIndicators);
+        stageManager.stageEndEventBus.Register(0, Reset_TileIndicators);
+
+        Input_Controller.instance.OnLeftClickPressed += Select_HoveringTile;
+    }
+
+    public void UnSubscribe_All()
+    {
+        StageManager stageManager = GameManager.instance.stageManager;
+
+        EventBus_Controller stageSet = stageManager.stageSetEventBus;
+
+        stageSet.UnRegister(Generate_Tiles);
+        stageSet.UnRegister(Update_TileSprites);
+        stageSet.UnRegister(Reset_TileIndicators);
 
         stageManager.endTurnEventBus.UnRegister(Reset_TileIndicators);
         stageManager.stageEndEventBus.UnRegister(Reset_TileIndicators);
 
         Input_Controller.instance.OnLeftClickPressed -= Select_HoveringTile;
-    }
-
-
-    // Data
-    private void Set_Data()
-    {
-        _generateEventBus.Register(0, Update_TileSprites);
-        _generateEventBus.Register(0, Reset_TileIndicators);
-
-        StageManager stageManager = GameManager.instance.stageManager;
-        
-        stageManager.endTurnEventBus.Register(0, Reset_TileIndicators);
-        stageManager.stageEndEventBus.Register(0, Reset_TileIndicators);
-
-        Input_Controller.instance.OnLeftClickPressed += Select_HoveringTile;
     }
 
 
@@ -325,11 +331,7 @@ public class TileManager : MonoBehaviour
     private void Generate_Tiles()
     {
         Stage_ScrObj currentStage = GameManager.instance.stageManager.stageMap.data.Current_StageData().stage;
-        if (currentStage is not BattleStage_ScrObj battleStage)
-        {
-            _generateEventBus.RunSequential_BusEvents();
-            return;
-        }
+        if (currentStage is not BattleStage_ScrObj battleStage) return;
 
         int rowTileCount = battleStage.rowTileCount;
         int columnTileCount = battleStage.columnTileCount;
@@ -357,7 +359,6 @@ public class TileManager : MonoBehaviour
                 tile.Set_Data(new(x, y));
             }
         }
-        _generateEventBus.RunSequential_BusEvents();
     }
     private void Update_TileSprites()
     {

@@ -99,6 +99,8 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     {
         EventBus_GlobalController.Register(this);
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
+
+        EventBus_GlobalController.Register(EventBus.StartLoad, ToggleMenu);
     }
 
     private void OnDestroy()
@@ -107,6 +109,8 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
 
         EventBus_GlobalController.UnRegister(this);
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+
+        EventBus_GlobalController.UnRegister(EventBus.StartLoad, ToggleMenu);
     }
 
 
@@ -116,10 +120,12 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
         StageManager stageManager = GameManager.instance.stageManager;
 
         stageManager.stageEndEventBus.Register(0, Complete_CurrentStage);
-        stageManager.stageEndEventBus.Register(0, ToggleMenu);
-        stageManager.endTurnEventBus.Register(MenuToggled);
 
-        Input_Controller.instance.OnAction1 += Set_NewData;
+        stageManager.stageSetEventBus.Register(0, ToggleMenu);
+        stageManager.stageEndEventBus.Register(0, ToggleMenu);
+
+        stageManager.stageSetEventBus.Register(Stage_NotSelected);
+        stageManager.endTurnEventBus.Register(Stage_NotSelected);
     }
 
     public void UnSubscribe_All()
@@ -127,10 +133,12 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
         StageManager stageManager = GameManager.instance.stageManager;
 
         stageManager.stageEndEventBus.UnRegister(Complete_CurrentStage);
-        stageManager.stageEndEventBus.UnRegister(ToggleMenu);
-        stageManager.endTurnEventBus.UnRegister(MenuToggled);
 
-        Input_Controller.instance.OnAction1 -= Set_NewData;
+        stageManager.stageSetEventBus.UnRegister(ToggleMenu);
+        stageManager.stageEndEventBus.UnRegister(ToggleMenu);
+
+        stageManager.stageSetEventBus.UnRegister(Stage_NotSelected);
+        stageManager.endTurnEventBus.UnRegister(Stage_NotSelected);
     }
 
 
@@ -270,11 +278,20 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
         _data = new(NewRun_StageDatas_byLevel());
 
         List<StageData> startingStageDatas = _data.TargetLevel_StageDatas(0, false);
-        _data.Update_CurrentLevel_StageIndex(UnityEngine.Random.Range(0, startingStageDatas.Count - 1));
+
+        StageData startingStage = startingStageDatas[UnityEngine.Random.Range(0, startingStageDatas.Count)];
+        if (_data.TargetStage_onCurrentLevel(startingStage, out int levelStageIndex) == false) return;
+
+        _data.Update_CurrentLevel_StageIndex(levelStageIndex);
     }
 
 
     // Menu
+    private bool Stage_NotSelected()
+    {
+        return _data.stageSelected == false;
+    }
+
     private void ToggleMenu(bool toggle)
     {
         _menuPanelController.Toggle(toggle);
@@ -284,12 +301,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     }
     private void ToggleMenu()
     {
-        ToggleMenu(true);
-    }
-
-    private bool MenuToggled()
-    {
-        return _menuPanelController.toggled;
+        ToggleMenu(Stage_NotSelected());
     }
 
 
@@ -314,7 +326,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
             icon.image.sprite = dataToUpdate.stage.stageIcon;
             Animator_Controller animController = icon.animController;
 
-            if (_data.TargetStage_onCurrentLevel(dataToUpdate))
+            if (_data.TargetStage_onCurrentLevel(dataToUpdate, out int _))
             {
                 animController.Play_State(UIAnimation.Available); // white
                 continue;
@@ -337,9 +349,11 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
             if (selectedIcon != _icons[i]) continue;
 
             StageData selectedData = currentStageDatas[i];
-            if (selectedData == null) return;
 
-            // _data.Update_CurrentStageIndex(i);
+            if (selectedData == null) return;
+            if (_data.TargetStage_onCurrentLevel(selectedData, out int levelStageIndex) == false) return;
+
+            _data.Update_CurrentLevel_StageIndex(levelStageIndex);
             Save_Data();
 
             EventBus_GlobalController.UnSubscribeAll_SubscriptionHandlers();

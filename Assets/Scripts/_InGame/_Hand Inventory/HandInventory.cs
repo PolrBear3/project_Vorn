@@ -109,7 +109,7 @@ public class HandInventory : MonoBehaviour
         StageManager stageManager = manager.stageManager;
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
 
-        stageManager.stageSetEventBus.UnRegister(DrawCard);
+        stageManager.setStageEventBus.UnRegister(DrawCard);
         endTurnEventBus.UnRegister(DrawCard);
 
         endTurnEventBus.UnRegister(Return_DraggingCard);
@@ -136,7 +136,7 @@ public class HandInventory : MonoBehaviour
         StageManager stageManager = manager.stageManager;
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
         
-        stageManager.stageSetEventBus.Register(1, DrawCard);
+        stageManager.setStageEventBus.Register(1, DrawCard);
         endTurnEventBus.Register(4, DrawCard);
 
         endTurnEventBus.Register(0, Return_DraggingCard);

@@ -26,9 +26,6 @@ public class EnvironmentManager : MonoBehaviour, ISubscriptionHandler
     [SerializeField] private SpriteRenderer _materialBackground;
     [SerializeField][Range(0, 10)]  private float _backgroundEffectSpeed;
 
-    [Space(20)]
-    [SerializeField] private SpriteRenderer _tilePlatform;
-
 
     // MonoBehaviour
     private void Awake()
@@ -49,7 +46,7 @@ public class EnvironmentManager : MonoBehaviour, ISubscriptionHandler
     // ISubscriptionHandler
     public void Subscribe_All()
     {
-        EventBus_Controller stageSet = GameManager.instance.stageManager.stageSetEventBus;
+        EventBus_Controller stageSet = GameManager.instance.stageManager.setStageEventBus;
 
         stageSet.Register(0, Update_CameraSize);
         stageSet.Register(0, Update_BackgroundSize);
@@ -58,7 +55,7 @@ public class EnvironmentManager : MonoBehaviour, ISubscriptionHandler
 
     public void UnSubscribe_All()
     {
-        EventBus_Controller stageSet = GameManager.instance.stageManager.stageSetEventBus;
+        EventBus_Controller stageSet = GameManager.instance.stageManager.setStageEventBus;
 
         stageSet.UnRegister(Update_CameraSize);
         stageSet.UnRegister(Update_BackgroundSize);

@@ -119,12 +119,12 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     {
         StageManager stageManager = GameManager.instance.stageManager;
 
-        stageManager.stageEndEventBus.Register(0, Complete_CurrentStage);
+        stageManager.endStageEventBus.Register(0, Complete_CurrentStage);
 
-        stageManager.stageSetEventBus.Register(0, ToggleMenu);
-        stageManager.stageEndEventBus.Register(0, ToggleMenu);
+        stageManager.setStageEventBus.Register(0, ToggleMenu);
+        stageManager.endStageEventBus.Register(0, ToggleMenu);
 
-        stageManager.stageSetEventBus.Register(Stage_NotSelected);
+        stageManager.setStageEventBus.Register(Stage_NotSelected);
         stageManager.endTurnEventBus.Register(Stage_NotSelected);
     }
 
@@ -132,12 +132,12 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     {
         StageManager stageManager = GameManager.instance.stageManager;
 
-        stageManager.stageEndEventBus.UnRegister(Complete_CurrentStage);
+        stageManager.endStageEventBus.UnRegister(Complete_CurrentStage);
 
-        stageManager.stageSetEventBus.UnRegister(ToggleMenu);
-        stageManager.stageEndEventBus.UnRegister(ToggleMenu);
+        stageManager.setStageEventBus.UnRegister(ToggleMenu);
+        stageManager.endStageEventBus.UnRegister(ToggleMenu);
 
-        stageManager.stageSetEventBus.UnRegister(Stage_NotSelected);
+        stageManager.setStageEventBus.UnRegister(Stage_NotSelected);
         stageManager.endTurnEventBus.UnRegister(Stage_NotSelected);
     }
 
@@ -354,6 +354,8 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
             if (_data.TargetStage_onCurrentLevel(selectedData, out int levelStageIndex) == false) return;
 
             _data.Update_CurrentLevel_StageIndex(levelStageIndex);
+            selectedData.Update_CurrentStage_QueueEvents();
+
             Save_Data();
 
             EventBus_GlobalController.UnSubscribeAll_SubscriptionHandlers();

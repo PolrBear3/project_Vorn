@@ -36,6 +36,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private HandInventory _handInventory;
     public HandInventory handInventory => _handInventory;
 
+    [SerializeField] private EventMenu_Manager _eventMenuManager;
+    public EventMenu_Manager eventMenuManager => _eventMenuManager;
+
 
     [Space(20)]
     [SerializeField] private GameData _newGameData;

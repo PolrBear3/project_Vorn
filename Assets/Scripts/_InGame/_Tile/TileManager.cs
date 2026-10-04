@@ -50,14 +50,14 @@ public class TileManager : MonoBehaviour, ISubscriptionHandler
     {
         StageManager stageManager = GameManager.instance.stageManager;
         
-        EventBus_Controller stageSet = stageManager.stageSetEventBus;
+        EventBus_Controller stageSet = stageManager.setStageEventBus;
 
         stageSet.Register(0, Generate_Tiles);
         stageSet.Register(0, Update_TileSprites);
         stageSet.Register(0, Reset_TileIndicators);
 
         stageManager.endTurnEventBus.Register(0, Reset_TileIndicators);
-        stageManager.stageEndEventBus.Register(0, Reset_TileIndicators);
+        stageManager.endStageEventBus.Register(0, Reset_TileIndicators);
 
         Input_Controller.instance.OnLeftClickPressed += Select_HoveringTile;
     }
@@ -66,14 +66,14 @@ public class TileManager : MonoBehaviour, ISubscriptionHandler
     {
         StageManager stageManager = GameManager.instance.stageManager;
 
-        EventBus_Controller stageSet = stageManager.stageSetEventBus;
+        EventBus_Controller stageSet = stageManager.setStageEventBus;
 
         stageSet.UnRegister(Generate_Tiles);
         stageSet.UnRegister(Update_TileSprites);
         stageSet.UnRegister(Reset_TileIndicators);
 
         stageManager.endTurnEventBus.UnRegister(Reset_TileIndicators);
-        stageManager.stageEndEventBus.UnRegister(Reset_TileIndicators);
+        stageManager.endStageEventBus.UnRegister(Reset_TileIndicators);
 
         Input_Controller.instance.OnLeftClickPressed -= Select_HoveringTile;
     }

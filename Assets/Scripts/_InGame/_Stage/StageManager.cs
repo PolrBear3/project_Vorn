@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Build.Pipeline;
 using UnityEngine;
 
 public class StageManager : MonoBehaviour, ISubscriptionHandler
@@ -8,14 +10,14 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     public StageData currentData => _currentData;
 
 
-    private EventBus_Controller _stageSetEventBus = new();
-    public EventBus_Controller stageSetEventBus => _stageSetEventBus;
+    private EventBus_Controller _setStageEventBus = new();
+    public EventBus_Controller setStageEventBus => _setStageEventBus;
 
     private EventBus_Controller _endTurnEventBus = new();
     public EventBus_Controller endTurnEventBus => _endTurnEventBus;
 
-    private EventBus_Controller _stageEndEventBus = new();
-    public EventBus_Controller stageEndEventBus => _stageEndEventBus;
+    private EventBus_Controller _endStageEventBus = new();
+    public EventBus_Controller endStageEventBus => _endStageEventBus;
 
 
     [Space(20)]
@@ -50,35 +52,38 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     // ISubscriptionHandler
     public void Subscribe_All()
     {
-        _endTurnEventBus.Register(Is_EventStage);
         _endTurnEventBus.Register(_endTurnEventBus.DelayBus_Running);
-        _endTurnEventBus.Register(_stageSetEventBus.DelayBus_Running);
+        _endTurnEventBus.Register(_setStageEventBus.DelayBus_Running);
+
+        _setStageEventBus.OnSequentialDelayFinish += Toggle_BattleStage;
+
+        _setStageEventBus.Register(0, Toggle_EventStage);
+        _endTurnEventBus.Register(Is_EventStage);
 
         Input_Controller.instance.OnInteractPressed += End_Turn;
     }
     
     public void UnSubscribe_All()
     {
-        _endTurnEventBus.UnRegister(Is_EventStage);
         _endTurnEventBus.UnRegister(_endTurnEventBus.DelayBus_Running);
-        _endTurnEventBus.UnRegister(_stageSetEventBus.DelayBus_Running);
+        _endTurnEventBus.UnRegister(_setStageEventBus.DelayBus_Running);
+
+        _setStageEventBus.OnSequentialDelayFinish += Toggle_BattleStage;
+
+        _setStageEventBus.UnRegister(Toggle_EventStage);
+        _endTurnEventBus.UnRegister(Is_EventStage);
 
         Input_Controller.instance.OnInteractPressed -= End_Turn;
     }
 
 
+    // Battle Stage
     public bool Is_BattleStage()
     {
         if (_currentData == null) return false;
         return _currentData.stage is BattleStage_ScrObj;
     }
-    private bool Is_EventStage()
-    {
-        return Is_BattleStage() == false;
-    }
 
-
-    // ToggleController
     private void Toggle_BattleStage(bool toggle)
     {
         for (int i = 0; i < _battleStagePanelToggles.Length; i++)
@@ -90,34 +95,66 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
             _battleStageComponentToggles[i].Toggle(toggle);
         }
     }
+    private void Toggle_BattleStage()
+    {
+        Toggle_BattleStage(Is_BattleStage());
+    }
+
+
+    // Event Stage
+    private bool Is_EventStage(out EventStage_ScrObj currentEventStage)
+    {
+        currentEventStage = null;
+
+        if (_currentData == null) return false;
+        if (_currentData.stage is not EventStage_ScrObj eventStage) return false;
+
+        currentEventStage = eventStage;
+        return true;
+    }
+    private bool Is_EventStage()
+    {
+        return Is_EventStage(out EventStage_ScrObj _);
+    }
+
+    private void Toggle_EventStage()
+    {
+        if (_currentData == null) return;
+        if (Is_EventStage() == false) return;
+
+        EventMenu_Manager eventMenuManager = GameManager.instance.eventMenuManager;
+        List<Event_ScrObj> queuedEvents = new(_stageMap.data.Current_StageData().queueEvents);
+
+        if (queuedEvents.Count <= 0)
+        {
+            return;
+        }
+        Event_ScrObj queuedEvent = queuedEvents[0];
+        eventMenuManager.Toggle_EventMenu(queuedEvent);
+    }
 
 
     // Set Stage
-    private void Set_Stage(Stage_ScrObj stage)
-    {
-        _currentData = new(stage);
-        StartCoroutine(Run_StageSetEventBus());
-    }
-    private IEnumerator Run_StageSetEventBus()
-    {
-        yield return null; // wait 1 frame for all events registeration to _stageSetEventBus
-
-        _stageSetEventBus.RunSequential_BusEvents();
-        StartCoroutine(_stageSetEventBus.RunSequential_DelayBusEvents());
-
-        while (_stageEndEventBus.DelayBus_Running()) yield return null;
-
-        if (_stageSetEventBus.RunCondition_Available() == false) yield break;
-        Toggle_BattleStage(true);
-    }
-
     private void Load_CurrentStage()
     {
         Set_Stage(_stageMap.data.Current_StageData().stage);
     }
 
+    private void Set_Stage(Stage_ScrObj setStage)
+    {
+        if (setStage == null) return;
+        
+        _currentData = new(setStage);
+        StartCoroutine(Run_SetStage_EventBus());
+    }
+    private IEnumerator Run_SetStage_EventBus()
+    {
+        yield return null; // wait 1 frame for all events registeration to _stageSetEventBus
 
-    // End Turn & Stage
+        _setStageEventBus.RunSequential_BusEvents();
+        StartCoroutine(_setStageEventBus.RunSequential_DelayBusEvents());
+    }
+
     private void End_Turn(bool isPressed)
     {
         if (isPressed == false) return;
@@ -132,12 +169,10 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
 
         while (_endTurnEventBus.DelayBus_Running()) yield return null;
 
-        if (_stageEndEventBus.RunCondition_Available() == false) yield break;
+        if (_endStageEventBus.RunCondition_Available() == false) yield break;
         Toggle_BattleStage(false);
 
-        _stageEndEventBus.RunSequential_BusEvents();
-        StartCoroutine(_stageEndEventBus.RunSequential_DelayBusEvents());
-        
-        while (_stageEndEventBus.DelayBus_Running()) yield return null;
+        _endStageEventBus.RunSequential_BusEvents();
+        StartCoroutine(_endStageEventBus.RunSequential_DelayBusEvents());
     }
 }

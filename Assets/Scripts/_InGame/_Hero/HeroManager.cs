@@ -46,12 +46,12 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
         GameManager manager = GameManager.instance;
 
         StageManager stageManager = manager.stageManager;
-        EventBus_Controller stageSetBus = stageManager.stageSetEventBus;
+        EventBus_Controller stageSetBus = stageManager.setStageEventBus;
 
         stageSetBus.Register(0, Update_HealthPanel);
         stageSetBus.Register(0, Update_ManaPanel);
 
-        EventBus_Controller stageEndBus = stageManager.stageEndEventBus;
+        EventBus_Controller stageEndBus = stageManager.endStageEventBus;
 
         stageEndBus.Register(0, Update_HealthPanel);
         stageEndBus.Register(0, Update_ManaPanel);
@@ -93,12 +93,12 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
         GameManager manager = GameManager.instance;
 
         StageManager stageManager = manager.stageManager;
-        EventBus_Controller stageSetBus = stageManager.stageSetEventBus;
+        EventBus_Controller stageSetBus = stageManager.setStageEventBus;
 
         stageSetBus.UnRegister(Update_HealthPanel);
         stageSetBus.UnRegister(Update_ManaPanel);
 
-        EventBus_Controller stageEndBus = stageManager.stageEndEventBus;
+        EventBus_Controller stageEndBus = stageManager.endStageEventBus;
 
         stageEndBus.UnRegister(Update_HealthPanel);
         stageEndBus.UnRegister(Update_ManaPanel);
@@ -419,10 +419,7 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
 
     private void Update_HealthPanel()
     {
-        bool toggle = PanelToggle_Available();
-
-        _healthPanel.gameObject.SetActive(toggle);
-        if (toggle == false) return;
+        if (PanelToggle_Available() == false) return;
 
         if (_currentHero == null)
         {
@@ -435,10 +432,7 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
     }
     private void Update_ManaPanel()
     {
-        bool toggle = PanelToggle_Available();
-
-        _manaPanel.gameObject.SetActive(toggle);
-        if (toggle == false) return;
+        if (PanelToggle_Available() == false) return;
 
         if (_currentHero == null)
         {

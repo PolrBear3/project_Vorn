@@ -42,13 +42,13 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         StageManager stageManager = manager.stageManager;
         EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
-        stageManager.stageSetEventBus.Register(1, Run_DelaySpawn);
+        stageManager.setStageEventBus.Register(1, Run_DelaySpawn);
         
         endTurnBus.Register(6, Run_DelaySpawn);
         endTurnBus.Register(3, Run_EnemyActions);
 
         endTurnBus.Register(StageEnemies_Cleared);
-        stageManager.stageEndEventBus.Register(StageEnemies_NotCleared);
+        stageManager.endStageEventBus.Register(StageEnemies_NotCleared);
 
         manager.tileManager.tileHoverEventBus.Register(0, Hover_Enemy);
         endTurnBus.OnSequentialDelayFinish += Hover_Enemy;
@@ -64,13 +64,13 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         StageManager stageManager = manager.stageManager;
         EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
-        stageManager.stageSetEventBus.UnRegister(Run_DelaySpawn);
+        stageManager.setStageEventBus.UnRegister(Run_DelaySpawn);
         endTurnBus.UnRegister(Run_DelaySpawn);
 
         endTurnBus.UnRegister(Run_EnemyActions);
 
         endTurnBus.UnRegister(StageEnemies_Cleared);
-        stageManager.stageEndEventBus.UnRegister(StageEnemies_NotCleared);
+        stageManager.endStageEventBus.UnRegister(StageEnemies_NotCleared);
 
         manager.tileManager.tileHoverEventBus.UnRegister(Hover_Enemy);
         endTurnBus.OnSequentialDelayFinish -= Hover_Enemy;

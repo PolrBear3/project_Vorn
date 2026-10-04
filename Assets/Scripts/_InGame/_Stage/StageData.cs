@@ -14,6 +14,9 @@ public class StageData
     [ES3Serializable] private bool _completed;
     public bool completed => _completed;
 
+    [ES3Serializable] private List<Event_ScrObj> _queueEvents = new();
+    public List<Event_ScrObj> queueEvents => _queueEvents;
+
 
     // New
     public StageData(StageData loadStage)
@@ -59,6 +62,17 @@ public class StageData
 
         if (_enemySpawnIndex > spawnDatas.Length - 1) return null;
         return spawnDatas[_enemySpawnIndex];
+    }
+
+    public bool Update_CurrentStage_QueueEvents()
+    {
+        if (_queueEvents != null && _queueEvents.Count > 0) return true;
+        
+        if (_stage == null) return false;
+        if (_stage is not EventStage_ScrObj eventStage) return false;
+
+        _queueEvents = eventStage.Combined_Events();
+        return true;
     }
 
 

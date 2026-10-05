@@ -119,26 +119,16 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     {
         StageManager stageManager = GameManager.instance.stageManager;
 
-        stageManager.endStageEventBus.Register(0, Complete_CurrentStage);
-
-        stageManager.setStageEventBus.Register(0, ToggleMenu);
-        stageManager.endStageEventBus.Register(0, ToggleMenu);
-
+        stageManager.endStageEventBus.Register(0, ToggleMenu_OnStageEnd);
         stageManager.setStageEventBus.Register(Stage_NotSelected);
-        stageManager.endTurnEventBus.Register(Stage_NotSelected);
     }
 
     public void UnSubscribe_All()
     {
         StageManager stageManager = GameManager.instance.stageManager;
 
-        stageManager.endStageEventBus.UnRegister(Complete_CurrentStage);
-
-        stageManager.setStageEventBus.UnRegister(ToggleMenu);
-        stageManager.endStageEventBus.UnRegister(ToggleMenu);
-
+        stageManager.endStageEventBus.UnRegister(ToggleMenu_OnStageEnd);
         stageManager.setStageEventBus.UnRegister(Stage_NotSelected);
-        stageManager.endTurnEventBus.UnRegister(Stage_NotSelected);
     }
 
 
@@ -184,19 +174,6 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
             count++;
         }
         return count;
-    }
-
-    private void Complete_CurrentStage()
-    {
-        if (_data == null) return;
-
-        Hero currentHero = GameManager.instance.heroManager.currentHero;
-        
-        if (currentHero == null) return;
-        if (currentHero.data.currentData.currentHealth <= 0) return;
-
-        _data.Current_StageData().Toggle_CompleteState(true);
-        _data.Increase_CurrentLevel();
     }
 
 
@@ -292,16 +269,20 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
         return _data.stageSelected == false;
     }
 
-    private void ToggleMenu(bool toggle)
+    private void ToggleMenu()
     {
+        bool toggle = Stage_NotSelected();
         _menuPanelController.Toggle(toggle);
 
         if (toggle == false) return;
         Update_MapIconVisuals();
     }
-    private void ToggleMenu()
+    private IEnumerator ToggleMenu_OnStageEnd()
     {
-        ToggleMenu(Stage_NotSelected());
+        bool toggle = Stage_NotSelected();
+
+        if (toggle) Update_MapIconVisuals();
+        yield return _menuPanelController.DelayToggle(toggle);
     }
 
 
@@ -354,7 +335,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
             if (_data.TargetStage_onCurrentLevel(selectedData, out int levelStageIndex) == false) return;
 
             _data.Update_CurrentLevel_StageIndex(levelStageIndex);
-            selectedData.Update_CurrentStage_QueueEvents();
+            selectedData.Update_QueueEvents();
 
             Save_Data();
 

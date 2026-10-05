@@ -1,15 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Build.Pipeline;
 using UnityEngine;
 
 public class StageManager : MonoBehaviour, ISubscriptionHandler
 {
-    private StageData _currentData;
-    public StageData currentData => _currentData;
-
-
     private EventBus_Controller _setStageEventBus = new();
     public EventBus_Controller setStageEventBus => _setStageEventBus;
 
@@ -55,33 +50,41 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         _endTurnEventBus.Register(_endTurnEventBus.DelayBus_Running);
         _endTurnEventBus.Register(_setStageEventBus.DelayBus_Running);
 
+        _endStageEventBus.Register(_endStageEventBus.DelayBus_Running);
+
         _setStageEventBus.OnSequentialDelayFinish += Toggle_BattleStage;
+        _endStageEventBus.Register(0, Toggle_BattleStage);
 
         _setStageEventBus.Register(0, Toggle_EventStage);
         _endTurnEventBus.Register(Is_EventStage);
 
-        Input_Controller.instance.OnInteractPressed += End_Turn;
+        Input_Controller.instance.OnInteractPressed += Continue;
     }
-    
+
     public void UnSubscribe_All()
     {
         _endTurnEventBus.UnRegister(_endTurnEventBus.DelayBus_Running);
         _endTurnEventBus.UnRegister(_setStageEventBus.DelayBus_Running);
 
+        _endStageEventBus.UnRegister(_endStageEventBus.DelayBus_Running);
+
         _setStageEventBus.OnSequentialDelayFinish += Toggle_BattleStage;
+        _endStageEventBus.UnRegister(Toggle_BattleStage);
 
         _setStageEventBus.UnRegister(Toggle_EventStage);
         _endTurnEventBus.UnRegister(Is_EventStage);
 
-        Input_Controller.instance.OnInteractPressed -= End_Turn;
+        Input_Controller.instance.OnInteractPressed -= Continue;
     }
 
 
     // Battle Stage
     public bool Is_BattleStage()
     {
-        if (_currentData == null) return false;
-        return _currentData.stage is BattleStage_ScrObj;
+        StageData currentStageData = _stageMap.data.Current_StageData();
+        if (currentStageData == null) return false;
+
+        return currentStageData.stage is BattleStage_ScrObj;
     }
 
     private void Toggle_BattleStage(bool toggle)
@@ -104,10 +107,12 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     // Event Stage
     private bool Is_EventStage(out EventStage_ScrObj currentEventStage)
     {
+        StageData currentStageData = _stageMap.data.Current_StageData();
+
         currentEventStage = null;
 
-        if (_currentData == null) return false;
-        if (_currentData.stage is not EventStage_ScrObj eventStage) return false;
+        if (currentStageData == null) return false;
+        if (currentStageData.stage is not EventStage_ScrObj eventStage) return false;
 
         currentEventStage = eventStage;
         return true;
@@ -119,7 +124,6 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
 
     private void Toggle_EventStage()
     {
-        if (_currentData == null) return;
         if (Is_EventStage() == false) return;
 
         EventMenu_Manager eventMenuManager = GameManager.instance.eventMenuManager;
@@ -137,17 +141,9 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     // Set Stage
     private void Load_CurrentStage()
     {
-        Set_Stage(_stageMap.data.Current_StageData().stage);
+        StartCoroutine(Run_CurrentStageLoad_EventBus());
     }
-
-    private void Set_Stage(Stage_ScrObj setStage)
-    {
-        if (setStage == null) return;
-        
-        _currentData = new(setStage);
-        StartCoroutine(Run_SetStage_EventBus());
-    }
-    private IEnumerator Run_SetStage_EventBus()
+    private IEnumerator Run_CurrentStageLoad_EventBus()
     {
         yield return null; // wait 1 frame for all events registeration to _stageSetEventBus
 
@@ -155,22 +151,18 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         StartCoroutine(_setStageEventBus.RunSequential_DelayBusEvents());
     }
 
-    private void End_Turn(bool isPressed)
+    private void Continue(bool isPressed)
     {
         if (isPressed == false) return;
-        if (_endTurnEventBus.DelayBus_Running()) return;
 
-        StartCoroutine(Run_EndTurnEventBus());
+        StartCoroutine(Run_ContinueEvents());
     }
-    private IEnumerator Run_EndTurnEventBus()
+    private IEnumerator Run_ContinueEvents()
     {
         _endTurnEventBus.RunSequential_BusEvents();
         StartCoroutine(_endTurnEventBus.RunSequential_DelayBusEvents());
 
         while (_endTurnEventBus.DelayBus_Running()) yield return null;
-
-        if (_endStageEventBus.RunCondition_Available() == false) yield break;
-        Toggle_BattleStage(false);
 
         _endStageEventBus.RunSequential_BusEvents();
         StartCoroutine(_endStageEventBus.RunSequential_DelayBusEvents());

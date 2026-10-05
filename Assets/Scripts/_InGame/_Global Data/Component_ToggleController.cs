@@ -26,7 +26,7 @@ public class Component_ToggleController : MonoBehaviour
     {
         if (gameObject.TryGetComponent(out Transform transform) == false) return;
         _componentTransform = transform;
-        
+
         _toggledPosition = _componentTransform.position;
         _unToggledPosition = UnToggled_Position();
 
@@ -40,7 +40,7 @@ public class Component_ToggleController : MonoBehaviour
     {
         Camera mainCamera = Camera.main;
 
-        float distance = Mathf.Abs(_componentTransform.position.z -mainCamera.transform.position.z);
+        float distance = Mathf.Abs(_componentTransform.position.z - mainCamera.transform.position.z);
 
         Vector3 bottomLeft = mainCamera.ViewportToWorldPoint(new Vector3(0f, 0f, distance));
         Vector3 topRight = mainCamera.ViewportToWorldPoint(new Vector3(1f, 1f, distance));

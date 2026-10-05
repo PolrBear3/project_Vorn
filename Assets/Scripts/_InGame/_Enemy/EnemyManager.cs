@@ -11,8 +11,6 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
     private List<Enemy> _spawnedEnemies = new();
     public List<Enemy> spawnedEnemies => _spawnedEnemies;
 
-    private Coroutine _spawnCoroutine;
-
 
     [Space(20)]
     [SerializeField] private ToolTip _enemyHoverToolTip;
@@ -42,10 +40,11 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         StageManager stageManager = manager.stageManager;
         EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
-        stageManager.setStageEventBus.Register(1, Run_DelaySpawn);
-        
-        endTurnBus.Register(6, Run_DelaySpawn);
+        stageManager.setStageEventBus.Register(1, Run_CurrentWaveSpawn);
+
         endTurnBus.Register(3, Run_EnemyActions);
+        endTurnBus.Register(6, Update_EnemyWave);
+        endTurnBus.Register(6, Run_CurrentWaveSpawn);
 
         endTurnBus.Register(StageEnemies_Cleared);
         stageManager.endStageEventBus.Register(StageEnemies_NotCleared);
@@ -64,10 +63,11 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         StageManager stageManager = manager.stageManager;
         EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
-        stageManager.setStageEventBus.UnRegister(Run_DelaySpawn);
-        endTurnBus.UnRegister(Run_DelaySpawn);
+        stageManager.setStageEventBus.UnRegister(Run_CurrentWaveSpawn);
 
         endTurnBus.UnRegister(Run_EnemyActions);
+        endTurnBus.UnRegister(Update_EnemyWave);
+        endTurnBus.UnRegister(Run_CurrentWaveSpawn);
 
         endTurnBus.UnRegister(StageEnemies_Cleared);
         stageManager.endStageEventBus.UnRegister(StageEnemies_NotCleared);
@@ -91,13 +91,12 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         }
         return null;
     }
-    
+
     public bool StageEnemies_NotCleared()
     {
-        if (_spawnedEnemies.Count > 0) return true;
-        
-        StageData currentStageData = GameManager.instance.stageManager.currentData;
-        return currentStageData.Next_EnemySpawnData() != null;
+        StageData currentStageData = GameManager.instance.stageManager.stageMap.data.Current_StageData();
+
+        return currentStageData != null && _spawnedEnemies.Count > 0;
     }
     private bool StageEnemies_Cleared()
     {
@@ -129,7 +128,6 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
 
         return spawnedEnemy;
     }
-
     private IEnumerator DelaySpawn(Enemy_SpawnData spawnData)
     {
         List<Enemy_ScrObj> spawnEnemies = spawnData.Spawn_Enemies();
@@ -143,29 +141,35 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
             Enemy_ScrObj spawningEnemy = spawnEnemies[i];
             Enemy enemy = Spawn(spawningEnemy, spawnTile);
 
-            Animator_Controller animator = enemy.animator;
-
             yield return null;
             while (enemy.animator.CurrentState_Playing()) yield return null;
         }
-
-        _spawnCoroutine = null;
         yield break;
     }
-    private IEnumerator Run_DelaySpawn()
-    {
-        StageData currentStageData = GameManager.instance.stageManager.currentData;
-        if (currentStageData == null) yield break;
 
+    private IEnumerator Run_CurrentWaveSpawn()
+    {
         if (_spawnedEnemies.Count > 0) yield break;
 
-        Enemy_SpawnData nextSpawnData = GameManager.instance.stageManager.currentData.Update_EnemySpawnData();
-        if (nextSpawnData == null) yield break;
+        StageData currentStageData = GameManager.instance.stageManager.stageMap.data.Current_StageData();
+        if (currentStageData == null) yield break;
 
-        _spawnCoroutine = StartCoroutine(DelaySpawn(nextSpawnData));
+        Enemy_SpawnData spawnData = currentStageData.Current_EnemySpawnData();
+        if (spawnData == null) yield break;
 
-        while (_spawnCoroutine != null) yield return null;
-        yield break;
+        yield return DelaySpawn(spawnData);
+    }
+    private IEnumerator Update_EnemyWave()
+    {
+        if (_spawnedEnemies.Count > 0) yield break;
+
+        StageMap_Data stageMapData = GameManager.instance.stageManager.stageMap.data;
+
+        StageData currentStageData = stageMapData.Current_StageData();
+        if (currentStageData == null) yield break;
+
+        if (currentStageData.Update_EnemySpawnData()) yield break;
+        stageMapData.Complete_CurrentStageData();
     }
 
 

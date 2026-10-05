@@ -87,7 +87,7 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
 
         endTurnBus.Register(0, _heroHoverToolTip.UnToggle);
     }
-    
+
     public void UnSubscribe_All()
     {
         GameManager manager = GameManager.instance;
@@ -243,7 +243,7 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
         if (manaCostDifference == 0) return;
 
         HeroData heroData = _currentHero.data;
-        
+
         int updatedManaCount = heroData.currentManaCount - manaCostDifference;
         if (updatedManaCount < 0)
         {
@@ -411,16 +411,8 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
         _manaPanel.rectTransform.anchoredPosition = manaPos;
     }
 
-    private bool PanelToggle_Available()
-    {
-        GameManager manager = GameManager.instance;
-        return manager.stageManager.Is_BattleStage() && manager.enemyManager.StageEnemies_NotCleared();
-    }
-
     private void Update_HealthPanel()
     {
-        if (PanelToggle_Available() == false) return;
-
         if (_currentHero == null)
         {
             _healthPanel.Update_ValueText(0, 0);
@@ -432,8 +424,6 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
     }
     private void Update_ManaPanel()
     {
-        if (PanelToggle_Available() == false) return;
-
         if (_currentHero == null)
         {
             _manaPanel.Update_ValueText(0, 0);

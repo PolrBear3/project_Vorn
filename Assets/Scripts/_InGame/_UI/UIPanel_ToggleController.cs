@@ -7,21 +7,20 @@ public class UIPanel_ToggleController : MonoBehaviour
 {
     [Space(10)]
     [SerializeField] private RectTransform _canvasRect;
-    
+
     [Space(20)]
     [SerializeField] private Direction _togglePosition;
 
     [SerializeField] private LeanTweenType _toggleTweenType;
-    [SerializeField][Range(0, 10)]  private float _toggleDuration;
+    [SerializeField][Range(0, 10)] private float _toggleDuration;
 
 
     private RectTransform _togglePanelRect;
-    
+
     private Vector2 _toggledPosition;
     private Vector2 _unToggledPosition;
-    
+
     private bool _toggled;
-    public bool toggled => _toggled;
 
 
     // MonoBehaviour
@@ -41,8 +40,8 @@ public class UIPanel_ToggleController : MonoBehaviour
     private Vector2 UnToggled_Position()
     {
         Vector2 position = _toggledPosition;
-        
-        switch(_togglePosition)
+
+        switch (_togglePosition)
         {
             case Direction.Left:
                 position.x -= _canvasRect.rect.width + _togglePanelRect.rect.width;
@@ -61,6 +60,11 @@ public class UIPanel_ToggleController : MonoBehaviour
                 break;
         }
         return position;
+    }
+
+    public bool Toggled()
+    {
+        return _toggled;
     }
 
     public void Toggle(bool toggle)

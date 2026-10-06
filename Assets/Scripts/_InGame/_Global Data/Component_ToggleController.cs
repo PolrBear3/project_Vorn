@@ -70,7 +70,10 @@ public class Component_ToggleController : MonoBehaviour
 
     public void Toggle(bool toggle)
     {
+        if (toggle == _toggled) return;
         _toggled = toggle;
+
+        LeanTween.cancel(_componentTransform.gameObject);
         LeanTween.move(_componentTransform.gameObject, toggle ? _toggledPosition : _unToggledPosition, _toggleDuration).setEase(_toggleTweenType);
     }
     public IEnumerator DelayToggle(bool toggle)

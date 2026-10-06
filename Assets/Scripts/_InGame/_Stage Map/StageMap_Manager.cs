@@ -323,6 +323,8 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     public void SelectStage_byMapIcon(StageMap_Icon selectedIcon)
     {
         if (_data == null) return;
+        if (_data.stageSelected) return;
+
         List<StageData> currentStageDatas = _data.StageDatas(true);
 
         for (int i = 0; i < _icons.Length; i++)

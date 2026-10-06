@@ -40,11 +40,11 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         StageManager stageManager = manager.stageManager;
         EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
-        stageManager.setStageEventBus.Register(1, Run_CurrentWaveSpawn);
+        stageManager.setStageEventBus.Register(1, Spawn_CurrentSpawnData);
 
         endTurnBus.Register(3, Run_EnemyActions);
-        endTurnBus.Register(6, Update_EnemyWave);
-        endTurnBus.Register(6, Run_CurrentWaveSpawn);
+        endTurnBus.Register(3, Update_SpawnData);
+        endTurnBus.Register(3, Spawn_CurrentSpawnData);
 
         endTurnBus.Register(StageEnemies_Cleared);
         stageManager.endStageEventBus.Register(StageEnemies_NotCleared);
@@ -63,11 +63,11 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         StageManager stageManager = manager.stageManager;
         EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
 
-        stageManager.setStageEventBus.UnRegister(Run_CurrentWaveSpawn);
+        stageManager.setStageEventBus.UnRegister(Spawn_CurrentSpawnData);
 
         endTurnBus.UnRegister(Run_EnemyActions);
-        endTurnBus.UnRegister(Update_EnemyWave);
-        endTurnBus.UnRegister(Run_CurrentWaveSpawn);
+        endTurnBus.UnRegister(Update_SpawnData);
+        endTurnBus.UnRegister(Spawn_CurrentSpawnData);
 
         endTurnBus.UnRegister(StageEnemies_Cleared);
         stageManager.endStageEventBus.UnRegister(StageEnemies_NotCleared);
@@ -128,7 +128,7 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
 
         return spawnedEnemy;
     }
-    private IEnumerator DelaySpawn(Enemy_SpawnData spawnData)
+    private IEnumerator Sequential_DelaySpawn(Enemy_SpawnData spawnData)
     {
         List<Enemy_ScrObj> spawnEnemies = spawnData.Spawn_Enemies();
         List<Tile> edgedSpawnTiles = GameManager.instance.tileManager.Edged_Tiles();
@@ -147,7 +147,7 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         yield break;
     }
 
-    private IEnumerator Run_CurrentWaveSpawn()
+    private IEnumerator Spawn_CurrentSpawnData()
     {
         if (_spawnedEnemies.Count > 0) yield break;
 
@@ -157,9 +157,9 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         Enemy_SpawnData spawnData = currentStageData.Current_EnemySpawnData();
         if (spawnData == null) yield break;
 
-        yield return DelaySpawn(spawnData);
+        yield return Sequential_DelaySpawn(spawnData);
     }
-    private IEnumerator Update_EnemyWave()
+    private IEnumerator Update_SpawnData()
     {
         if (_spawnedEnemies.Count > 0) yield break;
 
@@ -226,10 +226,6 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
 
         _enemyHoverToolTip.ToggleOn_CursorPoint(true);
         _enemyHoverToolTip.Update_Contents(enemyScrObj.toolTipBaseSprite, null, enemyScrObj.characterName, enemyScrObj.characterDescription);
-    }
-    private void Hover_Enemy(bool tileTargetingToggled)
-    {
-
     }
 
 

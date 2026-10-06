@@ -84,7 +84,7 @@ public class HandInventory : MonoBehaviour
     private void Awake()
     {
         _defaultPlatformWidth = _cardPlatform.rectTransform.rect.width;
-        
+
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
         EventBus_GlobalController.Register(EventBus.StartLoad, LoadCards_toDeck);
     }
@@ -98,7 +98,7 @@ public class HandInventory : MonoBehaviour
         // from Set_Data
         GameManager manager = GameManager.instance;
 
-        manager.tileManager.tileHoverEventBus.Register(0, HoverTile_DraggingCard);
+        manager.tileManager.tileHoverEventBus.UnRegister(HoverTile_DraggingCard);
 
         Input_Controller input = Input_Controller.instance;
 
@@ -107,11 +107,13 @@ public class HandInventory : MonoBehaviour
         input.OnRightClickPressed -= Return_DraggingCard;
 
         StageManager stageManager = manager.stageManager;
+
+        EventBus_Controller setStage = stageManager.setStageEventBus;
+        setStage.UnRegister(DrawCard);
+
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
 
-        stageManager.setStageEventBus.UnRegister(DrawCard);
         endTurnEventBus.UnRegister(DrawCard);
-
         endTurnEventBus.UnRegister(Return_DraggingCard);
     }
 
@@ -134,11 +136,13 @@ public class HandInventory : MonoBehaviour
         input.OnRightClickPressed += Return_DraggingCard;
 
         StageManager stageManager = manager.stageManager;
-        EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
-        
-        stageManager.setStageEventBus.Register(1, DrawCard);
-        endTurnEventBus.Register(4, DrawCard);
 
+        EventBus_Controller setStage = stageManager.setStageEventBus;
+        setStage.Register(1, DrawCard);
+
+        EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
+
+        endTurnEventBus.Register(4, DrawCard);
         endTurnEventBus.Register(0, Return_DraggingCard);
     }
 
@@ -192,23 +196,17 @@ public class HandInventory : MonoBehaviour
     }
     private void Update_CardPlatform()
     {
-        GameManager manager = GameManager.instance;
-        bool gameStateToggle = manager.stageManager.Is_BattleStage() && manager.enemyManager.StageEnemies_NotCleared();
+        StageManager stageManager = GameManager.instance.stageManager;
 
         int currentCardCount = _handCards.Count;
-        bool toggle = currentCardCount > 0 & gameStateToggle;
+        bool gameStateToggle = stageManager.stageMap.data.stageSelected && stageManager.Is_BattleStage();
 
-        _cardPlatformToggler.Toggle(toggle);
-
-        if (toggle == false)
-        {
-            OnPlatformWidthUpdate?.Invoke(0f);
-            return;
-        }
+        _cardPlatformToggler.Toggle(currentCardCount > 0 & gameStateToggle);
 
         float updateWidthValue = _defaultPlatformWidth + Mathf.Max(0, (currentCardCount - 2) * _platformWidthUpdateValue);
-        _cardPlatform.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, updateWidthValue);
+        updateWidthValue = currentCardCount > 0 ? updateWidthValue : 0f;
 
+        _cardPlatform.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, updateWidthValue);
         OnPlatformWidthUpdate?.Invoke(_cardPlatform.rectTransform.rect.width);
     }
 
@@ -246,7 +244,7 @@ public class HandInventory : MonoBehaviour
     }
 
     private void DrawCard_UpdateDeck()
-    { 
+    {
         List<CardData> deckCardDatas = _data.deckCardDatas;
         if (deckCardDatas == null || deckCardDatas.Count <= 0) return;
 
@@ -256,7 +254,7 @@ public class HandInventory : MonoBehaviour
         deckCardDatas.RemoveAt(drawCardIndex);
         AddCard_toHand(drawCardData);
     }
-    
+
     private IEnumerator DrawCard(int drawCount)
     {
         for (int i = 0; i < drawCount; i++)
@@ -301,7 +299,10 @@ public class HandInventory : MonoBehaviour
         if (isHolding == false || _hoveringCard == null) return;
 
         GameManager manager = GameManager.instance;
-        if (manager.stageManager.endTurnEventBus.DelayBus_Running()) return;
+        StageManager stageManager = manager.stageManager;
+
+        if (stageManager.endTurnEventBus.DelayBus_Running()) return;
+        if (stageManager.stageMap.data.stageSelected == false) return;
 
         CardData hoveringCardData = _hoveringCard.data;
         if (manager.cursor.Drag_Card(hoveringCardData, _hoveringCard.transform) == false) return;

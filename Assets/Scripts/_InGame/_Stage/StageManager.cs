@@ -55,7 +55,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         _setStageEventBus.OnSequentialDelayFinish += Toggle_BattleStage;
         _endStageEventBus.Register(0, Toggle_BattleStage);
 
-        _setStageEventBus.Register(0, Toggle_EventStage);
+        _setStageEventBus.Register(0, ToggleQueued_EventStage);
         _endTurnEventBus.Register(Is_EventStage);
 
         Input_Controller.instance.OnInteractPressed += Continue;
@@ -71,7 +71,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         _setStageEventBus.OnSequentialDelayFinish += Toggle_BattleStage;
         _endStageEventBus.UnRegister(Toggle_BattleStage);
 
-        _setStageEventBus.UnRegister(Toggle_EventStage);
+        _setStageEventBus.UnRegister(ToggleQueued_EventStage);
         _endTurnEventBus.UnRegister(Is_EventStage);
 
         Input_Controller.instance.OnInteractPressed -= Continue;
@@ -98,7 +98,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
             _battleStageComponentToggles[i].Toggle(toggle);
         }
     }
-    private void Toggle_BattleStage()
+    public void Toggle_BattleStage()
     {
         Toggle_BattleStage(Is_BattleStage());
     }
@@ -117,25 +117,24 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         currentEventStage = eventStage;
         return true;
     }
-    private bool Is_EventStage()
+    public bool Is_EventStage()
     {
         return Is_EventStage(out EventStage_ScrObj _);
     }
 
-    private void Toggle_EventStage()
+    public void ToggleQueued_EventStage()
     {
         if (Is_EventStage() == false) return;
 
-        Event_ScrObj queuedEvent = _stageMap.data.Current_StageData().GetCurrent_QueueEvent();
+        StageMap_Data stageMapData = _stageMap.data;
 
-        if (queuedEvent == null)
-        {
-            // complete current stage
-            // toggle stage map
-
-            return;
-        }
+        Event_ScrObj queuedEvent = stageMapData.Current_StageData().GetCurrent_QueueEvent();
         GameManager.instance.eventMenuManager.Toggle_EventMenu(queuedEvent);
+
+        if (queuedEvent != null) return;
+        
+        stageMapData.Complete_CurrentStageData();
+        Continue();
     }
 
 
@@ -152,11 +151,14 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         StartCoroutine(_setStageEventBus.RunSequential_DelayBusEvents());
     }
 
+    private void Continue()
+    {
+        StartCoroutine(Run_ContinueEvents());
+    }
     private void Continue(bool isPressed)
     {
         if (isPressed == false) return;
-
-        StartCoroutine(Run_ContinueEvents());
+        Continue();
     }
     private IEnumerator Run_ContinueEvents()
     {

@@ -7,6 +7,9 @@ public class TileManager : MonoBehaviour, ISubscriptionHandler
 {
     private const float _tileSpacing = 1.0625f;
 
+    [Space(20)]
+    [SerializeField] private TileTargeting_Controller _tileTargeting;
+    public TileTargeting_Controller tileTargeting => _tileTargeting;
 
     [Space(20)]
     [SerializeField] private GameObject _generateTilePrefab;

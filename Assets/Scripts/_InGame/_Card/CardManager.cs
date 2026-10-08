@@ -29,7 +29,7 @@ public class CardManager_DragDropData
     }
 }
 
-public class CardManager : MonoBehaviour
+public class CardManager : MonoBehaviour, ISubscriptionHandler
 {
     private CardManager_Data _data = new(); // for save & load
     public CardManager_Data data => _data;
@@ -47,37 +47,21 @@ public class CardManager : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
+        EventBus_GlobalController.Register(this);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
     }
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
+        UnSubscribe_All();
 
-
-        // from Set_Data
-        GameManager manager = GameManager.instance;
-
-        TileManager tileManager = manager.tileManager;
-
-        tileManager.tileHoverEventBus.UnRegister(Hover_PlacedCard);
-        tileManager.tileSelectEventBus.UnRegister(Toggle_TileTargeting);
-
-        StageManager stageManager = manager.stageManager;
-        EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
-
-        endTurnBus.UnRegister(CardPlace_ActionRunning);
-        endTurnBus.UnRegister(Run_CardActions);
-
-        endTurnBus.UnRegister(_placedCardHoverToolTip.UnToggle);
-        endTurnBus.OnSequentialDelayFinish -= Hover_PlacedCard;
-
-        manager.tileTargeting.OnToggleTargeting -= Hover_PlacedCard;
+        EventBus_GlobalController.UnRegister(this);
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
     }
 
 
-    // Data
-    private void Set_Data()
+    // ISubscriptionHandler
+    public void Subscribe_All()
     {
         GameManager manager = GameManager.instance;
 
@@ -95,10 +79,32 @@ public class CardManager : MonoBehaviour
         endTurnBus.Register(0, _placedCardHoverToolTip.UnToggle);
         endTurnBus.OnSequentialDelayFinish += Hover_PlacedCard;
 
-        manager.tileTargeting.OnToggleTargeting += Hover_PlacedCard;
+        tileManager.tileTargeting.OnToggleTargeting += Hover_PlacedCard;
+    }
+
+    public void UnSubscribe_All()
+    {
+        GameManager manager = GameManager.instance;
+
+        TileManager tileManager = manager.tileManager;
+
+        tileManager.tileHoverEventBus.UnRegister(Hover_PlacedCard);
+        tileManager.tileSelectEventBus.UnRegister(Toggle_TileTargeting);
+
+        StageManager stageManager = manager.stageManager;
+        EventBus_Controller endTurnBus = stageManager.endTurnEventBus;
+
+        endTurnBus.UnRegister(CardPlace_ActionRunning);
+        endTurnBus.UnRegister(Run_CardActions);
+
+        endTurnBus.UnRegister(_placedCardHoverToolTip.UnToggle);
+        endTurnBus.OnSequentialDelayFinish -= Hover_PlacedCard;
+
+        tileManager.tileTargeting.OnToggleTargeting -= Hover_PlacedCard;
     }
 
 
+    // Data
     public Card PlacedCard(Tile placedTile)
     {
         for (int i = 0; i < _placedCards.Count; i++)
@@ -271,7 +277,7 @@ public class CardManager : MonoBehaviour
         GameManager manager = GameManager.instance;
 
         if (manager.stageManager.endTurnEventBus.DelayBus_Running()) return;
-        if (manager.tileTargeting.toggledSource != null) return;
+        if (manager.tileManager.tileTargeting.toggledSource != null) return;
 
         TileManager tileManager = manager.tileManager;
         Tile hoveringTile = tileManager.hoveringTile;
@@ -366,7 +372,7 @@ public class CardManager : MonoBehaviour
         if (selectedCard == null) return;
         if (selectedCard.data.currentData.states.Contains(InteractableState.Frozen)) return;
 
-        bool toggled = manager.tileTargeting.Toggle_Targeting(selectedCard);
+        bool toggled = manager.tileManager.tileTargeting.Toggle_Targeting(selectedCard);
         if (toggled == false) return;
 
         // card actions run in targeting completed order

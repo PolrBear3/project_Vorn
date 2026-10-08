@@ -147,18 +147,6 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         yield break;
     }
 
-    private IEnumerator Spawn_CurrentSpawnData()
-    {
-        if (_spawnedEnemies.Count > 0) yield break;
-
-        StageData currentStageData = GameManager.instance.stageManager.stageMap.data.Current_StageData();
-        if (currentStageData == null) yield break;
-
-        Enemy_SpawnData spawnData = currentStageData.Current_EnemySpawnData();
-        if (spawnData == null) yield break;
-
-        yield return Sequential_DelaySpawn(spawnData);
-    }
     private IEnumerator Update_SpawnData()
     {
         if (_spawnedEnemies.Count > 0) yield break;
@@ -170,6 +158,18 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
 
         if (currentStageData.Update_EnemySpawnData()) yield break;
         stageMapData.Complete_CurrentStageData();
+    }
+    private IEnumerator Spawn_CurrentSpawnData()
+    {
+        if (_spawnedEnemies.Count > 0) yield break;
+
+        StageData currentStageData = GameManager.instance.stageManager.stageMap.data.Current_StageData();
+        if (currentStageData == null) yield break;
+
+        Enemy_SpawnData spawnData = currentStageData.Current_EnemySpawnData();
+        if (spawnData == null) yield break;
+
+        yield return Sequential_DelaySpawn(spawnData);
     }
 
 

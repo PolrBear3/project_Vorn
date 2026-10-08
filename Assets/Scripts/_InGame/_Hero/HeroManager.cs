@@ -72,7 +72,7 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
         tileHoverEventBus.Register(1, Update_MovementRoute_OnTileTargeting);
 
         tileManager.tileSelectEventBus.Register(0, Toggle_TileMovementTargeting);
-        manager.tileTargeting.OnTargetTile += UpdateMana_OnTileMovementTarget;
+        tileManager.tileTargeting.OnTargetTile += UpdateMana_OnTileMovementTarget;
 
         HandInventory handInventory = manager.handInventory;
         handInventory.OnPlatformWidthUpdate += Update_StatPanelPositions;
@@ -119,7 +119,7 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
         tileHoverEventBus.UnRegister(Update_MovementRoute_OnTileTargeting);
 
         tileManager.tileSelectEventBus.UnRegister(Toggle_TileMovementTargeting);
-        manager.tileTargeting.OnTargetTile -= UpdateMana_OnTileMovementTarget;
+        tileManager.tileTargeting.OnTargetTile -= UpdateMana_OnTileMovementTarget;
 
         HandInventory handInventory = manager.handInventory;
         handInventory.OnPlatformWidthUpdate -= Update_StatPanelPositions;
@@ -197,7 +197,7 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
         if (selectedTile == null) return;
         if (_currentHero == null || _currentHero.movement.currentTile != selectedTile) return;
 
-        if (manager.tileTargeting.Toggle_Targeting(_currentHero) == false) return;
+        if (manager.tileManager.tileTargeting.Toggle_Targeting(_currentHero) == false) return;
 
         HeroData heroData = _currentHero.data;
 
@@ -276,7 +276,7 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
         if (_currentHero == null) return;
 
         GameManager manager = GameManager.instance;
-        if (manager.tileTargeting.toggledSource is not Hero hero || _currentHero != hero) return;
+        if (manager.tileManager.tileTargeting.toggledSource is not Hero hero || _currentHero != hero) return;
 
         TileManager tileManager = manager.tileManager;
 
@@ -306,7 +306,7 @@ public class HeroManager : MonoBehaviour, ISubscriptionHandler
         GameManager manager = GameManager.instance;
 
         if (manager.stageManager.endTurnEventBus.DelayBus_Running()) return;
-        if (manager.tileTargeting.toggledSource != null) return;
+        if (manager.tileManager.tileTargeting.toggledSource != null) return;
 
         TileManager tileManager = manager.tileManager;
         Tile hoveringTile = tileManager.hoveringTile;

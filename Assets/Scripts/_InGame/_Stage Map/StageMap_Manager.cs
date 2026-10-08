@@ -269,7 +269,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
         return _data.stageSelected == false;
     }
 
-    private void ToggleMenu()
+    public void ToggleMenu()
     {
         bool toggle = Stage_NotSelected();
         _menuPanelController.Toggle(toggle);

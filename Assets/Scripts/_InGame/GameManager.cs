@@ -11,9 +11,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TileManager _tileManager;
     public TileManager tileManager => _tileManager;
 
-    [SerializeField] private TileTargeting_Controller _tileTargeting;
-    public TileTargeting_Controller tileTargeting => _tileTargeting;
-
     [SerializeField] private CardManager _cardManager;
     public CardManager cardManager => _cardManager;
 
@@ -32,6 +29,9 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private Cursor _cursor;
     public Cursor cursor => _cursor;
+
+    [SerializeField] private DeckBuild_Manager _deckBuildManager;
+    public DeckBuild_Manager deckBuildManager => _deckBuildManager;
 
     [SerializeField] private HandInventory _handInventory;
     public HandInventory handInventory => _handInventory;

@@ -11,9 +11,12 @@ public class UIPanel_ToggleController : MonoBehaviour
 
     [Space(20)]
     [SerializeField] private Direction _togglePosition;
-
     [SerializeField] private LeanTweenType _toggleTweenType;
     [SerializeField][Range(0, 10)] private float _toggleDuration;
+
+    [Space(20)]
+    [SerializeField][Range(0, 1000)] private float _shakeDistance;
+    [SerializeField][Range(0, 10)] private float _shakeDuration;
 
 
     private RectTransform _togglePanelRect;
@@ -66,11 +69,16 @@ public class UIPanel_ToggleController : MonoBehaviour
 
     public void Toggle(bool toggle)
     {
-        if (toggle == _toggled) return;
+        bool currentlyToggled = _toggled == toggle;
 
         _toggled = toggle;
         OnToggle?.Invoke(_toggled);
 
+        if (currentlyToggled)
+        {
+            Shake();
+            return;
+        }
         LeanTween.cancel(_togglePanelRect);
         LeanTween.move(_togglePanelRect, toggle ? _toggledPosition : _unToggledPosition, _toggleDuration).setEase(_toggleTweenType);
     }
@@ -78,5 +86,17 @@ public class UIPanel_ToggleController : MonoBehaviour
     {
         Toggle(toggle);
         while (LeanTween.isTweening(_togglePanelRect)) yield return null;
+    }
+
+    private void Shake()
+    {
+        if (_toggled == false) return;
+
+        Vector2 direction = UnToggled_Position().normalized;
+        Vector2 shakePosition = _toggledPosition + direction * _shakeDistance;
+
+        LeanTween.cancel(_togglePanelRect);
+        LeanTween.move(_togglePanelRect, shakePosition, _shakeDuration).setEase(LeanTweenType.easeShake)
+            .setOnComplete(() => _togglePanelRect.anchoredPosition = _toggledPosition);
     }
 }

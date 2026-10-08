@@ -31,7 +31,7 @@ public class HandInventory_DragDropData
     }
 }
 
-public class HandInventory : MonoBehaviour
+public class HandInventory : MonoBehaviour, ISubscriptionHandler
 {
     [Space(20)]
     [SerializeField] private GameObject _handCardPrefab;
@@ -85,17 +85,51 @@ public class HandInventory : MonoBehaviour
     {
         _defaultPlatformWidth = _cardPlatform.rectTransform.rect.width;
 
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
-        EventBus_GlobalController.Register(EventBus.StartLoad, LoadCards_toDeck);
+        EventBus_GlobalController.Register(this);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
+
+        EventBus_GlobalController.Register(EventBus.DataLoad, Set_Data);
     }
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
-        EventBus_GlobalController.UnRegister(EventBus.StartLoad, LoadCards_toDeck);
+        UnSubscribe_All();
+
+        EventBus_GlobalController.UnRegister(this);
+        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+
+        EventBus_GlobalController.UnRegister(EventBus.DataLoad, Set_Data);
+    }
 
 
-        // from Set_Data
+    //ISubscriptionHandler
+    public void Subscribe_All()
+    {
+        GameManager manager = GameManager.instance;
+
+        manager.tileManager.tileHoverEventBus.Register(0, HoverTile_DraggingCard);
+
+        Input_Controller input = Input_Controller.instance;
+
+        input.OnLeftClickPressed += Drag_HoveringCard;
+        input.OnLeftClickPressed += Drop_DraggingCard;
+        input.OnRightClickPressed += Return_DraggingCard;
+
+        StageManager stageManager = manager.stageManager;
+
+        EventBus_Controller setStage = stageManager.setStageEventBus;
+
+        setStage.Register(1, LoadCards_toDeck);
+        setStage.Register(1, DrawCard);
+
+        EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
+
+        endTurnEventBus.Register(4, DrawCard);
+        endTurnEventBus.Register(0, Return_DraggingCard);
+    }
+
+    public void UnSubscribe_All()
+    {
         GameManager manager = GameManager.instance;
 
         manager.tileManager.tileHoverEventBus.UnRegister(HoverTile_DraggingCard);
@@ -109,6 +143,8 @@ public class HandInventory : MonoBehaviour
         StageManager stageManager = manager.stageManager;
 
         EventBus_Controller setStage = stageManager.setStageEventBus;
+
+        setStage.UnRegister(LoadCards_toDeck);
         setStage.UnRegister(DrawCard);
 
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
@@ -125,27 +161,7 @@ public class HandInventory : MonoBehaviour
 
         GameManager manager = GameManager.instance;
         _cardPlatform.sprite = manager.currentGameData.hero.cardPlatformSprite;
-
-
-        manager.tileManager.tileHoverEventBus.Register(0, HoverTile_DraggingCard);
-
-        Input_Controller input = Input_Controller.instance;
-
-        input.OnLeftClickPressed += Drag_HoveringCard;
-        input.OnLeftClickPressed += Drop_DraggingCard;
-        input.OnRightClickPressed += Return_DraggingCard;
-
-        StageManager stageManager = manager.stageManager;
-
-        EventBus_Controller setStage = stageManager.setStageEventBus;
-        setStage.Register(1, DrawCard);
-
-        EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
-
-        endTurnEventBus.Register(4, DrawCard);
-        endTurnEventBus.Register(0, Return_DraggingCard);
     }
-
     private void LoadCards_toDeck()
     {
         GameData currentGameData = GameManager.instance.currentGameData;

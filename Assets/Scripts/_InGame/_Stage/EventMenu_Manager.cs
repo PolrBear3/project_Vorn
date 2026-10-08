@@ -15,9 +15,10 @@ public class EventMenu_Manager : MonoBehaviour
         for (int i = 0; i < _eventMenus.Length; i++)
         {
             EventMenu menu = _eventMenus[i];
+            Event_ScrObj toggleEvent = menu.Toggle_Available(targetEvent) ? targetEvent : null;
 
-            if (menu.Toggle_Available(targetEvent) == false) continue;
-            menu.Toggle(targetEvent);
+            menu.Update_TargetEvent(toggleEvent);
+            menu.toggleController.Toggle(toggleEvent != null);
         }
     }
 }

@@ -126,15 +126,16 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     {
         if (Is_EventStage() == false) return;
 
-        EventMenu_Manager eventMenuManager = GameManager.instance.eventMenuManager;
-        List<Event_ScrObj> queuedEvents = new(_stageMap.data.Current_StageData().queueEvents);
+        Event_ScrObj queuedEvent = _stageMap.data.Current_StageData().GetCurrent_QueueEvent();
 
-        if (queuedEvents.Count <= 0)
+        if (queuedEvent == null)
         {
+            // complete current stage
+            // toggle stage map
+
             return;
         }
-        Event_ScrObj queuedEvent = queuedEvents[0];
-        eventMenuManager.Toggle_EventMenu(queuedEvent);
+        GameManager.instance.eventMenuManager.Toggle_EventMenu(queuedEvent);
     }
 
 

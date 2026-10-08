@@ -70,4 +70,13 @@ public class StageData
         _queueEvents = eventStage.Combined_Events();
         return true;
     }
+    public Event_ScrObj GetCurrent_QueueEvent()
+    {
+        if (_queueEvents == null || _queueEvents.Count <= 0) return null;
+
+        Event_ScrObj getEvent = _queueEvents[0];
+        _queueEvents.RemoveAt(0);
+
+        return getEvent;
+    }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,6 +22,7 @@ public class UIPanel_ToggleController : MonoBehaviour
     private Vector2 _unToggledPosition;
 
     private bool _toggled;
+    public Action<bool> OnToggle;
 
 
     // MonoBehaviour
@@ -62,15 +64,12 @@ public class UIPanel_ToggleController : MonoBehaviour
         return position;
     }
 
-    public bool Toggled()
-    {
-        return _toggled;
-    }
-
     public void Toggle(bool toggle)
     {
         if (toggle == _toggled) return;
+
         _toggled = toggle;
+        OnToggle?.Invoke(_toggled);
 
         LeanTween.cancel(_togglePanelRect);
         LeanTween.move(_togglePanelRect, toggle ? _toggledPosition : _unToggledPosition, _toggleDuration).setEase(_toggleTweenType);

@@ -164,10 +164,7 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
     }
     private void LoadCards_toDeck()
     {
-        GameData currentGameData = GameManager.instance.currentGameData;
-
-        AddCards_toDeck(currentGameData.DeckCard_Datas());
-        AddCard_toTopDeck(new(currentGameData.hero.spawnCard));
+        AddCard_toTopDeck(new(GameManager.instance.currentGameData.hero.spawnCard));
     }
 
 

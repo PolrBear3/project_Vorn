@@ -7,20 +7,4 @@ public class GameData
 {
     [SerializeField] private Hero_ScrObj _hero;
     public Hero_ScrObj hero => _hero;
-
-    [SerializeField] private List<Card_ScrObj> _deckCards;
-    public List<Card_ScrObj> deckCards => _deckCards;
-
-
-    // Data
-    public List<CardData> DeckCard_Datas()
-    {
-        List<CardData> cardDatas = new();
-
-        foreach (Card_ScrObj card in _deckCards)
-        {
-            cardDatas.Add(new(card));
-        }
-        return cardDatas;
-    }
 }

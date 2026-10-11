@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -40,19 +41,10 @@ public class GameManager : MonoBehaviour
     public EventMenu_Manager eventMenuManager => _eventMenuManager;
 
 
-    [Space(20)]
-    [SerializeField] private GameData _newGameData;
-
-    private GameData _currentGameData;
-    public GameData currentGameData => _currentGameData;
-
-
     // MonoBehaviour
     private void Awake()
     {
         instance = this;
-
-        EventBus_GlobalController.Register(EventBus.DataLoad, Load_GameData);
     }
 
     private void Start()
@@ -60,15 +52,12 @@ public class GameManager : MonoBehaviour
         EventBus_GlobalController.Run_BusEvents();
     }
 
-    private void OnDestroy()
-    {
-        EventBus_GlobalController.UnRegister(EventBus.DataLoad, Load_GameData);
-    }
 
-
-    // Load Game
-    private void Load_GameData()
+    // Global
+    public void Reload()
     {
-        _currentGameData = _newGameData;
+        SaveLoad_Controller.instance.SaveAll_ISaveLoadable();
+        EventBus_GlobalController.UnSubscribeAll_SubscriptionHandlers();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

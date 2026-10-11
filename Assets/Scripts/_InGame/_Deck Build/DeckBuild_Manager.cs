@@ -1,12 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoadable
 {
     [Space(20)]
-    [SerializeField] private Card_ScrObj[] _deckBuildCards;
+    [SerializeField] private Card_ScrObj[] _defaultCardPool;
 
     [Space(20)]
     [SerializeField] private UIPanel_ToggleController _panelToggleController;
@@ -18,7 +20,17 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     [SerializeField] private Animator_Controller[] _progressionIcons;
 
 
+    private List<Card_ScrObj> _cardPool = new();
+    public List<Card_ScrObj> cardPool => _cardPool;
+
+    public Action OnCardPoolLoad;
+
+
     private DeckBuild_Data _data;
+    public DeckBuild_Data data => _data;
+
+    private EventBus_Controller _deckBuildCompleteBus;
+    public EventBus_Controller deckBuildCompleteBus => _deckBuildCompleteBus;
 
 
     // MonoBehaviour
@@ -26,6 +38,8 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     {
         EventBus_GlobalController.Register(this);
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
+
+        EventBus_GlobalController.Register(EventBus.StartLoad, Toggle_DeckBuild);
     }
 
     private void OnDestroy()
@@ -34,21 +48,30 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
         EventBus_GlobalController.UnRegister(this);
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+
+        EventBus_GlobalController.UnRegister(EventBus.StartLoad, Toggle_DeckBuild);
     }
 
 
     // ISubscriptionHandler
     public void Subscribe_All()
     {
-        LoadCards_toGroups();
-        _panelToggleController.Toggle(true);
-
         _panelToggleController.OnToggle += Update_ProgressionIcons;
+
+        StageManager stageManager = GameManager.instance.stageManager;
+
+        stageManager.setStageEventBus.Register(DeckBuild_InComplete);
+        stageManager.setStageEventBus.Register(0, Add_BuiltDeckCards_toDeck);
     }
 
     public void UnSubscribe_All()
     {
         _panelToggleController.OnToggle += Update_ProgressionIcons;
+
+        StageManager stageManager = GameManager.instance.stageManager;
+
+        stageManager.setStageEventBus.UnRegister(DeckBuild_InComplete);
+        stageManager.setStageEventBus.UnRegister(Add_BuiltDeckCards_toDeck);
     }
 
 
@@ -79,31 +102,70 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         return maxCount;
     }
 
-    private List<Card_ScrObj> RandomLoadCards_inGroup()
+    public bool DeckBuild_Complete()
     {
-        int loadCardCount = MaxCardCount_inGroup();
+        int totalCardCount = _progressionIcons.Length * MaxCardCount_inGroup();
+        return _data.buildDeckCardDatas.Count >= totalCardCount;
+    }
+    private bool DeckBuild_InComplete()
+    {
+        return DeckBuild_Complete() == false;
+    }
+
+
+    private void Load_CardPool()
+    {
+        for (int i = 0; i < _defaultCardPool.Length; i++)
+        {
+            cardPool.Add(_defaultCardPool[i]);
+        }
+        OnCardPoolLoad?.Invoke();
+    }
+
+    private List<Card_ScrObj> Random_CardPoolCards_inGroup()
+    {
         List<Card_ScrObj> loadCards = new();
+        if (_cardPool == null || _cardPool.Count <= 0) return loadCards;
+
+        int loadCardCount = MaxCardCount_inGroup();
 
         for (int i = 0; i < loadCardCount; i++)
         {
-            loadCards.Add(_deckBuildCards[UnityEngine.Random.Range(0, _deckBuildCards.Length)]);
+            loadCards.Add(_cardPool[UnityEngine.Random.Range(0, _cardPool.Count)]);
         }
         return loadCards;
     }
-    private void LoadCards_toGroups()
+    private void Load_CardPoolCards_toGroups()
     {
         _data.buildGroupCards.Clear();
 
         for (int i = 0; i < _buildGroups.Length; i++)
         {
-            _data.buildGroupCards.Add(RandomLoadCards_inGroup());
+            _data.buildGroupCards.Add(Random_CardPoolCards_inGroup());
+
+            List<Card_ScrObj> loadCards = _data.TargetGroup_CurrentCards(i);
+            DeckBuild_GroupCard[] groupCards = _buildGroups[i].groupCards;
+
+            for (int j = 0; j < groupCards.Length; j++)
+            {
+                groupCards[j].Load_Images(loadCards[j]);
+            }
         }
     }
 
+    private void Toggle_DeckBuild()
+    {
+        if (DeckBuild_Complete()) return;
+
+        Load_CardPool();
+        Load_CardPoolCards_toGroups();
+
+        _panelToggleController.Toggle(true);
+    }
     private void Update_ProgressionIcons(bool _)
     {
         int maxCardCount = _progressionIcons.Length * MaxCardCount_inGroup();
-        int currentDeckCardCount = GameManager.instance.handInventory.data.deckCardDatas.Count;
+        int currentDeckCardCount = _data.buildDeckCardDatas.Count;
 
         int cardCountPerIcon = maxCardCount / _progressionIcons.Length;
         int updateCount = currentDeckCardCount / cardCountPerIcon;
@@ -115,12 +177,15 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         }
     }
 
+    private void Add_BuiltDeckCards_toDeck()
+    {
+        GameManager.instance.handInventory.AddCards_toDeck(new(_data.buildDeckCardDatas));
+    }
+
 
     // Select
     public void Select_GroupCards(DeckBuild_Group selectGroup)
     {
-        HandInventory handInventory = GameManager.instance.handInventory;
-
         for (int i = 0; i < _buildGroups.Length; i++)
         {
             if (selectGroup != _buildGroups[i]) continue;
@@ -129,14 +194,19 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
             foreach (Card_ScrObj card in groupCards)
             {
-                handInventory.AddCard_toDeck(new(card));
+                _data.buildDeckCardDatas.Add(new(card));
             }
             break;
         }
 
-        List<CardData> deckCards = handInventory.data.deckCardDatas;
-        int totalCardCount = _progressionIcons.Length * MaxCardCount_inGroup();
+        bool deckBuildComplete = DeckBuild_Complete();
+        _panelToggleController.Toggle(deckBuildComplete == false);
 
-        _panelToggleController.Toggle(deckCards.Count < totalCardCount);
+        if (deckBuildComplete == false)
+        {
+            Load_CardPoolCards_toGroups();
+            return;
+        }
+        GameManager.instance.Reload();
     }
 }

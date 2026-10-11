@@ -100,7 +100,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     }
     public void Toggle_BattleStage()
     {
-        Toggle_BattleStage(Is_BattleStage());
+        Toggle_BattleStage(GameManager.instance.deckBuildManager.DeckBuild_Complete() && Is_BattleStage());
     }
 
 
@@ -132,7 +132,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         GameManager.instance.eventMenuManager.Toggle_EventMenu(queuedEvent);
 
         if (queuedEvent != null) return;
-        
+
         stageMapData.Complete_CurrentStageData();
         Continue();
     }

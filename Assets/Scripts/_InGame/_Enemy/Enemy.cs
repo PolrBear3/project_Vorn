@@ -103,7 +103,7 @@ public class Enemy : MonoBehaviour, IInteractable
     {
         GameManager manager = GameManager.instance;
 
-        Hero currentHero = manager.heroManager.currentHero;
+        Hero currentHero = manager.heroManager.spawnedHero;
         if (currentHero == null) return null;
 
         return currentHero.movement.currentTile;
@@ -157,7 +157,7 @@ public class Enemy : MonoBehaviour, IInteractable
         if (tauntCard != null) return null; // restrict damaging if taunt cards are not in range
 
         // hero
-        Hero currentHero = manager.heroManager.currentHero;
+        Hero currentHero = manager.heroManager.spawnedHero;
         if (currentHero != null && Utility.Chebyshev_Distance(currentTilePos, currentHero.movement.currentTile.data.position) <= interactRange)
         {
             damageTargetTile = currentHero.movement.currentTile;

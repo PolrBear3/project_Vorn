@@ -8,6 +8,9 @@ public class DeckBuild_Data
     [ES3Serializable] private List<List<Card_ScrObj>> _buildGroupCards = new();
     public List<List<Card_ScrObj>> buildGroupCards => _buildGroupCards;
 
+    [ES3Serializable] private List<CardData> _buildDeckCardDatas = new();
+    public List<CardData> buildDeckCardDatas => _buildDeckCardDatas;
+
 
     // Data
     public List<Card_ScrObj> TargetGroup_CurrentCards(int groupIndex)

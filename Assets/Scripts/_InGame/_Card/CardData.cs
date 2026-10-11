@@ -5,13 +5,13 @@ using UnityEngine;
 [System.Serializable]
 public class CardData
 {
-    private Card_ScrObj _cardScrObj;
+    [ES3Serializable] private Card_ScrObj _cardScrObj;
     public Card_ScrObj cardScrObj => _cardScrObj;
 
-    private InteractionData _currentData;
+    [ES3Serializable] private InteractionData _currentData;
     public InteractionData currentData => _currentData;
 
-    private int _currentManaPrice;
+    [ES3Serializable] private int _currentManaPrice;
     public int currentManaPrice => _currentManaPrice;
 
 

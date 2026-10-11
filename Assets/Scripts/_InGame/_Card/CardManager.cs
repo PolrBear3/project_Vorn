@@ -340,7 +340,7 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
 
     private IEnumerator Run_CardActions()
     {
-        Hero currentHero = GameManager.instance.heroManager.currentHero;
+        Hero currentHero = GameManager.instance.heroManager.spawnedHero;
         if (currentHero != null && currentHero.data.currentData.currentHealth <= 0) yield break;
 
         List<Card> runActionCards = new(_placedCards);

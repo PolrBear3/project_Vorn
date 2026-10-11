@@ -232,7 +232,7 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
     // Actions
     private IEnumerator Run_EnemyActions()
     {
-        Hero currentHero = GameManager.instance.heroManager.currentHero;
+        Hero currentHero = GameManager.instance.heroManager.spawnedHero;
         if (currentHero != null && currentHero.data.currentData.currentHealth <= 0) yield break;
 
         List<Enemy> actionEnemies = new(_spawnedEnemies);

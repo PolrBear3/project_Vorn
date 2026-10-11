@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [System.Serializable]
@@ -271,7 +270,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
 
     public void ToggleMenu()
     {
-        bool toggle = Stage_NotSelected();
+        bool toggle = GameManager.instance.deckBuildManager.DeckBuild_Complete() && Stage_NotSelected();
         _menuPanelController.Toggle(toggle);
 
         if (toggle == false) return;
@@ -339,11 +338,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
             _data.Update_CurrentLevel_StageIndex(levelStageIndex);
             selectedData.Update_QueueEvents();
 
-            Save_Data();
-
-            EventBus_GlobalController.UnSubscribeAll_SubscriptionHandlers();
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-
+            GameManager.instance.Reload();
             return;
         }
     }

@@ -52,8 +52,8 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
     [SerializeField] private ToolTip _handCardHoverToolTip;
 
 
-    private HandInventory_Data _data;
-    public HandInventory_Data data => _data;
+    private List<CardData> _deckCards = new();
+    public List<CardData> dekcCards => _deckCards;
 
     private List<HandCard> _handCards = new();
     public List<HandCard> handCards => _handCards;
@@ -87,8 +87,6 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
 
         EventBus_GlobalController.Register(this);
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
-
-        EventBus_GlobalController.Register(EventBus.DataLoad, Set_Data);
     }
 
     private void OnDestroy()
@@ -97,8 +95,6 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
 
         EventBus_GlobalController.UnRegister(this);
         EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
-
-        EventBus_GlobalController.UnRegister(EventBus.DataLoad, Set_Data);
     }
 
 
@@ -116,11 +112,10 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         input.OnRightClickPressed += Return_DraggingCard;
 
         StageManager stageManager = manager.stageManager;
-
         EventBus_Controller setStage = stageManager.setStageEventBus;
 
-        setStage.Register(1, LoadCards_toDeck);
-        setStage.Register(1, DrawCard);
+        setStage.Register(0, LoadHero_CardPlatform);
+        setStage.Register(2, DrawCard);
 
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
 
@@ -141,10 +136,9 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         input.OnRightClickPressed -= Return_DraggingCard;
 
         StageManager stageManager = manager.stageManager;
-
         EventBus_Controller setStage = stageManager.setStageEventBus;
 
-        setStage.UnRegister(LoadCards_toDeck);
+        setStage.UnRegister(LoadHero_CardPlatform);
         setStage.UnRegister(DrawCard);
 
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
@@ -154,29 +148,13 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
     }
 
 
-    // Data
-    private void Set_Data()
-    {
-        _data = new(new()); // load saved data
-
-        GameManager manager = GameManager.instance;
-        _cardPlatform.sprite = manager.currentGameData.hero.cardPlatformSprite;
-    }
-    private void LoadCards_toDeck()
-    {
-        AddCard_toTopDeck(new(GameManager.instance.currentGameData.hero.spawnCard));
-    }
-
-
     // Deck
     public void AddCard_toDeck(CardData addCardData)
     {
         if (addCardData == null || addCardData.cardScrObj == null) return;
 
-        List<CardData> deckCardDatas = _data.deckCardDatas;
-
-        int randDeckIndex = UnityEngine.Random.Range(0, deckCardDatas.Count + 1);
-        deckCardDatas.Insert(randDeckIndex, addCardData);
+        int randDeckIndex = UnityEngine.Random.Range(0, _deckCards.Count + 1);
+        _deckCards.Insert(randDeckIndex, addCardData);
     }
     public void AddCards_toDeck(List<CardData> addCardDatas)
     {
@@ -189,11 +167,19 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
     {
         if (addCardData == null || addCardData.cardScrObj == null) return;
 
-        _data.deckCardDatas.Add(addCardData);
+        _deckCards.Add(addCardData);
     }
 
 
     // Visual
+    private void LoadHero_CardPlatform()
+    {
+        Hero_ScrObj currentHero = GameManager.instance.heroManager.data.selectedHero;
+        if (currentHero == null) return;
+
+        _cardPlatform.sprite = currentHero.cardPlatformSprite;
+    }
+
     private void Update_HandCardPositions()
     {
         if (_handCards == null || _handCards.Count <= 0) return;
@@ -232,10 +218,8 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         GameObject addCardObject = Instantiate(_handCardPrefab, _handCardsPositionPoint);
         if (addCardObject.TryGetComponent(out HandCard addCard) == false) return null;
 
-        addCard.Load(addCardData);
-
         _handCards.Add(addCard);
-        _data.handCardDatas.Add(addCard.data);
+        addCard.Load(addCardData);
 
         return addCard;
     }
@@ -249,22 +233,20 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
             if (removeCard != cardToRemove) continue;
 
             _handCards.RemoveAt(i);
-            _data.handCardDatas.Remove(cardToRemove.data);
-
             Destroy(cardToRemove.gameObject);
+
             break;
         }
     }
 
     private void DrawCard_UpdateDeck()
     {
-        List<CardData> deckCardDatas = _data.deckCardDatas;
-        if (deckCardDatas == null || deckCardDatas.Count <= 0) return;
+        if (_deckCards == null || _deckCards.Count <= 0) return;
 
-        int drawCardIndex = deckCardDatas.Count - 1;
-        CardData drawCardData = deckCardDatas[drawCardIndex];
+        int drawCardIndex = _deckCards.Count - 1;
+        CardData drawCardData = _deckCards[drawCardIndex];
 
-        deckCardDatas.RemoveAt(drawCardIndex);
+        _deckCards.RemoveAt(drawCardIndex);
         AddCard_toHand(drawCardData);
     }
 

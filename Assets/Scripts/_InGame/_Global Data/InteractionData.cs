@@ -18,24 +18,24 @@ public interface IInteractable
 [System.Serializable]
 public class InteractionData
 {
-    [SerializeField][Range(0, 100)] private int _maxHealth;
+    [SerializeField][ES3Serializable][Range(0, 100)] private int _maxHealth;
     public int maxHealth => _maxHealth;
 
-    private int _currentHealth;
+    [ES3Serializable] private int _currentHealth;
     public int currentHealth => _currentHealth;
 
-    [SerializeField][Range(-100, 100)] private int _healthModifyValue;
+    [SerializeField][ES3Serializable][Range(-100, 100)] private int _healthModifyValue;
     public int healthModifyValue => _healthModifyValue;
 
     [Space(10)]
-    [SerializeField] private List<InteractableState> _states = new();
+    [SerializeField][ES3Serializable] private List<InteractableState> _states = new();
     public List<InteractableState> states => _states;
 
     [Space(10)]
-    [SerializeField][Range(0, 10)] private int _interactRange;
+    [SerializeField][ES3Serializable][Range(0, 10)] private int _interactRange;
     public int interactRange => _interactRange;
 
-    [SerializeField][Range(0, 10)] private int _targetSelectCount;
+    [SerializeField][ES3Serializable][Range(0, 10)] private int _targetSelectCount;
     public int targetSelectCount => _targetSelectCount;
 
 

@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Cursor : MonoBehaviour
+public class Cursor : MonoBehaviour, ISubscriptionHandler
 {
     [Space(10)]
     [SerializeField] private RectTransform _pointerIconRect;
@@ -35,11 +35,12 @@ public class Cursor : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
-
         Hide_Cursor();
         Toggle_PointerIcon(true);
         Update_InfoText(null);
+
+        EventBus_GlobalController.Register(this);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
     }
 
     private void Update()
@@ -49,26 +50,31 @@ public class Cursor : MonoBehaviour
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
+        UnSubscribe_All();
 
-
-        // from Set_Data
-        Input_Controller input = Input_Controller.instance;
-
-        input.OnLeftClick -= Hide_Cursor;
-        input.OnCursorControl -= PointerIcon_MovementUpdate;
-        input.OnLeftClickPressed -= UpdatePointerIcon_OnClick;
+        EventBus_GlobalController.UnRegister(this);
+        EventBus_GlobalController.UnRegister(Subscribe_All);
     }
 
 
-    // Data
-    private void Set_Data()
+    // ISubscriptionHandler
+    public void Subscribe_All()
     {
         Input_Controller input = Input_Controller.instance;
 
         input.OnLeftClick += Hide_Cursor;
         input.OnCursorControl += PointerIcon_MovementUpdate;
         input.OnLeftClickPressed += UpdatePointerIcon_OnClick;
+    }
+
+    public void UnSubscribe_All()
+    {
+        // from Set_Data
+        Input_Controller input = Input_Controller.instance;
+
+        input.OnLeftClick -= Hide_Cursor;
+        input.OnCursorControl -= PointerIcon_MovementUpdate;
+        input.OnLeftClickPressed -= UpdatePointerIcon_OnClick;
     }
 
 

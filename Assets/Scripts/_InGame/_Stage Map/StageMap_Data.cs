@@ -88,6 +88,19 @@ public class StageMap_Data
         return currentStageData;
     }
 
+
+    public bool FinalLevel_Complete()
+    {
+        List<StageData> finalStageDatas = TargetLevel_StageDatas(_stagesByLevelDatas.Count - 1, false);
+
+        for (int i = 0; i < finalStageDatas.Count; i++)
+        {
+            if (finalStageDatas[i].completed == false) continue;
+            return true;
+        }
+        return false;
+    }
+
     public int TargetStage_CurrentLevel(StageData targetStageData)
     {
         for (int i = 0; i < _stagesByLevelDatas.Count; i++)
@@ -112,6 +125,7 @@ public class StageMap_Data
         levelStageIndex = 0;
         return false;
     }
+
 
     private void Increase_CurrentLevel()
     {

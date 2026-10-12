@@ -17,7 +17,7 @@ MonoBehaviour:
     path: SaveFile.es3
     encryptionType: 0
     compressionType: 0
-    encryptionPassword: password
+    encryptionPassword: '@Rlaehdghks3'
     directory: 0
     format: 0
     prettyPrint: 1
@@ -44,6 +44,7 @@ MonoBehaviour:
     showAdvancedSettings: 0
   addMgrToSceneAutomatically: 0
   autoUpdateReferences: 1
+  onlyAddReferencesFromObjectsWithES3Referenceable: 0
   addAllPrefabsToManager: 1
   collectDependenciesDepth: 4
   collectDependenciesTimeout: 10

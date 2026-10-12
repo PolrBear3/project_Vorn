@@ -47,9 +47,9 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         UnSubscribe_All();
 
         EventBus_GlobalController.UnRegister(this);
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+        EventBus_GlobalController.UnRegister(Subscribe_All);
 
-        EventBus_GlobalController.UnRegister(EventBus.StartLoad, Toggle_DeckBuild);
+        EventBus_GlobalController.UnRegister(Toggle_DeckBuild);
     }
 
 
@@ -78,12 +78,12 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     // ISaveLoadable
     public void Save_Data()
     {
-        ES3.Save("DeckBuild_Manager/DeckBuild_Data", _data);
+        ES3.Save("DeckBuild_Manager/DeckBuild_Data", _data, SaveKeys.GamePlayFile);
     }
 
     public void Load_Data()
     {
-        _data = ES3.Load("DeckBuild_Manager/DeckBuild_Data", new DeckBuild_Data());
+        _data = ES3.Load("DeckBuild_Manager/DeckBuild_Data", SaveKeys.GamePlayFile, new DeckBuild_Data());
     }
 
 
@@ -207,6 +207,6 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
             Load_CardPoolCards_toGroups();
             return;
         }
-        GameManager.instance.Reload();
+        GameManager.instance.Continue_GamePlay();
     }
 }

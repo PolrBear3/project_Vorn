@@ -54,10 +54,22 @@ public class GameManager : MonoBehaviour
 
 
     // Global
-    public void Reload()
+    private void Reload_GameScene()
+    {
+        EventBus_GlobalController.UnSubscribeAll_SubscriptionHandlers();
+
+        // Screen Hide Animation ?
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void Continue_GamePlay()
     {
         SaveLoad_Controller.instance.SaveAll_ISaveLoadable();
-        EventBus_GlobalController.UnSubscribeAll_SubscriptionHandlers();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Reload_GameScene();
+    }
+    public void Reset_GamePlay()
+    {
+        ES3.DeleteFile(SaveKeys.GamePlayFile);
+        Reload_GameScene();
     }
 }

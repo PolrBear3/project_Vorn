@@ -86,10 +86,9 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     [SerializeField] private StageCount_Probability[] _ifPreviousEventCountIs; // index is previous event stage count
 
 
-    private const int _maxLevel = 9;
     private const int _maxStagePerLevel = 3;
 
-    private StageMap_Data _data; // for save & load
+    private StageMap_Data _data;
     public StageMap_Data data => _data;
 
 
@@ -107,9 +106,9 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
         UnSubscribe_All();
 
         EventBus_GlobalController.UnRegister(this);
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+        EventBus_GlobalController.UnRegister(Subscribe_All);
 
-        EventBus_GlobalController.UnRegister(EventBus.StartLoad, ToggleMenu);
+        EventBus_GlobalController.UnRegister(ToggleMenu);
     }
 
 
@@ -134,17 +133,17 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     // ISaveLoadable
     public void Save_Data()
     {
-        ES3.Save("StageMap_Manager/StageMap_Data", _data);
+        ES3.Save("StageMap_Manager/StageMap_Data", _data, SaveKeys.GamePlayFile);
     }
 
     public void Load_Data()
     {
-        if (ES3.KeyExists("StageMap_Manager/StageMap_Data") == false)
+        if (ES3.KeyExists("StageMap_Manager/StageMap_Data", SaveKeys.GamePlayFile) == false)
         {
             Set_NewData();
             return;
         }
-        _data = ES3.Load<StageMap_Data>("StageMap_Manager/StageMap_Data");
+        _data = ES3.Load<StageMap_Data>("StageMap_Manager/StageMap_Data", SaveKeys.GamePlayFile);
     }
 
 
@@ -270,7 +269,9 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
 
     public void ToggleMenu()
     {
-        bool toggle = GameManager.instance.deckBuildManager.DeckBuild_Complete() && Stage_NotSelected();
+        bool stageDataToggle = Stage_NotSelected() && _data.FinalLevel_Complete() == false;
+        bool toggle = stageDataToggle && GameManager.instance.deckBuildManager.DeckBuild_Complete();
+
         _menuPanelController.Toggle(toggle);
 
         if (toggle == false) return;
@@ -278,7 +279,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     }
     private IEnumerator ToggleMenu_OnStageEnd()
     {
-        bool toggle = Stage_NotSelected();
+        bool toggle = Stage_NotSelected() && _data.FinalLevel_Complete() == false;
 
         if (toggle) Update_MapIconVisuals();
         yield return _menuPanelController.DelayToggle(toggle);
@@ -338,7 +339,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
             _data.Update_CurrentLevel_StageIndex(levelStageIndex);
             selectedData.Update_QueueEvents();
 
-            GameManager.instance.Reload();
+            GameManager.instance.Continue_GamePlay();
             return;
         }
     }

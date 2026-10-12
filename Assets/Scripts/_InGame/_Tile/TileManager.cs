@@ -44,7 +44,7 @@ public class TileManager : MonoBehaviour, ISubscriptionHandler
         UnSubscribe_All();
 
         EventBus_GlobalController.UnRegister(this);
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+        EventBus_GlobalController.UnRegister(Subscribe_All);
     }
 
 
@@ -52,7 +52,7 @@ public class TileManager : MonoBehaviour, ISubscriptionHandler
     public void Subscribe_All()
     {
         StageManager stageManager = GameManager.instance.stageManager;
-        
+
         EventBus_Controller stageSet = stageManager.setStageEventBus;
 
         stageSet.Register(0, Generate_Tiles);
@@ -338,7 +338,7 @@ public class TileManager : MonoBehaviour, ISubscriptionHandler
 
         int rowTileCount = battleStage.rowTileCount;
         int columnTileCount = battleStage.columnTileCount;
-        
+
         Vector2 centerPosition = Camera.main.transform.position;
 
         float gridWidth = (rowTileCount - 1) * _tileSpacing;
@@ -353,7 +353,7 @@ public class TileManager : MonoBehaviour, ISubscriptionHandler
             {
                 Vector2 spawnPosition = new(startingX + (x * _tileSpacing), startingY + (y * _tileSpacing));
                 GameObject spawnTile = Instantiate(_generateTilePrefab, spawnPosition, Quaternion.identity, transform);
-                
+
                 spawnTile.name = $"{spawnTile.name} {x}, {y}";
 
                 if (spawnTile.TryGetComponent(out Tile tile) == false) continue;

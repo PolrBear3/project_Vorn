@@ -12,9 +12,10 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
     [SerializeField][Range(0, 1000)] private float _statPanelsSpacingValue;
 
     [Space(20)]
+    [SerializeField] private UIPanel_ToggleController _heroSelectPanelToggle;
     [SerializeField] private ToolTip _heroHoverToolTip;
 
-    [Space(40)]
+    [Space(10)]
     [SerializeField] private Hero_ScrObj _selectedHero;
 
 
@@ -44,7 +45,7 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         UnSubscribe_All();
 
         EventBus_GlobalController.UnRegister(this);
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+        EventBus_GlobalController.UnRegister(Subscribe_All);
     }
 
 
@@ -161,12 +162,12 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
     // ISaveLoadable
     public void Save_Data()
     {
-        ES3.Save("HeroManager/HeroManager_Data", _data);
+        ES3.Save("HeroManager/HeroManager_Data", _data, SaveKeys.GamePlayFile);
     }
 
     public void Load_Data()
     {
-        _data = ES3.Load("HeroManager/HeroManager_Data", new HeroManager_Data(_selectedHero));
+        _data = ES3.Load("HeroManager/HeroManager_Data", SaveKeys.GamePlayFile, new HeroManager_Data(_selectedHero));
     }
 
 
@@ -410,6 +411,9 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         if (_spawnedHero == null || _spawnedHero.data.currentData.currentHealth > 0) yield break;
 
         _heroDeathEventBus.RunSequential_DelayBusEvents();
+        if (_heroDeathEventBus.DelayBus_Running()) yield return null;
+
+        GameManager.instance.Reset_GamePlay();
     }
 
 

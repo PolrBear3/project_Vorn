@@ -9,12 +9,12 @@ public interface ISaveLoadable
     void Save_Data();
     void Load_Data();
 }
- 
+
 public class SaveLoad_Controller : MonoBehaviour
 {
     public static SaveLoad_Controller instance;
-    
-    
+
+
     // UnityEngine
     private void Awake()
     {
@@ -27,7 +27,7 @@ public class SaveLoad_Controller : MonoBehaviour
     {
         SaveAll_ISaveLoadable();
 
-        EventBus_GlobalController.UnRegister(EventBus.DataLoad, LoadAll_ISaveLoadable);
+        EventBus_GlobalController.UnRegister(LoadAll_ISaveLoadable);
     }
 
     private void OnApplicationQuit()
@@ -50,7 +50,7 @@ public class SaveLoad_Controller : MonoBehaviour
             All_ISaveLoadables()[i].Save_Data();
         }
     }
-    
+
     private void LoadAll_ISaveLoadable()
     {
         for (int i = 0; i < All_ISaveLoadables().Count; i++)

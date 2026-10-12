@@ -8,7 +8,7 @@ PluginImporter:
   defineConstraints:
   - ENABLE_MONO
   - UNITY_2020_3_OR_NEWER
-  - DEVELOPMENT_BUILD || UNITY_EDITOR
+  - DEVELOPMENT_BUILD || UNITY_EDITOR || UNITY_INCLUDE_INSTRUMENTATION
   isPreloaded: 0
   isOverridable: 1
   isExplicitlyReferenced: 1

@@ -4,6 +4,9 @@ using UnityEngine;
 
 public static class SaveKeys
 {
+    public const string GamePlayFile = "GamePlay.es3";
+
+
     public const string SaveVersionKey = "save.version";
     public const int SaveVersionNumber = 1;
 

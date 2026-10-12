@@ -33,9 +33,19 @@ public static class EventBus_GlobalController
         }
         _eventBuses[eventState] += targetAction;
     }
-    public static void UnRegister(EventBus eventState, Action targetAction)
+    public static void UnRegister(Action removeAction)
     {
-        _eventBuses[eventState] -= targetAction;
+        List<EventBus> keys = new(_eventBuses.Keys);
+
+        for (int i = 0; i < keys.Count; i++)
+        {
+            EventBus key = keys[i];
+
+            _eventBuses[key] -= removeAction;
+
+            if (_eventBuses[key] != null) continue;
+            _eventBuses.Remove(key);
+        }
     }
 
 
@@ -52,7 +62,7 @@ public static class EventBus_GlobalController
 
     public static void UnSubscribeAll_SubscriptionHandlers()
     {
-        for (int i = _subscriptionHandlers.Count - 1; i >= 0 ; i--)
+        for (int i = _subscriptionHandlers.Count - 1; i >= 0; i--)
         {
             _subscriptionHandlers[i].UnSubscribe_All();
         }

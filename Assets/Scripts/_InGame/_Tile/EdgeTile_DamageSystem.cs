@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EdgeTile_DamageSystem : MonoBehaviour
+public class EdgeTile_DamageSystem : MonoBehaviour, ISubscriptionHandler
 {
     private EdgeTile_DamageSystemData _data = new();  // for save & load
     public EdgeTile_DamageSystemData data => _data;
@@ -11,23 +11,28 @@ public class EdgeTile_DamageSystem : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
+        EventBus_GlobalController.Register(this);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
     }
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
+        UnSubscribe_All();
 
-
-        // from Set_Data
-        GameManager.instance.stageManager.endTurnEventBus.UnRegister(Damage_EdgeTile_PlayerInteractables);
+        EventBus_GlobalController.UnRegister(this);
+        EventBus_GlobalController.UnRegister(Subscribe_All);
     }
 
 
-    // Data
-    private void Set_Data()
+    // ISubscriptionHandler
+    public void Subscribe_All()
     {
         GameManager.instance.stageManager.endTurnEventBus.Register(0, Damage_EdgeTile_PlayerInteractables);
+    }
+
+    public void UnSubscribe_All()
+    {
+        GameManager.instance.stageManager.endTurnEventBus.UnRegister(Damage_EdgeTile_PlayerInteractables);
     }
 
 

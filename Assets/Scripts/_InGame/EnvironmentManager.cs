@@ -36,8 +36,8 @@ public class EnvironmentManager : MonoBehaviour, ISubscriptionHandler
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Update_BackgroundSize);
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Run_BackgroundEffects);
+        EventBus_GlobalController.UnRegister(Update_BackgroundSize);
+        EventBus_GlobalController.UnRegister(Run_BackgroundEffects);
     }
 
 

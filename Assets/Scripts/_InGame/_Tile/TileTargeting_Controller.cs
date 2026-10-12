@@ -13,7 +13,7 @@ public interface ITileTargeting
     bool Targeting_Available(Tile targetingTile);
 }
 
-public class TileTargeting_Controller : MonoBehaviour
+public class TileTargeting_Controller : MonoBehaviour, ISubscriptionHandler
 {
     private ITileTargeting _toggledSource;
     public ITileTargeting toggledSource => _toggledSource;
@@ -27,15 +27,36 @@ public class TileTargeting_Controller : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
-        EventBus_GlobalController.Register(EventBus.AwakeLoad, Set_Data);
+        EventBus_GlobalController.Register(this);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
     }
 
     private void OnDestroy()
     {
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Set_Data);
+        UnSubscribe_All();
+
+        EventBus_GlobalController.UnRegister(this);
+        EventBus_GlobalController.UnRegister(Subscribe_All);
+    }
 
 
-        // from Set_Data
+    // ISubscriptionHandler
+    public void Subscribe_All()
+    {
+        Input_Controller input = Input_Controller.instance;
+
+        input.OnLeftClickPressed += UnToggle_Targeting_onMissClick;
+        input.OnRightClickPressed += UnToggle_Targeting;
+        input.OnLeftClickPressed += Target_Tile;
+
+        GameManager manager = GameManager.instance;
+
+        manager.stageManager.endTurnEventBus.Register(0, UnToggle_Targeting);
+        manager.tileManager.tileHoverEventBus.Register(0, Update_TargetingTileIndicators);
+    }
+
+    public void UnSubscribe_All()
+    {
         Input_Controller input = Input_Controller.instance;
 
         input.OnLeftClickPressed -= UnToggle_Targeting_onMissClick;
@@ -46,22 +67,6 @@ public class TileTargeting_Controller : MonoBehaviour
 
         manager.stageManager.endTurnEventBus.UnRegister(UnToggle_Targeting);
         manager.tileManager.tileHoverEventBus.UnRegister(Update_TargetingTileIndicators);
-    }
-
-
-    // Data
-    private void Set_Data()
-    {
-        Input_Controller input = Input_Controller.instance;
-
-        input.OnLeftClickPressed += UnToggle_Targeting_onMissClick;
-        input.OnRightClickPressed += UnToggle_Targeting;
-        input.OnLeftClickPressed += Target_Tile;
-
-        GameManager manager = GameManager.instance;
-
-        manager.stageManager.endTurnEventBus.Register(0,UnToggle_Targeting);
-        manager.tileManager.tileHoverEventBus.Register(0, Update_TargetingTileIndicators);
     }
 
 
@@ -164,9 +169,9 @@ public class TileTargeting_Controller : MonoBehaviour
 
         Tile pivotTile = _toggledSource.pivotTile;
         if (pivotTile == null || selectedTile == pivotTile) return;
-       
+
         if (_toggledSource.Targeting_Available(selectedTile) == false) return;
-        
+
         _toggledSource.targetingData.Target_Tile(selectedTile);
         OnTargetTile?.Invoke(_toggledSource);
 

@@ -56,7 +56,7 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
         UnSubscribe_All();
 
         EventBus_GlobalController.UnRegister(this);
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+        EventBus_GlobalController.UnRegister(Subscribe_All);
     }
 
 

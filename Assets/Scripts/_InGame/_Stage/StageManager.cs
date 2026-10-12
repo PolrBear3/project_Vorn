@@ -31,6 +31,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
 
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Load_CurrentStage);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, EndGamePlay_OnFinalStageCompletion);
     }
 
     private void OnDestroy()
@@ -38,9 +39,10 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         UnSubscribe_All();
 
         EventBus_GlobalController.UnRegister(this);
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Subscribe_All);
+        EventBus_GlobalController.UnRegister(Subscribe_All);
 
-        EventBus_GlobalController.UnRegister(EventBus.AwakeLoad, Load_CurrentStage);
+        EventBus_GlobalController.UnRegister(Load_CurrentStage);
+        EventBus_GlobalController.UnRegister(EndGamePlay_OnFinalStageCompletion);
     }
 
 
@@ -52,11 +54,15 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
 
         _endStageEventBus.Register(_endStageEventBus.DelayBus_Running);
 
+
         _setStageEventBus.OnSequentialDelayFinish += Toggle_BattleStage;
         _endStageEventBus.Register(0, Toggle_BattleStage);
 
         _setStageEventBus.Register(0, ToggleQueued_EventStage);
         _endTurnEventBus.Register(Is_EventStage);
+
+        _endStageEventBus.Register(0, EndGamePlay_OnFinalStageCompletion);
+
 
         Input_Controller.instance.OnInteractPressed += Continue;
     }
@@ -68,11 +74,15 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
 
         _endStageEventBus.UnRegister(_endStageEventBus.DelayBus_Running);
 
+
         _setStageEventBus.OnSequentialDelayFinish += Toggle_BattleStage;
         _endStageEventBus.UnRegister(Toggle_BattleStage);
 
         _setStageEventBus.UnRegister(ToggleQueued_EventStage);
         _endTurnEventBus.UnRegister(Is_EventStage);
+
+        _endStageEventBus.UnRegister(EndGamePlay_OnFinalStageCompletion);
+
 
         Input_Controller.instance.OnInteractPressed -= Continue;
     }
@@ -100,7 +110,10 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     }
     public void Toggle_BattleStage()
     {
-        Toggle_BattleStage(GameManager.instance.deckBuildManager.DeckBuild_Complete() && Is_BattleStage());
+        GameManager manager = GameManager.instance;
+        bool battleStageToggle = manager.deckBuildManager.DeckBuild_Complete() && Is_BattleStage();
+
+        Toggle_BattleStage(battleStageToggle && manager.stageManager.stageMap.data.FinalLevel_Complete() == false);
     }
 
 
@@ -135,6 +148,15 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
 
         stageMapData.Complete_CurrentStageData();
         Continue();
+    }
+
+
+    // Game Over
+    private void EndGamePlay_OnFinalStageCompletion()
+    {
+        if (stageMap.data.FinalLevel_Complete() == false) return;
+
+        GameManager.instance.Reset_GamePlay();
     }
 
 

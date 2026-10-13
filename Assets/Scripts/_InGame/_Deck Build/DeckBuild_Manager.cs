@@ -8,16 +8,16 @@ using UnityEngine.UI;
 public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoadable
 {
     [Space(20)]
-    [SerializeField] private Card_ScrObj[] _defaultCardPool;
-
-    [Space(20)]
     [SerializeField] private UIPanel_ToggleController _panelToggleController;
 
+    [Space(10)]
     [SerializeField] private DeckBuild_Group[] _buildGroups;
     public DeckBuild_Group[] buildGroups => buildGroups;
 
-    [Space(20)]
     [SerializeField] private Animator_Controller[] _progressionIcons;
+
+    [Space(20)]
+    [SerializeField] private Card_ScrObj[] _defaultCardPool;
 
 
     private List<Card_ScrObj> _cardPool = new();
@@ -29,7 +29,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     private DeckBuild_Data _data;
     public DeckBuild_Data data => _data;
 
-    private EventBus_Controller _deckBuildCompleteBus;
+    private EventBus_Controller _deckBuildCompleteBus = new();
     public EventBus_Controller deckBuildCompleteBus => _deckBuildCompleteBus;
 
 
@@ -56,9 +56,12 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     // ISubscriptionHandler
     public void Subscribe_All()
     {
+        GameManager manager = GameManager.instance;
+
+        manager.heroManager.heroSelectManager.heroSelectCompleteBus.Register(0, Toggle_DeckBuild);
         _panelToggleController.OnToggle += Update_ProgressionIcons;
 
-        StageManager stageManager = GameManager.instance.stageManager;
+        StageManager stageManager = manager.stageManager;
 
         stageManager.setStageEventBus.Register(DeckBuild_InComplete);
         stageManager.setStageEventBus.Register(0, Add_BuiltDeckCards_toDeck);
@@ -66,9 +69,12 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
     public void UnSubscribe_All()
     {
+        GameManager manager = GameManager.instance;
+
+        manager.heroManager.heroSelectManager.heroSelectCompleteBus.UnRegister(Toggle_DeckBuild);
         _panelToggleController.OnToggle += Update_ProgressionIcons;
 
-        StageManager stageManager = GameManager.instance.stageManager;
+        StageManager stageManager = manager.stageManager;
 
         stageManager.setStageEventBus.UnRegister(DeckBuild_InComplete);
         stageManager.setStageEventBus.UnRegister(Add_BuiltDeckCards_toDeck);
@@ -155,6 +161,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
     private void Toggle_DeckBuild()
     {
+        if (GameManager.instance.heroManager.data.selectedHero == null) return;
         if (DeckBuild_Complete()) return;
 
         Load_CardPool();

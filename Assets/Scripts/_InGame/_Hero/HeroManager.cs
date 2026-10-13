@@ -5,6 +5,10 @@ using UnityEngine;
 public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 {
     [Space(20)]
+    [SerializeField] private HeroSelect_Manager _heroSelectManager;
+    public HeroSelect_Manager heroSelectManager => _heroSelectManager;
+
+    [Space(20)]
     [SerializeField] private Hero_StatPanel _healthPanel;
     [SerializeField] private Hero_StatPanel _manaPanel;
 
@@ -12,11 +16,7 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
     [SerializeField][Range(0, 1000)] private float _statPanelsSpacingValue;
 
     [Space(20)]
-    [SerializeField] private UIPanel_ToggleController _heroSelectPanelToggle;
     [SerializeField] private ToolTip _heroHoverToolTip;
-
-    [Space(10)]
-    [SerializeField] private Hero_ScrObj _selectedHero;
 
 
     private HeroManager_Data _data;
@@ -167,7 +167,7 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 
     public void Load_Data()
     {
-        _data = ES3.Load("HeroManager/HeroManager_Data", SaveKeys.GamePlayFile, new HeroManager_Data(_selectedHero));
+        _data = ES3.Load("HeroManager/HeroManager_Data", SaveKeys.GamePlayFile, new HeroManager_Data(_heroSelectManager.New_SelectableHeroes()));
     }
 
 

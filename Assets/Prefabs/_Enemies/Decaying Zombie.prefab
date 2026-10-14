@@ -13,6 +13,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 955546610830207206, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
+      propertyPath: _skillDatas.Array.data[0]._target
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 955546610830207206, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
       propertyPath: _skillDatas.Array.data[0]._trigger
       value: 3
       objectReference: {fileID: 0}
@@ -23,7 +27,7 @@ PrefabInstance:
     - target: {fileID: 955546610830207206, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
       propertyPath: _skillDatas.Array.data[0]._enemySkills.Array.data[0]
       value: 
-      objectReference: {fileID: 2066452441099875817}
+      objectReference: {fileID: 7368986494787309472}
     - target: {fileID: 1613547910854064946, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -82,14 +86,14 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2898224727119453378, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2066452441099875817}
+      addedObject: {fileID: 7368986494787309472}
   m_SourcePrefab: {fileID: 100100000, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
 --- !u!1 &7544319682452765955 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2898224727119453378, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
   m_PrefabInstance: {fileID: 4650633809230881217}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2066452441099875817
+--- !u!114 &7368986494787309472
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -98,8 +102,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7544319682452765955}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 137153851354f4318982e857083b83f4, type: 3}
+  m_Script: {fileID: 11500000, guid: b8124efce57da4381a7b7a8a76ce59d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _delayTime: 0
-  _debugString: Decaying Zombie
+  _includeEnemies: 0
+  _duplicateTargeting: 0
+  _targetingCount: 1
+  _healthModifyValue: -1

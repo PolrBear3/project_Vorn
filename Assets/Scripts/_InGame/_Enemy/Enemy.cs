@@ -251,10 +251,11 @@ public class Enemy : MonoBehaviour, IInteractable
             Moveto_TargetTile();
             while (_movement.movementCoroutine != null) yield return null;
         }
-        yield return _afterMovementSkillBus.RunSequential_DelayBusEvents();
 
         InteractionData damageData = Damageable_InteractionData(out Tile damageTargetTile); // damage interactable
         _damagingTile = damageTargetTile;
+
+        yield return _afterMovementSkillBus.RunSequential_DelayBusEvents();
 
         if (damageData != null)
         {

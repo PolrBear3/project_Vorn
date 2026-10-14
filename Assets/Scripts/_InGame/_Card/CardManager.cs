@@ -352,7 +352,7 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
             InteractionData cardData = card.data.currentData;
 
             StartCoroutine(card.Run_EndTurnActions());
-            while (card != null && card.actionsRunning || cardData.dataUpdating) yield return null;
+            while (card != null && card.actionsRunning || card.data.currentData.dataUpdating) yield return null;
         }
 
         yield break;

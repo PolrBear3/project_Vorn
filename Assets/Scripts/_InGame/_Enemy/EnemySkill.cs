@@ -45,6 +45,17 @@ public abstract class EnemySkill : MonoBehaviour
 
 
     // EnemySkillTarget
+    public List<Tile> InteractRange_Tiles()
+    {
+        Tile currentTile = _enemy.movement.currentTile;
+        int interactRange = _enemy.data.currentData.interactRange;
+
+        List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(currentTile, interactRange);
+        interactRangeTiles.Remove(currentTile);
+
+        return interactRangeTiles;
+    }
+
     public List<Tile> CurrentTarget_Tiles()
     {
         List<Tile> targetTiles = new();
@@ -53,39 +64,32 @@ public abstract class EnemySkill : MonoBehaviour
         switch (_currentTarget)
         {
             case EnemySkillTarget.CurrentTile:
+
                 targetTiles.Add(currentTile);
                 break;
 
+
             case EnemySkillTarget.DamagingTargetTile:
+
                 Tile damagingTile = _enemy.damagingTile;
                 if (damagingTile == null) break;
 
                 targetTiles.Add(damagingTile);
                 break;
 
+
             case EnemySkillTarget.InteractRangeTile:
-                {
-                    int interactRange = _enemy.data.currentData.interactRange;
 
-                    List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(currentTile, interactRange);
-                    interactRangeTiles.Remove(currentTile);
+                List<Tile> interactRangeTiles = InteractRange_Tiles();
 
-                    int rangeTileCount = interactRangeTiles.Count;
-                    if (rangeTileCount <= 0) break;
+                int rangeTileCount = interactRangeTiles.Count;
+                if (rangeTileCount <= 0) break;
 
-                    targetTiles.Add(interactRangeTiles[Random.Range(0, rangeTileCount)]);
-                    break;
-                }
+                targetTiles.Add(interactRangeTiles[Random.Range(0, rangeTileCount)]);
+                break;
 
-            case EnemySkillTarget.InteractRangeTiles:
-                {
-                    int interactRange = _enemy.data.currentData.interactRange;
 
-                    List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(currentTile, interactRange);
-                    interactRangeTiles.Remove(currentTile);
-
-                    return interactRangeTiles;
-                }
+            case EnemySkillTarget.InteractRangeTiles: return InteractRange_Tiles();
         }
         return targetTiles;
     }

@@ -236,13 +236,15 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         if (currentHero != null && currentHero.data.currentData.currentHealth <= 0) yield break;
 
         List<Enemy> actionEnemies = new(_spawnedEnemies);
-        for (int i = 0; i < actionEnemies.Count; i++)
+        for (int i = actionEnemies.Count - 1; i >= 0; i--)
         {
             Enemy enemy = actionEnemies[i];
             if (enemy == null) continue;
 
+            InteractionData enemyData = enemy.data.currentData;
+
             StartCoroutine(enemy.Run_EndTurnActions());
-            while (enemy.actionsRunning) yield return null;
+            while (enemy != null && enemy.actionsRunning || enemyData.dataUpdating) yield return null;
         }
 
         yield break;

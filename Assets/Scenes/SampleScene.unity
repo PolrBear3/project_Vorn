@@ -9204,8 +9204,6 @@ MonoBehaviour:
   - {fileID: 574767789}
   - {fileID: 1414421921}
   _defaultCardPool:
-  - {fileID: 11400000, guid: 1624de9b54fcf40f7a7d5d03437357e1, type: 2}
-  - {fileID: 11400000, guid: 3a8d880d0900c40bcb51f3e3b20450c7, type: 2}
   - {fileID: 11400000, guid: 32de44626aad44d65a1e78d3bbd6da60, type: 2}
 --- !u!1 &1200601860
 GameObject:

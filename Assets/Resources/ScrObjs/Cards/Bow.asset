@@ -17,7 +17,7 @@ MonoBehaviour:
   _contentSprite: {fileID: -1634482492, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
   _placePrefab: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
   _interactionData:
-    _maxHealth: 3
+    _maxHealth: 1
     _healthModifyValue: -2
     _states: 01000000
     _interactRange: 2

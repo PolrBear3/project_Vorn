@@ -13,13 +13,15 @@ MonoBehaviour:
   m_Name: Long Sword
   m_EditorClassIdentifier: 
   _cardName: Long Sword
-  _cardDescription: Deal damage to 2 targets within a range of 1.
+  _cardDescription: '{healOrDamage} {healthModifyValue} to {targetSelectCount} target(s)
+    within a range of {interactRange} tile(s). Hero must be within targeting range
+    to {healOrDamage}'
   _contentSprite: {fileID: 31158166, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
   _placePrefab: {fileID: 5872119147447841748, guid: 5ec44471e1183483f860dc466c809c83, type: 3}
   _interactionData:
     _maxHealth: 1
-    _healthModifyValue: -1
     _states: 00000000
+    _healthModifyValue: -1
     _interactRange: 1
     _targetSelectCount: 2
-  _manaCost: 0
+  _manaCost: 2

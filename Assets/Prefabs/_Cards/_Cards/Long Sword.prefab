@@ -57,6 +57,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _targetingConditions.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _skillDatas.Array.data[0]._target
       value: 4
       objectReference: {fileID: 0}
@@ -64,6 +68,18 @@ PrefabInstance:
       propertyPath: _skillDatas.Array.data[0]._trigger
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _targetingConditions.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 52b41c42237c84707be3c1e741bc19ef, type: 2}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _targetingActivateConditions.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _targetingActivateConditions.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 52b41c42237c84707be3c1e741bc19ef, type: 2}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _skillDatas.Array.data[0]._cardSkills.Array.size
       value: 1
@@ -74,8 +90,16 @@ PrefabInstance:
       objectReference: {fileID: 1566611287936586322}
     - target: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: m_Name
-      value: _Long Sword
+      value: Long Sword
       objectReference: {fileID: 0}
+    - target: {fileID: 5897320938321759083, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _activateConditions.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5897320938321759083, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _activateConditions.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 52b41c42237c84707be3c1e741bc19ef, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -102,3 +126,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _targetCards: []
+  _trackHealthModifyCount: 0
+  _healthModifyCountForTriggering: 0

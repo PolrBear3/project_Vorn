@@ -302,9 +302,10 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
 
         // ToolTip
         Card_ScrObj cardScrObj = placedCard.data.cardScrObj;
+        string foramtDescription = Utility.FormatUpdate_Description(cardScrObj.cardDescription, placedCard.data.currentData.DescriptionFormats());
 
         _placedCardHoverToolTip.ToggleOn_CursorPoint(true);
-        _placedCardHoverToolTip.Update_Contents(null, cardScrObj.contentSprite, cardScrObj.cardName, cardScrObj.cardDescription);
+        _placedCardHoverToolTip.Update_Contents(null, cardScrObj.contentSprite, cardScrObj.cardName, foramtDescription);
     }
     private void Hover_PlacedCard(bool tileTargetingToggled)
     {
@@ -326,18 +327,6 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
         }
         return false;
     }
-    public Tile ActionRunningCard_TargetingTile()
-    {
-        for (int i = 0; i < _placedCards.Count; i++)
-        {
-            Card placedCard = _placedCards[i];
-
-            if (placedCard.actionsRunning == false) continue;
-            return placedCard.targetingTile;
-        }
-        return null;
-    }
-
     private IEnumerator Run_CardActions()
     {
         Hero currentHero = GameManager.instance.heroManager.spawnedHero;
@@ -352,7 +341,7 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
             InteractionData cardData = card.data.currentData;
 
             StartCoroutine(card.Run_EndTurnActions());
-            while (card != null && card.actionsRunning || card.data.currentData.dataUpdating) yield return null;
+            while (card != null && card.runTimeAction.actionRunning || cardData.dataUpdating) yield return null;
         }
 
         yield break;

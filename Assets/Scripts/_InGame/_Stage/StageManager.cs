@@ -75,7 +75,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         _endStageEventBus.UnRegister(_endStageEventBus.DelayBus_Running);
 
 
-        _setStageEventBus.OnSequentialDelayFinish += Toggle_BattleStage;
+        _setStageEventBus.OnSequentialDelayFinish -= Toggle_BattleStage;
         _endStageEventBus.UnRegister(Toggle_BattleStage);
 
         _setStageEventBus.UnRegister(ToggleQueued_EventStage);
@@ -156,7 +156,10 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     {
         if (stageMap.data.FinalLevel_Complete() == false) return;
 
-        GameManager.instance.Reset_GamePlay();
+        GameManager manager = GameManager.instance;
+
+        manager.gameData.Increase_HeroProgressionCount(manager.heroManager.data.selectedHero);
+        manager.Reset_GamePlay();
     }
 
 

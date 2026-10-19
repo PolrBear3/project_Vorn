@@ -5,8 +5,8 @@ using UnityEngine;
 public class DeckBuild_Group : MonoBehaviour
 {
     [Space(20)]
-    [SerializeField] private DeckBuild_GroupCard[] _groupCards;
-    public DeckBuild_GroupCard[] groupCards => _groupCards;
+    [SerializeField] private DisplayCard[] _groupCards;
+    public DisplayCard[] groupCards => _groupCards;
 
 
     // Button

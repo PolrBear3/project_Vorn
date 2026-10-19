@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DeckBuild_GroupCard : MonoBehaviour
+public class DisplayCard : MonoBehaviour
 {
     [Space(20)]
     [SerializeField] private EventSystems_Controller _hoverDetector;

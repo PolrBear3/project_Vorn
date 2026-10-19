@@ -283,8 +283,11 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
 
         if (toggle == false) return;
 
-        Card_ScrObj hoverCardScrObj = hoveringCard.data.cardScrObj;
-        _handCardHoverToolTip.Update_Contents(null, hoverCardScrObj.contentSprite, hoverCardScrObj.cardName, hoverCardScrObj.cardDescription);
+        CardData hoverCardData = hoveringCard.data;
+        Card_ScrObj hoverCardScrObj = hoverCardData.cardScrObj;
+
+        string foramtDescription = Utility.FormatUpdate_Description(hoverCardScrObj.cardDescription, hoverCardData.currentData.DescriptionFormats());
+        _handCardHoverToolTip.Update_Contents(null, hoverCardScrObj.contentSprite, hoverCardScrObj.cardName, foramtDescription);
 
         RectTransform panel = _handCardHoverToolTip.panel.rectTransform;
         panel.anchoredPosition = new(hoveringCard.rectTransform.anchoredPosition.x, panel.anchoredPosition.y);

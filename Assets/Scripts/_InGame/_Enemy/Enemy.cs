@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour, IInteractable
+public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
 {
     [Space(20)]
     [SerializeField] private TileMovement_Controller _movement;
@@ -26,6 +26,12 @@ public class Enemy : MonoBehaviour, IInteractable
     private EnemyData _data;
     public EnemyData data => _data;
 
+    private Tile _damagingTile;
+    public Tile damagingTile => _damagingTile;
+
+    private RunTimeAction_Data _runTimeAction = new();
+    public RunTimeAction_Data runTimeAction => _runTimeAction;
+
 
     private EventBus_Controller _preMovementSkillBus = new();
     public EventBus_Controller preMovementSkillBus => _preMovementSkillBus;
@@ -40,15 +46,11 @@ public class Enemy : MonoBehaviour, IInteractable
     public EventBus_Controller afterDamageSkillBus => _afterDamageSkillBus;
 
 
-    private Tile _damagingTile;
-    public Tile damagingTile => _damagingTile;
-
-    private bool _actionsRunning;
-    public bool actionsRunning => _actionsRunning;
-
-
     // IInteractable
     public InteractionData interactionData => _data.currentData;
+
+    // IRunTimeAction
+    public RunTimeAction_Data runTimeActionData => _runTimeAction;
 
 
     // MonoBehaviour
@@ -178,8 +180,8 @@ public class Enemy : MonoBehaviour, IInteractable
     {
         if (damageData == null) return;
 
-        int damageUpdateValue = damageData.currentHealth + _data.currentData.healthModifyValue;
-        damageData.Update_CurrentHealth(damageUpdateValue);
+        bool damageSuccessful = _data.currentData.Modify_OtherData_CurrentHealth(damageData);
+        _runTimeAction.CountUpdate_TargetingHealthModify(damageSuccessful);
     }
 
 
@@ -211,7 +213,7 @@ public class Enemy : MonoBehaviour, IInteractable
                 EnemySkill skill = triggerSkills[j];
                 if (skill == null) continue;
 
-                triggerBus.Register(j, skill.Trigger_Skill);
+                triggerBus.Register(j, skill.Run_SkillTrigger);
                 skill.Set_Data(this, data.trigger, data.target);
             }
         }
@@ -231,7 +233,7 @@ public class Enemy : MonoBehaviour, IInteractable
                 EnemySkill skill = triggerSkills[j];
                 if (skill == null) continue;
 
-                triggerBus.UnRegister(skill.Trigger_Skill);
+                triggerBus.UnRegister(skill.Run_SkillTrigger);
             }
         }
     }
@@ -240,8 +242,8 @@ public class Enemy : MonoBehaviour, IInteractable
     // End Turn
     public IEnumerator Run_EndTurnActions()
     {
-        _actionsRunning = true;
-        _actionClock.Toggle(_actionsRunning);
+        _runTimeAction.Toggle_RunAction(true);
+        _actionClock.Toggle(true);
 
         yield return _preMovementSkillBus.RunSequential_DelayBusEvents(); // movement
         int movementRange = _data.movementRange;
@@ -270,9 +272,10 @@ public class Enemy : MonoBehaviour, IInteractable
         }
 
         _damagingTile = null;
-        _actionsRunning = false;
 
-        _actionClock.Toggle(_actionsRunning);
+        _runTimeAction.Toggle_RunAction(false);
+        _actionClock.Toggle(false);
+
         yield break;
     }
 }

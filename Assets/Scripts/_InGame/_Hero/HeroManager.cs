@@ -413,7 +413,10 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         _heroDeathEventBus.RunSequential_DelayBusEvents();
         if (_heroDeathEventBus.DelayBus_Running()) yield return null;
 
-        GameManager.instance.Reset_GamePlay();
+        GameManager manager = GameManager.instance;
+
+        manager.gameData.Decrease_HeroProgressionCount(_data.selectedHero);
+        manager.Reset_GamePlay();
     }
 
 

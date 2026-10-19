@@ -91,6 +91,10 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         }
         return null;
     }
+    public List<Enemy> Spawned_Enemies()
+    {
+        return null;
+    }
 
     public bool StageEnemies_NotCleared()
     {
@@ -241,10 +245,8 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
             Enemy enemy = actionEnemies[i];
             if (enemy == null) continue;
 
-            InteractionData enemyData = enemy.data.currentData;
-
             StartCoroutine(enemy.Run_EndTurnActions());
-            while (enemy != null && enemy.actionsRunning || enemyData.dataUpdating) yield return null;
+            while (enemy != null && enemy.runTimeAction.actionRunning || enemy.data.currentData.dataUpdating) yield return null;
         }
 
         yield break;

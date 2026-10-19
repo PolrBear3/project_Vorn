@@ -150,7 +150,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
             _data.buildGroupCards.Add(Random_CardPoolCards_inGroup());
 
             List<Card_ScrObj> loadCards = _data.TargetGroup_CurrentCards(i);
-            DeckBuild_GroupCard[] groupCards = _buildGroups[i].groupCards;
+            DisplayCard[] groupCards = _buildGroups[i].groupCards;
 
             for (int j = 0; j < groupCards.Length; j++)
             {

@@ -97,5 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 137153851354f4318982e857083b83f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _triggerConditions:
+  - {fileID: 11400000, guid: bdc6f68431fc74553a8fc7a994f907d6, type: 2}
   _delayTime: 0
   _debugString: Mini Bitter

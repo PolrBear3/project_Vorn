@@ -72,16 +72,20 @@ public class HeroSelect_Manager : MonoBehaviour, ISubscriptionHandler
 
     private void Toggle_HeroSelect()
     {
-        HeroManager_Data data = GameManager.instance.heroManager.data;
+        GameManager manager = GameManager.instance;
+
+        HeroManager_Data data = manager.heroManager.data;
         if (data.selectedHero != null) return;
 
         List<Hero_ScrObj> selectableHeroes = new(data.selectableHeros);
+
         for (int i = 0; i < _selectGroups.Length; i++)
         {
             Hero_SelectGroup selectGroup = _selectGroups[i];
+            Hero_ScrObj selectHero = selectableHeroes[i];
 
-            selectGroup.Update_SelectHero(selectableHeroes[i]);
-            selectGroup.Update_Coins(0);
+            selectGroup.Update_SelectHero(selectHero);
+            selectGroup.Update_Coins(manager.gameData.Hero_ProgressionCount(selectHero));
         }
         _toggleController.Toggle(true);
     }

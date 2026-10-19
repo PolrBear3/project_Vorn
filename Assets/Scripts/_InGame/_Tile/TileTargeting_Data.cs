@@ -29,10 +29,11 @@ public class TileTargeting_Data
 
     public void Target_Tile(Tile tileToTarget)
     {
-        if (_targetingTiles.Contains(tileToTarget))
-        {
-            _targetingTiles.Remove(tileToTarget);
-        }
+        bool targetTileTargeting = _targetingTiles.Contains(tileToTarget);
+
+        // re order targeting tiles sequence
+        if (targetTileTargeting) _targetingTiles.Remove(tileToTarget);
+
         _targetingTiles.Add(tileToTarget);
         _recentTargetingTiles = new(_targetingTiles);
     }

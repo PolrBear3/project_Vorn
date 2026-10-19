@@ -13,7 +13,6 @@ public class EnemySkill_HealthModifier : EnemySkill
     [SerializeField][Range(-100, 100)] private int _healthModifyValue;
 
 
-
     private List<IInteractable> InteractRange_TargetInteractables()
     {
         List<Tile> interactRangeTiles = InteractRange_Tiles();
@@ -101,7 +100,7 @@ public class EnemySkill_HealthModifier : EnemySkill
         {
             InteractionData data = targetInteractables[i].interactionData;
 
-            data.Update_CurrentHealth(data.currentHealth + _healthModifyValue);
+            enemy.interactionData.Modify_OtherData_CurrentHealth(data, _healthModifyValue);
             while (data.dataUpdating) yield return null;
         }
         yield break;

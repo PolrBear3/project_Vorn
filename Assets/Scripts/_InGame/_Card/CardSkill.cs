@@ -38,6 +38,10 @@ public class CardSkill_TriggerData
 
 public abstract class CardSkill : MonoBehaviour
 {
+    [SerializeField] private ActivateCondition_ScrObj[] _triggerConditions;
+    public ActivateCondition_ScrObj[] triggerConditions => _triggerConditions;
+
+
     private Card _card;
     public Card card => _card;
 
@@ -48,7 +52,7 @@ public abstract class CardSkill : MonoBehaviour
     public CardSkillTarget currentTarget => _currentTarget;
 
 
-    // CardSkillTarget
+    // Card Skill Target
     public List<Tile> CurrentTarget_Tiles()
     {
         List<Tile> targetTiles = new();
@@ -61,7 +65,7 @@ public abstract class CardSkill : MonoBehaviour
                 break;
 
             case CardSkillTarget.ActionTargetingTile:
-                Tile targetingTile = _card.targetingTile;
+                Tile targetingTile = _card.runTimeAction.targetingTile;
                 if (targetingTile == null) break;
 
                 targetTiles.Add(targetingTile);
@@ -103,5 +107,11 @@ public abstract class CardSkill : MonoBehaviour
         _currentTarget = setTarget;
     }
 
+    public IEnumerator Run_SkillTrigger()
+    {
+        if (CustomData_Utility.AllConditions_ActivateAvailable(_card.placedTile, _triggerConditions) == false) yield break;
+
+        yield return Trigger_Skill();
+    }
     public abstract IEnumerator Trigger_Skill();
 }

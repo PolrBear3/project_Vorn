@@ -69,7 +69,7 @@ public class UIPanel_ToggleController : MonoBehaviour
 
     public void Toggle(bool toggle)
     {
-        bool currentlyToggled = _toggled == toggle;
+        bool currentlyToggled = toggle && _toggled;
 
         _toggled = toggle;
         OnToggle?.Invoke(_toggled);

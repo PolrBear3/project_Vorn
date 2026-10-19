@@ -429,6 +429,7 @@ MonoBehaviour:
   _interactionDataUpdater: {fileID: 1441753937466206074}
   _baseAnimator: {fileID: 1413861387649704042}
   _contentAnimator: {fileID: 1511293945915075703}
+  _targetingActivateConditions: []
   _skillDatas: []
 --- !u!1 &6331263511724789781
 GameObject:

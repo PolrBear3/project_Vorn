@@ -6,6 +6,12 @@ using UnityEngine;
 public class DeckModify_EventScrObj : Event_ScrObj
 {
     [Space(40)]
-    [SerializeField][Range(-100, 100)]  private int _updateAmount;
+    [SerializeField][Range(0, 100)] private int _updateAmount;
+    public int updateAmount => _updateAmount;
+
+    [SerializeField][Range(-100, 100)] private int _modifyAmount;
+    public int modifyAmount => _updateAmount;
+
+    [Space(10)]
     [SerializeField] private Card_ScrObj[] _targetCards;
 }

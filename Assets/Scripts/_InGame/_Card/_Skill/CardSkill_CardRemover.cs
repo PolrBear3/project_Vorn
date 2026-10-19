@@ -4,14 +4,18 @@ using UnityEngine;
 
 public class CardSkill_CardRemover : CardSkill
 {
+    [Space(20)]
     [SerializeField] private Card_ScrObj[] _targetCards;
+    public Card_ScrObj[] targetCards => _targetCards;
 
+
+    // data
     private List<Card> TargetTile_Cards()
     {
         CardManager cardManager = GameManager.instance.cardManager;
 
         List<Tile> targetTiles = CurrentTarget_Tiles();
-        List<Card> targetCards = new();
+        List<Card> targetTileCards = new();
 
         for (int i = 0; i < targetTiles.Count; i++)
         {
@@ -21,18 +25,19 @@ public class CardSkill_CardRemover : CardSkill
             if (placedCard == null) continue;
 
             Card_ScrObj cardScrObj = placedCard.data.cardScrObj;
-            for (int j = 0; j < _targetCards.Length; j++)
+            for (int j = 0; j < targetCards.Length; j++)
             {
-                if (_targetCards[j] != cardScrObj) continue;
+                if (targetCards[j] != cardScrObj) continue;
 
-                targetCards.Add(placedCard);
+                targetTileCards.Add(placedCard);
                 break;
             }
         }
-        return targetCards;
+        return targetTileCards;
     }
 
-    // from abstract Trigger_Skill
+
+    // abstract
     public override IEnumerator Trigger_Skill()
     {
         List<Card> removeCards = TargetTile_Cards();

@@ -8,7 +8,7 @@ public class CardSkill_Spawner : CardSkill
     [SerializeField] private Card_ScrObj[] _spawnCards;
 
 
-    // Spawn
+    // data
     private Card_ScrObj SpawnCard()
     {
         int spawnCardsCount = _spawnCards.Length;
@@ -36,7 +36,7 @@ public class CardSkill_Spawner : CardSkill
                 break;
 
             case (CardSkillTarget.ActionTargetingTile, _):
-                targetTiles.Add(card.targetingTile);
+                targetTiles.Add(card.runTimeAction.targetingTile);
                 break;
 
             case (CardSkillTarget.InteractRangeTiles, _): return new(interactRangeTiles);
@@ -58,8 +58,7 @@ public class CardSkill_Spawner : CardSkill
         return targetTiles;
     }
 
-
-    // from abstract Trigger_Skill
+    // abstract
     public override IEnumerator Trigger_Skill()
     {
         CardManager cardManager = GameManager.instance.cardManager;

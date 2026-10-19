@@ -9,9 +9,6 @@ public class EventMenu_Manager : MonoBehaviour
     [SerializeField] private EventMenu[] _eventMenus;
     public EventMenu[] eventMenus => _eventMenus;
 
-    public Func<bool> ConfirmAvailable;
-    public Action OnConfirm;
-
 
     // Main
     public void Toggle_EventMenu(Event_ScrObj targetEvent)
@@ -19,18 +16,32 @@ public class EventMenu_Manager : MonoBehaviour
         for (int i = 0; i < _eventMenus.Length; i++)
         {
             EventMenu menu = _eventMenus[i];
-            Event_ScrObj toggleEvent = menu.Toggle_Available(targetEvent) ? targetEvent : null;
+            Event_ScrObj toggleEvent = menu.Update_TargetEvent(targetEvent) ? targetEvent : null;
 
-            menu.Update_TargetEvent(toggleEvent);
+            menu.ToggleUpdate_TargetEvent(toggleEvent);
             menu.toggleController.Toggle(toggleEvent != null);
         }
-        GameManager.instance.stageManager.Toggle_BattleStage();
+    }
+    public EventMenu Toggled_EventMenu()
+    {
+        for (int i = 0; i < _eventMenus.Length; i++)
+        {
+            EventMenu menu = _eventMenus[i];
+
+            if (menu.targetEvent == null) continue;
+            return menu;
+        }
+        return null;
     }
 
-    public void Confirm_CurrentEventMenu()
+    public void Confirm_ToggledEventMenu()
     {
-        StageManager stageManager = GameManager.instance.stageManager;
+        EventMenu currentMenu = Toggled_EventMenu();
 
+        if (currentMenu == null || currentMenu.OnConfirmAvailable?.Invoke() == false) return;
+        currentMenu.Confirm();
+
+        StageManager stageManager = GameManager.instance.stageManager;
         if (stageManager.Is_EventStage())
         {
             stageManager.ToggleQueued_EventStage();

@@ -24,6 +24,7 @@ public static class Utility
         return Mathf.Round(value / screenSpacePixelValue) * screenSpacePixelValue;
     }
 
+
     public static List<Vector2> Surrounding_Directions()
     {
         List<Vector2> directions = new(8);
@@ -66,5 +67,17 @@ public static class Utility
         float dy = Mathf.Abs(a.y - b.y);
 
         return (int)Mathf.Max(dx, dy);
+    }
+
+
+    public static string FormatUpdate_Description(string description, Dictionary<string, object> formatDatas)
+    {
+        if (string.IsNullOrEmpty(description)) return "";
+
+        foreach (KeyValuePair<string, object> format in formatDatas)
+        {
+            description = description.Replace("{" + format.Key + "}", format.Value.ToString());
+        }
+        return description;
     }
 }

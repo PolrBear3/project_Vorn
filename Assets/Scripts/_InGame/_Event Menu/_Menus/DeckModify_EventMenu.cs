@@ -4,29 +4,79 @@ using UnityEngine;
 
 public class DeckModify_EventMenu : EventMenu
 {
+    private DeckModify_EventScrObj _currentModifyEvent;
+
+    [Space(40)]
+    [SerializeField] private DisplayCard[] _selectableDisplayCards;
+
+
     // MonoBehaviour
     private void Awake()
     {
-        toggleController.OnToggle += Toggle_Debug;
+        toggleController.OnToggle += Update_SelectableCards;
+        OnConfirmAvailable += UpdateAmount_Selected;
     }
 
     private void OnDestroy()
     {
-        toggleController.OnToggle -= Toggle_Debug;
+        toggleController.OnToggle -= Update_SelectableCards;
+        OnConfirmAvailable -= UpdateAmount_Selected;
     }
 
 
-    // EventMenu abstract
-    public override bool Toggle_Available(Event_ScrObj checkEvent)
+    // EventMenu
+    public override bool Update_TargetEvent(Event_ScrObj checkEvent)
     {
-        return checkEvent is DeckModify_EventScrObj;
+        if (checkEvent is not DeckModify_EventScrObj modifyEvent) return false;
+
+        // custom toggle checks
+
+        _currentModifyEvent = modifyEvent;
+        return true;
     }
 
-    private void Toggle_Debug(bool toggle)
+    public override void Confirm()
+    {
+
+    }
+    public override void AutoConfirm()
+    {
+
+    }
+
+
+    // Main
+    private void Update_SelectableCards(bool toggle)
     {
         if (toggle == false) return;
 
-        StageMap_Data data = GameManager.instance.stageManager.stageMap.data;
-        Debug.Log(data.Current_StageData().stage + " " + data.Current_StageData().queueEvents.Count);
+        int modifyAmount = _currentModifyEvent.updateAmount;
+        List<CardData> deckCardDatas = GameManager.instance.deckBuildManager.data.buildDeckCardDatas;
+
+        int updateAmount = modifyAmount < 0
+            ? Mathf.Min(Mathf.Abs(modifyAmount), deckCardDatas.Count)
+            : modifyAmount;
+
+        for (int i = 0; i < _selectableDisplayCards.Length; i++)
+        {
+            DisplayCard displayCard = _selectableDisplayCards[i];
+
+            bool displayToggle = updateAmount > 0;
+            displayCard.gameObject.SetActive(displayToggle);
+
+            updateAmount--;
+
+            if (displayToggle == false) continue;
+            // displayCard.Load_Images();
+        }
+    }
+    private bool UpdateAmount_Selected()
+    {
+        return true;
+    }
+
+    public void Select()
+    {
+
     }
 }

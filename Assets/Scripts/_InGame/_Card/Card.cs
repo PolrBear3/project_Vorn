@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Card : MonoBehaviour, IInteractable, ITileTargeting
+public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IInteractable, IRunTimeAction
 {
     [Space(10)]
     [SerializeField] private SpriteRenderer _baseSpriteRenderer;
@@ -21,9 +21,8 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
     public Animator_Controller contentAnimator => _contentAnimator;
 
     [Space(20)]
+    [SerializeField] private ActivateCondition_ScrObj[] _targetingConditions;
     [SerializeField] private CardSkill_TriggerData[] _skillDatas;
-    public CardSkill_TriggerData[] skillDatas => _skillDatas;
-
 
 
     private CardData _data;
@@ -37,6 +36,9 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
 
     private TileTargeting_Data _tileTargeting = new();
     public TileTargeting_Data tileTargeting => _tileTargeting;
+
+    private RunTimeAction_Data _runTimeAction = new();
+    public RunTimeAction_Data runTimeAction => _runTimeAction;
 
 
     private EventBus_Controller _placeUpdateActionBus = new();
@@ -55,17 +57,6 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
     public EventBus_Controller afterTargetingSkillBus => _afterTargetingSkillBus;
 
 
-    private Tile _targetingTile;
-    public Tile targetingTile => _targetingTile;
-
-    private bool _actionsRunning;
-    public bool actionsRunning => _actionsRunning;
-
-
-    // IInteractable
-    public InteractionData interactionData => _data.currentData;
-
-
     // ITileTargeting
     public Tile pivotTile => _placedTile;
     public TileTargeting_Data targetingData => _tileTargeting;
@@ -77,13 +68,30 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
         return distance <= _data.currentData.interactRange;
     }
 
+    // IInteractable
+    public InteractionData interactionData => _data.currentData;
+
+    // IRunTimeAction
+    public RunTimeAction_Data runTimeActionData => _runTimeAction;
+
 
     // MonoBehaviour
     private void OnDestroy()
     {
+        UnSubscribe_All();
+    }
+
+
+    // ISubscriptionHandler
+    public void Subscribe_All()
+    {
+
+    }
+
+    public void UnSubscribe_All()
+    {
         UnRegister_SkillDatas();
 
-        // from Set_Data
         _interactionDataUpdater.AfterDeathUpdate -= Remove_Data;
     }
 
@@ -150,7 +158,7 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
                 CardSkill skill = triggerSkills[j];
                 if (skill == null) continue;
 
-                triggerBus.Register(j, skill.Trigger_Skill);
+                triggerBus.Register(j, skill.Run_SkillTrigger);
                 skill.Set_Data(this, data.trigger, data.target);
             }
         }
@@ -170,35 +178,29 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
                 CardSkill skill = triggerSkills[j];
                 if (skill == null) continue;
 
-                triggerBus.UnRegister(skill.Trigger_Skill);
+                triggerBus.UnRegister(skill.Run_SkillTrigger);
             }
         }
     }
 
 
     // End Turn Action
-    private void Reset_TileTargeting()
+    private void Reset_ActionDatas()
     {
-        _targetingTile = null;
         _tileTargeting.targetingTiles.Clear();
+        _runTimeAction.Toggle_RunAction(false);
     }
 
-    public IEnumerator Run_EndTurnActions()
+    private IEnumerator Run_TileTargeting_HealthModify()
     {
-        if (_data.currentData.Remove_State(InteractableState.Frozen))
-        {
-            Reset_TileTargeting();
-            yield break;
-        }
-
-        _actionsRunning = true;
-        yield return _preUpdateSkillBus.RunSequential_DelayBusEvents();
+        if (CustomData_Utility.AllConditions_ActivateAvailable(_placedTile, _targetingConditions) == false) yield break;
 
         List<Tile> targetingTiles = new(_tileTargeting.targetingTiles);
+
         for (int i = 0; i < targetingTiles.Count; i++)
         {
             Tile tile = targetingTiles[i];
-            _targetingTile = tile;
+            _runTimeAction.Update_TargetingTile(tile);
 
             yield return _preTargetingSkillBus.RunSequential_DelayBusEvents();
 
@@ -206,27 +208,37 @@ public class Card : MonoBehaviour, IInteractable, ITileTargeting
             if (tileInteractable != null)
             {
                 InteractionData targetData = tileInteractable.interactionData;
-                if (targetData == null) continue;
+                if (targetData != null)
+                {
+                    // run health updating animation (animation is set relative to updateValue) ?
+                    // while (_baseAnimator.CurrentState_Playing()) yield return null;
 
-                int updateValue = targetData.currentHealth + _data.currentData.healthModifyValue;
+                    bool modifySuccessful = interactionData.Modify_OtherData_CurrentHealth(targetData);
+                    _runTimeAction.CountUpdate_TargetingHealthModify(modifySuccessful);
 
-                // run health updating animation (animation is set relative to updateValue) ?
-                while (_baseAnimator.CurrentState_Playing()) yield return null;
-
-                targetData.Update_CurrentHealth(updateValue);
-
-                yield return null;
-                while (targetData.dataUpdating) yield return null;
+                    yield return null;
+                    while (targetData.dataUpdating) yield return null;
+                }
             }
 
             yield return _afterTargetingSkillBus.RunSequential_DelayBusEvents();
         }
+    }
+    public IEnumerator Run_EndTurnActions()
+    {
+        if (_data.currentData.Remove_State(InteractableState.Frozen))
+        {
+            Reset_ActionDatas();
+            yield break;
+        }
 
+        _runTimeAction.Toggle_RunAction(true);
+
+        yield return _preUpdateSkillBus.RunSequential_DelayBusEvents();
+        yield return Run_TileTargeting_HealthModify();
         yield return _afterUpdateSkillBus.RunSequential_DelayBusEvents();
 
-        Reset_TileTargeting();
-
-        _actionsRunning = false;
+        Reset_ActionDatas();
         yield break;
     }
 }

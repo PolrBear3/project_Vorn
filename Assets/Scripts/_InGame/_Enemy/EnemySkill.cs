@@ -34,6 +34,10 @@ public class EnemySkill_TriggerData
 
 public abstract class EnemySkill : MonoBehaviour
 {
+    [SerializeField] private ActivateCondition_ScrObj[] _triggerConditions;
+    public ActivateCondition_ScrObj[] triggerConditions => _triggerConditions;
+
+
     private Enemy _enemy;
     public Enemy enemy => _enemy;
 
@@ -103,5 +107,11 @@ public abstract class EnemySkill : MonoBehaviour
         _currentTarget = setTarget;
     }
 
+    public IEnumerator Run_SkillTrigger()
+    {
+        if (CustomData_Utility.AllConditions_ActivateAvailable(_enemy.movement.currentTile, _triggerConditions) == false) yield break;
+
+        yield return Trigger_Skill();
+    }
     public abstract IEnumerator Trigger_Skill();
 }

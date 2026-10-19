@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, ISaveLoadable
 {
     public static GameManager instance;
+
+
+    private GameData _gameData;
+    public GameData gameData => _gameData;
 
 
     [Space(20)]
@@ -50,6 +54,18 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         EventBus_GlobalController.Run_BusEvents();
+    }
+
+
+    // ISaveLoadable
+    public void Save_Data()
+    {
+        ES3.Save("GameManager/GameData", gameData, SaveKeys.ProgressionFile);
+    }
+
+    public void Load_Data()
+    {
+        _gameData = ES3.Load("GameManager/GameData", SaveKeys.ProgressionFile, new GameData());
     }
 
 

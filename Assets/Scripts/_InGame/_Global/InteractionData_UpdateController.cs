@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class InteractionData_UpdateController : MonoBehaviour
 {
-    [Space(10)]
+    [Space(20)]
     [SerializeField] private Animator_Controller[] _healthUpdateAnimators;
     [SerializeField] private Animator_Controller[] _stateUpdateAnimators;
 
@@ -27,7 +27,7 @@ public class InteractionData_UpdateController : MonoBehaviour
     {
         if (_targetData == null) return;
 
-        _targetData.OnHealthModifyUpdate -= Handle_HealthUpdate;
+        _targetData.OnHealthModifiedUpdate -= Handle_HealthUpdate;
         _targetData.OnStateUpdate -= Handle_StateUpdate;
     }
 
@@ -40,7 +40,7 @@ public class InteractionData_UpdateController : MonoBehaviour
         _targetData = targetData;
         Handle_StateUpdate();
 
-        _targetData.OnHealthModifyUpdate += Handle_HealthUpdate;
+        _targetData.OnHealthModifiedUpdate += Handle_HealthUpdate;
         _targetData.OnStateUpdate += Handle_StateUpdate;
     }
 
@@ -101,7 +101,7 @@ public class InteractionData_UpdateController : MonoBehaviour
     {
         int currentStateCount = _targetData.states.Count;
         if (currentStateCount >= _stateUpdateAnimators.Length) return null;
-        
+
         return _stateUpdateAnimators[currentStateCount];
     }
     private Animator_Controller StateUpdated_Animator(InteractableState updatedState)

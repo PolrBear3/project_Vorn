@@ -51,7 +51,7 @@ public class DeckModify_EventMenu : EventMenu
         if (toggle == false) return;
 
         int modifyAmount = _currentModifyEvent.updateAmount;
-        List<CardData> deckCardDatas = GameManager.instance.deckBuildManager.data.buildDeckCardDatas;
+        List<CardData> deckCardDatas = GameManager.instance.deckBuildManager.data.builtDeckCardDatas;
 
         int updateAmount = modifyAmount < 0
             ? Mathf.Min(Mathf.Abs(modifyAmount), deckCardDatas.Count)

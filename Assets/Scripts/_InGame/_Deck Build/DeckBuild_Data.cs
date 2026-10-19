@@ -8,8 +8,11 @@ public class DeckBuild_Data
     [ES3Serializable] private List<List<Card_ScrObj>> _buildGroupCards = new();
     public List<List<Card_ScrObj>> buildGroupCards => _buildGroupCards;
 
-    [ES3Serializable] private List<CardData> _buildDeckCardDatas = new();
-    public List<CardData> buildDeckCardDatas => _buildDeckCardDatas;
+    [ES3Serializable] private List<CardData> _builtDeckCardDatas = new();
+    public List<CardData> builtDeckCardDatas => _builtDeckCardDatas;
+
+    [ES3Serializable] private List<Card_ScrObj> _cardPool = new();
+    public List<Card_ScrObj> cardPool => _cardPool;
 
 
     // Data

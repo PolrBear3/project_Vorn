@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 823c8f8c5b7884eff82edf8dc13e065c, type: 3}
   m_Name: Remove Melee Card
   m_EditorClassIdentifier: 
-  _eventDescription: Remove a existing melee range card from the deck
+  _eventDescription: Remove an existing melee range card from the deck
   _updateAmount: 3
   _modifyAmount: -1
   _targetCards: []

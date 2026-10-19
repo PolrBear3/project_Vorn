@@ -20,14 +20,11 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     [SerializeField] private Card_ScrObj[] _defaultCardPool;
 
 
-    private List<Card_ScrObj> _cardPool = new();
-    public List<Card_ScrObj> cardPool => _cardPool;
-
-    public Action OnCardPoolLoad;
-
-
     private DeckBuild_Data _data;
     public DeckBuild_Data data => _data;
+
+
+    public Action OnCardPoolLoad;
 
     private EventBus_Controller _deckBuildCompleteBus = new();
     public EventBus_Controller deckBuildCompleteBus => _deckBuildCompleteBus;
@@ -111,7 +108,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     public bool DeckBuild_Complete()
     {
         int totalCardCount = _progressionIcons.Length * MaxCardCount_inGroup();
-        return _data.buildDeckCardDatas.Count >= totalCardCount;
+        return _data.builtDeckCardDatas.Count >= totalCardCount;
     }
     private bool DeckBuild_InComplete()
     {
@@ -123,7 +120,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     {
         for (int i = 0; i < _defaultCardPool.Length; i++)
         {
-            cardPool.Add(_defaultCardPool[i]);
+            _data.cardPool.Add(_defaultCardPool[i]);
         }
         OnCardPoolLoad?.Invoke();
     }
@@ -131,13 +128,15 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     private List<Card_ScrObj> Random_CardPoolCards_inGroup()
     {
         List<Card_ScrObj> loadCards = new();
-        if (_cardPool == null || _cardPool.Count <= 0) return loadCards;
+
+        List<Card_ScrObj> cardPool = new(_data.cardPool);
+        if (cardPool == null || cardPool.Count <= 0) return loadCards;
 
         int loadCardCount = MaxCardCount_inGroup();
 
         for (int i = 0; i < loadCardCount; i++)
         {
-            loadCards.Add(_cardPool[UnityEngine.Random.Range(0, _cardPool.Count)]);
+            loadCards.Add(cardPool[UnityEngine.Random.Range(0, cardPool.Count)]);
         }
         return loadCards;
     }
@@ -172,7 +171,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     private void Update_ProgressionIcons(bool _)
     {
         int maxCardCount = _progressionIcons.Length * MaxCardCount_inGroup();
-        int currentDeckCardCount = _data.buildDeckCardDatas.Count;
+        int currentDeckCardCount = _data.builtDeckCardDatas.Count;
 
         int cardCountPerIcon = maxCardCount / _progressionIcons.Length;
         int updateCount = currentDeckCardCount / cardCountPerIcon;
@@ -186,7 +185,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
     private void Add_BuiltDeckCards_toDeck()
     {
-        GameManager.instance.handInventory.AddCards_toDeck(new(_data.buildDeckCardDatas));
+        GameManager.instance.handInventory.AddCards_toDeck(new(_data.builtDeckCardDatas));
     }
 
 
@@ -201,7 +200,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
             foreach (Card_ScrObj card in groupCards)
             {
-                _data.buildDeckCardDatas.Add(new(card));
+                _data.builtDeckCardDatas.Add(new(card));
             }
             break;
         }

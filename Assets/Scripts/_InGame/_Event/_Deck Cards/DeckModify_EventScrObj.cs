@@ -13,5 +13,21 @@ public class DeckModify_EventScrObj : Event_ScrObj
     public int modifyAmount => _updateAmount;
 
     [Space(10)]
-    [SerializeField] private Card_ScrObj[] _targetCards;
+    [SerializeField] private Card_ScrObj[] _updateCards;
+
+
+    // Data
+    public List<Card_ScrObj> Updated_Cards()
+    {
+        if (_modifyAmount >= 0)
+        {
+            List<Card_ScrObj> cardPool = new(GameManager.instance.deckBuildManager.data.cardPool);
+            if (_updateCards.Length <= 0) return cardPool;
+        }
+
+        List<Card_ScrObj> updatedCards = new();
+        int removeCount = Mathf.Abs(_modifyAmount);
+
+        return updatedCards;
+    }
 }

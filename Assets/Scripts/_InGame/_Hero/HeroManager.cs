@@ -187,7 +187,7 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 
         for (int i = 0; i < proprietaryCards.Length; i++)
         {
-            deckBuildManager.cardPool.Add(proprietaryCards[i]);
+            deckBuildManager.data.cardPool.Add(proprietaryCards[i]);
         }
     }
     private void Add_SpawnCard_toTopDeck()

@@ -153,7 +153,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
             for (int j = 0; j < groupCards.Length; j++)
             {
-                groupCards[j].Load_Images(loadCards[j]);
+                groupCards[j].Load_CardComponents(loadCards[j]);
             }
         }
     }

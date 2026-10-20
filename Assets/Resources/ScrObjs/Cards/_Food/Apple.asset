@@ -22,5 +22,5 @@ MonoBehaviour:
     _states: 
     _healthModifyValue: 1
     _interactRange: 1
-    _targetSelectCount: 2
+    _targetSelectCount: 1
   _manaCost: 0

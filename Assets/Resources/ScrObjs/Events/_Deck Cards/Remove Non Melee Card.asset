@@ -15,4 +15,5 @@ MonoBehaviour:
   _eventDescription: Remove an existing non melee range card from the deck
   _updateAmount: 3
   _modifyAmount: -1
-  _targetCards: []
+  _modifyTargetCards:
+  - {fileID: 11400000, guid: 1624de9b54fcf40f7a7d5d03437357e1, type: 2}

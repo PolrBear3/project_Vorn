@@ -21,4 +21,15 @@ public class DeckBuild_Data
         groupIndex = Mathf.Clamp(groupIndex, 0, _buildGroupCards.Count - 1);
         return _buildGroupCards[groupIndex];
     }
+
+    public List<CardData> CardPool_CardDatas()
+    {
+        List<CardData> datas = new();
+
+        foreach (Card_ScrObj card in cardPool)
+        {
+            datas.Add(new(card));
+        }
+        return datas;
+    }
 }

@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _stageName: Card Shredder
   _stageIcon: {fileID: -380325764, guid: 77c7dff379a2b40bcb8e18c0ac618efe, type: 3}
-  _sequntialEvents: []
-  _randomSelectEvents:
-  - {fileID: 11400000, guid: 037529f0a2bfc4c3593c3727f47fc958, type: 2}
-  - {fileID: 11400000, guid: 8184ac64fe0df49ab9388b5c3123e069, type: 2}
+  _sequntialEvents:
+  - {fileID: 11400000, guid: 964d2e58e93bc4b978202d5f7d93b66c, type: 2}
+  _randomSelectEvents: []

@@ -19,7 +19,11 @@ public class EventMenu_Manager : MonoBehaviour
             Event_ScrObj toggleEvent = menu.Update_TargetEvent(targetEvent) ? targetEvent : null;
 
             menu.ToggleUpdate_TargetEvent(toggleEvent);
-            menu.toggleController.Toggle(toggleEvent != null);
+
+            UIPanel_ToggleController toggleController = menu.toggleController;
+            if (toggleController == null) return;
+
+            toggleController.Toggle(toggleEvent != null);
         }
     }
     public EventMenu Toggled_EventMenu()
@@ -42,11 +46,22 @@ public class EventMenu_Manager : MonoBehaviour
         currentMenu.Confirm();
 
         StageManager stageManager = GameManager.instance.stageManager;
+
         if (stageManager.Is_EventStage())
         {
-            stageManager.ToggleQueued_EventStage();
+            stageManager.Toggle_QueuedEventStage();
             return;
         }
         Toggle_EventMenu(null);
+    }
+    public bool AutoConfirm_ToggledEventMenu()
+    {
+        EventMenu toggledMenu = Toggled_EventMenu();
+        if (toggledMenu == null) return false;
+
+        toggledMenu.AutoUpdate_forConfirm();
+        toggledMenu.Confirm();
+
+        return true;
     }
 }

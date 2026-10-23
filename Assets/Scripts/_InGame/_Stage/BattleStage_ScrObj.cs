@@ -7,8 +7,11 @@ public class BattleStage_ScrObj : Stage_ScrObj
 {
     public override StageType stageType => StageType.Battle;
 
-
     [Space(40)]
+    [SerializeField] private Sprite _stageIcon;
+    public Sprite stageIcon => _stageIcon;
+
+    [Space(20)]
     [SerializeField] private Sprite[] _defaultTileSprites;
     [SerializeField] private Sprite[] _edgeTilesprites;
 

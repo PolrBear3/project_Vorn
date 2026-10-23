@@ -32,12 +32,14 @@ public abstract class EventMenu : MonoBehaviour
 
         StageData eventStage = GameManager.instance.stageManager.stageMap.data.Current_StageData();
 
+        if (_eventTitleText == null || _eventDescriptionText == null) return true;
+
         _eventTitleText.text = eventStage != null ? eventStage.stage.stageName : "";
         _eventDescriptionText.text = updateEvent.eventDescription;
 
         return true;
     }
 
+    public abstract void AutoUpdate_forConfirm();
     public abstract void Confirm();
-    public abstract void AutoConfirm();
 }

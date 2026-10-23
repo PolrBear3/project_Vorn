@@ -104,15 +104,9 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         }
         return maxCount;
     }
-
-    public bool DeckBuild_Complete()
-    {
-        int totalCardCount = _progressionIcons.Length * MaxCardCount_inGroup();
-        return _data.builtDeckCardDatas.Count >= totalCardCount;
-    }
     private bool DeckBuild_InComplete()
     {
-        return DeckBuild_Complete() == false;
+        return _data.deckBuildComplete == false;
     }
 
 
@@ -161,7 +155,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     private void Toggle_DeckBuild()
     {
         if (GameManager.instance.heroManager.data.selectedHero == null) return;
-        if (DeckBuild_Complete()) return;
+        if (_data.deckBuildComplete) return;
 
         Load_CardPool();
         Load_CardPoolCards_toGroups();
@@ -205,7 +199,9 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
             break;
         }
 
-        bool deckBuildComplete = DeckBuild_Complete();
+        int buildCardCount = _progressionIcons.Length * MaxCardCount_inGroup();
+        bool deckBuildComplete = _data.Complete_DeckBuild(buildCardCount);
+
         _panelToggleController.Toggle(deckBuildComplete == false);
 
         if (deckBuildComplete == false)

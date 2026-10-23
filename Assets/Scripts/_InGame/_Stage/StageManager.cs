@@ -45,6 +45,11 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         EventBus_GlobalController.UnRegister(EndGamePlay_OnFinalStageCompletion);
     }
 
+    private void OnApplicationQuit()
+    {
+        AutoConfirm_QueuedEventStages();
+    }
+
 
     // ISubscriptionHandler
     public void Subscribe_All()
@@ -58,7 +63,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         _setStageEventBus.OnSequentialDelayFinish += Toggle_BattleStage;
         _endStageEventBus.Register(0, Toggle_BattleStage);
 
-        _setStageEventBus.Register(0, ToggleQueued_EventStage);
+        _setStageEventBus.Register(0, Toggle_QueuedEventStage);
         _endTurnEventBus.Register(Is_EventStage);
 
         _endStageEventBus.Register(0, EndGamePlay_OnFinalStageCompletion);
@@ -78,7 +83,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         _setStageEventBus.OnSequentialDelayFinish -= Toggle_BattleStage;
         _endStageEventBus.UnRegister(Toggle_BattleStage);
 
-        _setStageEventBus.UnRegister(ToggleQueued_EventStage);
+        _setStageEventBus.UnRegister(Toggle_QueuedEventStage);
         _endTurnEventBus.UnRegister(Is_EventStage);
 
         _endStageEventBus.UnRegister(EndGamePlay_OnFinalStageCompletion);
@@ -111,7 +116,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     public void Toggle_BattleStage()
     {
         GameManager manager = GameManager.instance;
-        bool battleStageToggle = manager.deckBuildManager.DeckBuild_Complete() && Is_BattleStage();
+        bool battleStageToggle = manager.deckBuildManager.data.deckBuildComplete && Is_BattleStage();
 
         Toggle_BattleStage(battleStageToggle && manager.stageManager.stageMap.data.FinalLevel_Complete() == false);
     }
@@ -135,7 +140,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         return Is_EventStage(out EventStage_ScrObj _);
     }
 
-    public void ToggleQueued_EventStage()
+    public void Toggle_QueuedEventStage()
     {
         if (Is_EventStage() == false) return;
 
@@ -148,6 +153,24 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
 
         stageMapData.Complete_CurrentStageData();
         Continue();
+    }
+    private void AutoConfirm_QueuedEventStages()
+    {
+        if (Is_EventStage() == false) return;
+
+        EventMenu_Manager eventMenuManager = GameManager.instance.eventMenuManager;
+        StageMap_Data stageMapData = _stageMap.data;
+
+        while (true)
+        {
+            if (eventMenuManager.AutoConfirm_ToggledEventMenu() == false) break;
+
+            Event_ScrObj queuedEvent = stageMapData.Current_StageData().GetCurrent_QueueEvent();
+            eventMenuManager.Toggle_EventMenu(queuedEvent);
+        }
+
+        stageMapData.Complete_CurrentStageData();
+        _stageMap.Save_Data();
     }
 
 

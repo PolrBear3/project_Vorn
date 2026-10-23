@@ -62,6 +62,7 @@ public class StageMap_Data
         return targetLevelStages;
     }
 
+
     /// <summary>
     /// Auto updates _currentLevelStageIndex if stage was not selected before data save
     /// </summary>
@@ -86,6 +87,15 @@ public class StageMap_Data
             break;
         }
         return currentStageData;
+    }
+    public void Update_CurrentStageData(StageData updateData)
+    {
+        if (updateData == null || updateData.stage == null) return;
+
+        StageData currentStageData = Current_StageData();
+        if (currentStageData == null) return;
+
+        _stagesByLevelDatas[_currentLevel][_currentLevelStageIndex] = new(updateData);
     }
 
 

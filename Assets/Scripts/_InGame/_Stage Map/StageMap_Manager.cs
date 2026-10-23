@@ -79,6 +79,9 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     [SerializeField] private UIPanel_ToggleController _menuPanelController;
     [SerializeField] private StageMap_Icon[] _icons;
 
+    [Space(10)]
+    [SerializeField] private Sprite _eventStageIconSprite;
+
     [Space(20)]
     [SerializeField] private LevelSet_StagesData[] _levelSetStageDatas;
 
@@ -270,7 +273,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     public void ToggleMenu()
     {
         bool stageDataToggle = Stage_NotSelected() && _data.FinalLevel_Complete() == false;
-        bool toggle = stageDataToggle && GameManager.instance.deckBuildManager.DeckBuild_Complete();
+        bool toggle = stageDataToggle && GameManager.instance.deckBuildManager.data.deckBuildComplete;
 
         _menuPanelController.Toggle(toggle);
 
@@ -304,7 +307,11 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
 
             if (stageAvailable == false) continue;
 
-            icon.image.sprite = dataToUpdate.stage.stageIcon;
+            Stage_ScrObj stage = dataToUpdate.stage;
+
+            Sprite iconSprite = stage is BattleStage_ScrObj battleStage ? battleStage.stageIcon : _eventStageIconSprite;
+            icon.image.sprite = iconSprite;
+
             Animator_Controller animController = icon.animController;
 
             if (_data.TargetStage_onCurrentLevel(dataToUpdate, out int _))

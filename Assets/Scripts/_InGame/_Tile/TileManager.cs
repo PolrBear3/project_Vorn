@@ -121,6 +121,8 @@ public class TileManager : MonoBehaviour, ISubscriptionHandler
     }
     public Tile ClosestAvailable_SurroundingTile(Tile pivotTile, Tile targetTile)
     {
+        if (pivotTile == null || targetTile == null) return null;
+
         int checkCount = _tiles.Count;
         int checkRange = 1;
 

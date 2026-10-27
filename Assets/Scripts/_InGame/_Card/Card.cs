@@ -92,7 +92,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     {
         UnRegister_SkillDatas();
 
-        _interactionDataUpdater.AfterDeathUpdate -= Remove_Data;
+        _interactionDataUpdater.OnPreDeathActionDataUpdate -= Remove_Data;
     }
 
 
@@ -109,7 +109,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
         _contentSpriteRenderer.sprite = loadCard.contentSprite;
 
         _interactionDataUpdater.Set_Data(_data.currentData);
-        _interactionDataUpdater.AfterDeathUpdate += Remove_Data;
+        _interactionDataUpdater.OnPreDeathActionDataUpdate += Remove_Data;
 
         Register_SkillDatas();
 
@@ -123,7 +123,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     private void Remove_Data()
     {
         GameManager.instance.cardManager.placedCards.Remove(this);
-        Destroy(gameObject);
+        _placedTile.Update_CurrentOccupant(null);
     }
 
 

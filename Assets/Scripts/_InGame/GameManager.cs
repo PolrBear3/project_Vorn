@@ -85,6 +85,8 @@ public class GameManager : MonoBehaviour, ISaveLoadable
     }
     public void Reset_GamePlay()
     {
+        Save_Data();
+
         ES3.DeleteFile(SaveKeys.GamePlayFile);
         Reload_GameScene();
     }

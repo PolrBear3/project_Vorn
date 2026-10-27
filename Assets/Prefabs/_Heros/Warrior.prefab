@@ -67,6 +67,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _healthUpdateAnimators:
   - {fileID: 6361876508122871599}
+  _stateUpdateAnimators: []
+  _preserveAfterDeath: 1
 --- !u!114 &6745444592040142979
 MonoBehaviour:
   m_ObjectHideFlags: 0

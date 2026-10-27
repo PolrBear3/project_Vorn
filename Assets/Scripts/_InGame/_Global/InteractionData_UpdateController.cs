@@ -3,11 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InteractionData_UpdateController : MonoBehaviour
+public class InteractionData_UpdateController : MonoBehaviour, ISubscriptionHandler
 {
     [Space(20)]
     [SerializeField] private Animator_Controller[] _healthUpdateAnimators;
     [SerializeField] private Animator_Controller[] _stateUpdateAnimators;
+
+    [Space(20)]
+    [SerializeField] private bool _preserveAfterDeath;
 
 
     private InteractionData _targetData;
@@ -19,14 +22,35 @@ public class InteractionData_UpdateController : MonoBehaviour
     private EventBus_Controller _deathUpdateActionBus = new();
     public EventBus_Controller deathUpdateActionBus => _deathUpdateActionBus;
 
-    public Action AfterDeathUpdate;
+    public Action OnPreDeathActionDataUpdate;
 
 
     // MonoBehaviour
+    private void Awake()
+    {
+        EventBus_GlobalController.Register(this);
+    }
+
     private void OnDestroy()
     {
+        UnSubscribe_All();
+        EventBus_GlobalController.UnRegister(this);
+
         if (_targetData == null) return;
 
+        _targetData.OnHealthModifiedUpdate -= Handle_HealthUpdate;
+        _targetData.OnStateUpdate -= Handle_StateUpdate;
+    }
+
+
+    // ISubscriptionHandler
+    public void Subscribe_All()
+    {
+
+    }
+
+    public void UnSubscribe_All()
+    {
         _targetData.OnHealthModifiedUpdate -= Handle_HealthUpdate;
         _targetData.OnStateUpdate -= Handle_StateUpdate;
     }
@@ -48,6 +72,8 @@ public class InteractionData_UpdateController : MonoBehaviour
     // Animator_Controller
     private void Play_AnimatorState(string animState)
     {
+        if (animState == null) return;
+
         for (int i = 0; i < _healthUpdateAnimators.Length; i++)
         {
             _healthUpdateAnimators[i].Play_State(animState);
@@ -67,7 +93,9 @@ public class InteractionData_UpdateController : MonoBehaviour
     // Health
     private void Handle_HealthUpdate(int healthModifyValue)
     {
-        string animState = healthModifyValue <= 0 ? OccupantAnimation.Damaged : OccupantAnimation.Healed;
+        string damageAnimState = _targetData.currentHealth > 0 ? OccupantAnimation.Damaged : null;
+        string animState = healthModifyValue <= 0 ? damageAnimState : OccupantAnimation.Healed;
+
         Play_AnimatorState(animState);
 
         _targetData.Toggle_DataUpdate(true);
@@ -80,18 +108,25 @@ public class InteractionData_UpdateController : MonoBehaviour
 
         yield return _healthUpdateActionBus.RunSequential_DelayBusEvents();
 
-        if (_targetData.currentHealth <= 0)
+        if (_targetData.currentHealth > 0)
         {
-            Play_AnimatorState(OccupantAnimation.Remove);
-
-            yield return null;
-            while (CurrentAnimatorState_Playing()) yield return null;
-
-            yield return _deathUpdateActionBus.RunSequential_DelayBusEvents();
-            AfterDeathUpdate?.Invoke();
+            _targetData.Toggle_DataUpdate(false);
+            yield break;
         }
 
+        Play_AnimatorState(OccupantAnimation.Remove);
+
+        yield return null;
+        while (CurrentAnimatorState_Playing()) yield return null;
+
+        OnPreDeathActionDataUpdate?.Invoke();
+        yield return _deathUpdateActionBus.RunSequential_DelayBusEvents();
+
         _targetData.Toggle_DataUpdate(false);
+
+        if (_preserveAfterDeath) yield break;
+        Destroy(gameObject);
+
         yield break;
     }
 

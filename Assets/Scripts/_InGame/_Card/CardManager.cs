@@ -216,16 +216,6 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
         GameObject cardPrefab = placingCard.placePrefab;
         if (cardPrefab == null) return false;
 
-        HeroManager heroManager = GameManager.instance.heroManager;
-        int cardManaCost = placingCard.manaCost;
-
-        if (heroManager.Current_ManaCount() < cardManaCost)
-        {
-            // not enough mana panel animation ? 
-            return false;
-        }
-        heroManager.Modify_CurrentManaCount(-cardManaCost);
-
         GameObject placeCardObj = Instantiate(cardPrefab, placeTile.transform.position, Quaternion.identity);
         if (placeCardObj.TryGetComponent(out Card card) == false)
         {
@@ -234,7 +224,7 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
         }
 
         placeCardObj.transform.SetParent(transform);
-        placeTile.Set_Occupant(placeCardObj);
+        placeTile.Update_CurrentOccupant(placeCardObj);
 
         _placedCards.Add(card);
         card.Set_Data(placeCardData, placeTile);

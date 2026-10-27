@@ -117,7 +117,7 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         GameObject enemyObj = Instantiate(spawnEnemy.spawnPrefab, spawnPos, Quaternion.identity);
         enemyObj.transform.SetParent(transform);
 
-        spawnTile.Set_Occupant(enemyObj);
+        spawnTile.Update_CurrentOccupant(enemyObj);
 
         if (enemyObj.TryGetComponent(out Enemy spawnedEnemy) == false)
         {
@@ -132,6 +132,14 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
 
         return spawnedEnemy;
     }
+    public IEnumerator DelaySpawn(Enemy_ScrObj spawnEnemy, Tile spawnTile)
+    {
+        Enemy enemy = Spawn(spawnEnemy, spawnTile);
+
+        yield return null;
+        while (enemy.animator.CurrentState_Playing()) yield return null;
+    }
+
     private IEnumerator Sequential_DelaySpawn(Enemy_SpawnData spawnData)
     {
         List<Enemy_ScrObj> spawnEnemies = spawnData.Spawn_Enemies();
@@ -142,13 +150,8 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
             Tile spawnTile = edgedSpawnTiles[UnityEngine.Random.Range(0, edgedSpawnTiles.Count)];
             edgedSpawnTiles.Remove(spawnTile);
 
-            Enemy_ScrObj spawningEnemy = spawnEnemies[i];
-            Enemy enemy = Spawn(spawningEnemy, spawnTile);
-
-            yield return null;
-            while (enemy.animator.CurrentState_Playing()) yield return null;
+            yield return DelaySpawn(spawnEnemies[i], spawnTile);
         }
-        yield break;
     }
 
     private IEnumerator Update_SpawnData()

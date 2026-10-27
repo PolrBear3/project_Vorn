@@ -342,11 +342,24 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         CardManager cardManager = manager.cardManager;
 
         if (cardManager.CardPlace_ActionRunning()) return false;
-        if (cardManager.PlaceCard_OnTile(_dragDropData.draggingCardData, manager.tileManager.hoveringTile) == false) return false;
+
+        CardData dragCardData = _dragDropData.draggingCardData;
+
+        HeroManager heroManager = manager.heroManager;
+        int cardManaCost = dragCardData.currentManaPrice;
+
+        if (heroManager.Current_ManaCount() < cardManaCost)
+        {
+            // not enough mana panel animation ? 
+            return false;
+        }
+
+        if (cardManager.PlaceCard_OnTile(dragCardData, manager.tileManager.hoveringTile) == false) return false;
+        heroManager.Modify_CurrentManaCount(-cardManaCost);
 
         manager.cursor.Drop_Card();
-
         _dragDropData = null;
+
         manager.tileManager.Reset_TileIndicators();
 
         _placeCardEventBus.RunSequential_BusEvents();

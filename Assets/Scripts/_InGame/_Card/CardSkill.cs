@@ -16,7 +16,7 @@ public enum CardSkillTrigger
 public enum CardSkillTarget
 {
     CurrentTile,
-    ActionTargetingTile,
+    TargetingTile,
     TargetingTiles,
     InteractRangeTile,
     InteractRangeTiles
@@ -38,6 +38,7 @@ public class CardSkill_TriggerData
 
 public abstract class CardSkill : MonoBehaviour
 {
+    [Space(10)]
     [SerializeField] private ActivateCondition_ScrObj[] _triggerConditions;
     public ActivateCondition_ScrObj[] triggerConditions => _triggerConditions;
 
@@ -53,48 +54,110 @@ public abstract class CardSkill : MonoBehaviour
 
 
     // Card Skill Target
+    public List<Tile> InteractRange_Tiles()
+    {
+        return GameManager.instance.tileManager.Distanced_Tiles(_card.placedTile, _card.data.currentData.interactRange);
+    }
+
     public List<Tile> CurrentTarget_Tiles()
     {
         List<Tile> targetTiles = new();
         Tile placedTile = _card.placedTile;
 
+
         switch (_currentTarget)
         {
             case CardSkillTarget.CurrentTile:
-                targetTiles.Add(placedTile);
-                break;
 
-            case CardSkillTarget.ActionTargetingTile:
+                targetTiles.Add(placedTile);
+                return targetTiles;
+
+
+            case CardSkillTarget.TargetingTile:
+
                 Tile targetingTile = _card.runTimeAction.targetingTile;
                 if (targetingTile == null) break;
 
                 targetTiles.Add(targetingTile);
-                break;
+                return targetTiles;
 
-            case CardSkillTarget.TargetingTiles:
-                return new(_card.tileTargeting.recentTargetingTiles);
+
+            case CardSkillTarget.TargetingTiles: return new(_card.tileTargeting.recentTargetingTiles);
+
 
             case CardSkillTarget.InteractRangeTile:
-                {
-                    List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(placedTile, _card.data.currentData.interactRange);
-                    interactRangeTiles.Remove(placedTile);
 
-                    int rangeTileCount = interactRangeTiles.Count;
-                    if (rangeTileCount <= 0) break;
+                List<Tile> interactRangeTiles = InteractRange_Tiles();
 
-                    targetTiles.Add(interactRangeTiles[Random.Range(0, rangeTileCount)]);
-                    break;
-                }
+                int rangeTileCount = interactRangeTiles.Count;
+                if (rangeTileCount <= 0) break;
 
-            case CardSkillTarget.InteractRangeTiles:
-                {
-                    List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(placedTile, _card.data.currentData.interactRange);
-                    interactRangeTiles.Remove(placedTile);
+                targetTiles.Add(interactRangeTiles[Random.Range(0, rangeTileCount)]);
+                return targetTiles;
 
-                    return interactRangeTiles;
-                }
+
+            case CardSkillTarget.InteractRangeTiles: return InteractRange_Tiles();
         }
         return targetTiles;
+    }
+    public List<Tile> SpawnTarget_Tiles(int spawnCount)
+    {
+        List<Tile> currentTargetTiles = CurrentTarget_Tiles();
+        List<Tile> interactRangeTiles = InteractRange_Tiles();
+
+        for (int i = interactRangeTiles.Count - 1; i >= 0; i--)
+        {
+            if (interactRangeTiles[i].currentOccupant == null) continue;
+            interactRangeTiles.RemoveAt(i);
+        }
+
+
+        switch (currentTarget)
+        {
+            case CardSkillTarget.CurrentTile:
+
+                if (currentTrigger == CardSkillTrigger.Death) return currentTargetTiles;
+
+                currentTargetTiles.Remove(_card.placedTile);
+                return currentTargetTiles;
+
+
+            case CardSkillTarget.TargetingTile: return currentTargetTiles;
+
+
+            case CardSkillTarget.TargetingTiles:
+
+                for (int i = currentTargetTiles.Count - 1; i >= 0; i--)
+                {
+                    if (currentTargetTiles.Count <= spawnCount) break;
+                    currentTargetTiles.RemoveAt(i);
+                }
+                return currentTargetTiles;
+
+
+            case CardSkillTarget.InteractRangeTile:
+
+                if (interactRangeTiles.Count <= 0) return interactRangeTiles;
+
+                List<Tile> interactRangeTile = new()
+                {
+                    interactRangeTiles[UnityEngine.Random.Range(0, interactRangeTiles.Count)]
+                };
+                return interactRangeTile;
+
+
+            case CardSkillTarget.InteractRangeTiles:
+
+                int removeCount = interactRangeTiles.Count - Mathf.Min(spawnCount, interactRangeTiles.Count);
+
+                for (int i = 0; i < removeCount; i++)
+                {
+                    int randIndex = Random.Range(0, interactRangeTiles.Count);
+                    interactRangeTiles.RemoveAt(randIndex);
+                }
+                return interactRangeTiles;
+        }
+        return new();
     }
 
 

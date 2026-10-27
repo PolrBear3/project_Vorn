@@ -28,12 +28,12 @@ public class TileMovement_Controller : MonoBehaviour
         return true;
     }
 
-    
+
     // Flip
     private void Direction_FlipUpdate(float faceDirection)
     {
         bool isFlip = faceDirection < 0;
-        
+
         for (int i = 0; i < _directionFlipRenderers.Length; i++)
         {
             _directionFlipRenderers[i].flipX = isFlip;
@@ -42,7 +42,7 @@ public class TileMovement_Controller : MonoBehaviour
     public void Direction_FlipUpdate(Tile faceTile)
     {
         if (_currentTile == null) return;
-        
+
         Direction_FlipUpdate(faceTile.data.position.x - _currentTile.data.position.x);
     }
 
@@ -55,7 +55,7 @@ public class TileMovement_Controller : MonoBehaviour
         Tile previousTile = _currentTile;
 
         if (Set_CurrentTile(destinationTile) == false) return;
-        _currentTile.Set_Occupant(gameObject);
+        _currentTile.Update_CurrentOccupant(gameObject);
 
         if (_movementCoroutine != null)
         {
@@ -69,7 +69,7 @@ public class TileMovement_Controller : MonoBehaviour
             transform.position = (Vector2)_currentTile.transform.position + offset;
             return;
         }
-        previousTile.Set_Occupant(null);
+        previousTile.Update_CurrentOccupant(null);
 
         _movementCoroutine = StartCoroutine(Movement_Update(previousTile, _currentTile, offset));
     }

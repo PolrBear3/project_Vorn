@@ -25,8 +25,6 @@ public class SaveLoad_Controller : MonoBehaviour
 
     private void OnDestroy()
     {
-        SaveAll_ISaveLoadable();
-
         EventBus_GlobalController.UnRegister(LoadAll_ISaveLoadable);
     }
 
@@ -45,17 +43,21 @@ public class SaveLoad_Controller : MonoBehaviour
 
     public void SaveAll_ISaveLoadable()
     {
-        for (int i = 0; i < All_ISaveLoadables().Count; i++)
+        List<ISaveLoadable> saveLoadables = All_ISaveLoadables();
+
+        foreach (ISaveLoadable saveLoadable in saveLoadables)
         {
-            All_ISaveLoadables()[i].Save_Data();
+            saveLoadable.Save_Data();
         }
     }
 
     private void LoadAll_ISaveLoadable()
     {
-        for (int i = 0; i < All_ISaveLoadables().Count; i++)
+        List<ISaveLoadable> saveLoadables = All_ISaveLoadables();
+
+        foreach (ISaveLoadable saveLoadable in saveLoadables)
         {
-            All_ISaveLoadables()[i].Load_Data();
+            saveLoadable.Load_Data();
         }
     }
 }

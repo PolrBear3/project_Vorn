@@ -45,7 +45,7 @@ public class Tile : MonoBehaviour
 
 
     // Occupant
-    public bool Set_Occupant(GameObject occupantObject)
+    public bool Update_CurrentOccupant(GameObject occupantObject)
     {
         if (occupantObject == null)
         {

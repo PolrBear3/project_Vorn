@@ -23,8 +23,8 @@ public class CardSkill_HeroSpawner : CardSkill
             yield break;
         }
 
-        currentTile.Set_Occupant(null);
-        currentTile.Set_Occupant(spawnHeroObj);
+        currentTile.Update_CurrentOccupant(null);
+        currentTile.Update_CurrentOccupant(spawnHeroObj);
 
         spawnHero.Set_Data(selectedHero); // set data before tracking hero
         manager.heroManager.Track_SpawnedHero(spawnHero); // needs interaction data set for updating

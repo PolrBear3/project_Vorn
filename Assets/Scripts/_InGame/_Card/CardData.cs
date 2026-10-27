@@ -23,5 +23,7 @@ public class CardData
 
         if (setCard == null) return;
         _currentData = new(setCard.interactionData);
+
+
     }
 }

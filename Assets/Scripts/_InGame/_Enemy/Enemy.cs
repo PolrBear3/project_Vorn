@@ -59,7 +59,7 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
         UnRegister_SkillDatas();
 
         // from Set_Data
-        _interactionDataUpdater.AfterDeathUpdate -= Remove_Data;
+        _interactionDataUpdater.OnPreDeathActionDataUpdate -= Remove_Data;
     }
 
 
@@ -71,14 +71,14 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
         Register_SkillDatas();
 
         _interactionDataUpdater.Set_Data(_data.currentData);
-        _interactionDataUpdater.AfterDeathUpdate += Remove_Data;
+        _interactionDataUpdater.OnPreDeathActionDataUpdate += Remove_Data;
 
         _actionClock.Toggle(false);
     }
     private void Remove_Data()
     {
         GameManager.instance.enemyManager.spawnedEnemies.Remove(this);
-        Destroy(gameObject);
+        _movement.currentTile.Update_CurrentOccupant(null);
     }
 
 
@@ -194,6 +194,7 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
             case EnemySkillTrigger.AfterMovement: return _afterMovementSkillBus;
             case EnemySkillTrigger.PreDamaging: return _preDamageSkillBus;
             case EnemySkillTrigger.AfterDamaging: return _afterDamageSkillBus;
+            case EnemySkillTrigger.Death: return _interactionDataUpdater.deathUpdateActionBus;
         }
         return null;
     }

@@ -13,6 +13,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 955546610830207206, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
+      propertyPath: _skillDatas.Array.data[0]._target
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 955546610830207206, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
       propertyPath: _skillDatas.Array.data[0]._trigger
       value: 3
       objectReference: {fileID: 0}
@@ -23,7 +27,7 @@ PrefabInstance:
     - target: {fileID: 955546610830207206, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
       propertyPath: _skillDatas.Array.data[0]._enemySkills.Array.data[0]
       value: 
-      objectReference: {fileID: 3276828974992649872}
+      objectReference: {fileID: 6666799237492075027}
     - target: {fileID: 1613547910854064946, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -78,14 +82,14 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2898224727119453378, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3276828974992649872}
+      addedObject: {fileID: 6666799237492075027}
   m_SourcePrefab: {fileID: 100100000, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
 --- !u!1 &7544319682452765955 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2898224727119453378, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
   m_PrefabInstance: {fileID: 4650633809230881217}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3276828974992649872
+--- !u!114 &6666799237492075027
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,10 +98,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 7544319682452765955}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 137153851354f4318982e857083b83f4, type: 3}
+  m_Script: {fileID: 11500000, guid: b8124efce57da4381a7b7a8a76ce59d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _triggerConditions:
-  - {fileID: 11400000, guid: bdc6f68431fc74553a8fc7a994f907d6, type: 2}
-  _delayTime: 0
-  _debugString: Mini Bitter
+  _triggerRepeatCount: 0
+  _triggerConditions: []
+  _includeEnemies: 0
+  _duplicateTargeting: 0
+  _targetingCount: 1
+  _healthModifyValue: -1

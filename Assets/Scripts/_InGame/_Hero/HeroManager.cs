@@ -406,12 +406,10 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 
 
     // Game Over
-    private IEnumerator EndStage_OnHeroDeath()
+    public IEnumerator EndStage_OnHeroDeath()
     {
         if (_spawnedHero == null || _spawnedHero.data.currentData.currentHealth > 0) yield break;
-
-        _heroDeathEventBus.RunSequential_DelayBusEvents();
-        if (_heroDeathEventBus.DelayBus_Running()) yield return null;
+        yield return _heroDeathEventBus.RunSequential_DelayBusEvents();
 
         GameManager manager = GameManager.instance;
 

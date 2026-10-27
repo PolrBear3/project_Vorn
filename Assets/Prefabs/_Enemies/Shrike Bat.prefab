@@ -14,7 +14,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 955546610830207206, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
       propertyPath: _skillDatas.Array.data[0]._target
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 955546610830207206, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
       propertyPath: _skillDatas.Array.data[0]._trigger
@@ -113,8 +113,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e9765e63b52e4fc6adfbe01eb9fa75c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _triggerCoolTime: 0
   _triggerRepeatCount: 0
   _triggerConditions: []
-  _spawnCount: 9
+  _spawnCount: 1
   _spawnCards:
-  - {fileID: 11400000, guid: 3a8d880d0900c40bcb51f3e3b20450c7, type: 2}
+  - {fileID: 11400000, guid: 32de44626aad44d65a1e78d3bbd6da60, type: 2}

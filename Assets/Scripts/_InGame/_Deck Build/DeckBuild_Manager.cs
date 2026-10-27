@@ -9,6 +9,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 {
     [Space(20)]
     [SerializeField] private UIPanel_ToggleController _panelToggleController;
+    [SerializeField] private ToolTip _groupCardHoverToolTip;
 
     [Space(10)]
     [SerializeField] private DeckBuild_Group[] _buildGroups;
@@ -62,6 +63,16 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
         stageManager.setStageEventBus.Register(DeckBuild_InComplete);
         stageManager.setStageEventBus.Register(0, Add_BuiltDeckCards_toDeck);
+
+        for (int i = 0; i < _buildGroups.Length; i++)
+        {
+            DisplayCard[] groupCards = _buildGroups[i].groupCards;
+
+            for (int j = 0; j < groupCards.Length; j++)
+            {
+                groupCards[j].OnHover += Hover_GroupCard;
+            }
+        }
     }
 
     public void UnSubscribe_All()
@@ -75,6 +86,16 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
         stageManager.setStageEventBus.UnRegister(DeckBuild_InComplete);
         stageManager.setStageEventBus.UnRegister(Add_BuiltDeckCards_toDeck);
+
+        for (int i = 0; i < _buildGroups.Length; i++)
+        {
+            DisplayCard[] groupCards = _buildGroups[i].groupCards;
+
+            for (int j = 0; j < groupCards.Length; j++)
+            {
+                groupCards[j].OnHover -= Hover_GroupCard;
+            }
+        }
     }
 
 
@@ -183,9 +204,39 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     }
 
 
-    // Select
+    // Interaction
+    private void Hover_GroupCard(DisplayCard hoverCard)
+    {
+        if (hoverCard == null) return;
+
+        for (int i = 0; i < _buildGroups.Length; i++)
+        {
+            DisplayCard[] groupCards = _buildGroups[i].groupCards;
+
+            for (int j = 0; j < groupCards.Length; j++)
+            {
+                if (hoverCard != groupCards[j]) continue;
+
+                List<Card_ScrObj> currentGroupCards = _data.TargetGroup_CurrentCards(i);
+                Card_ScrObj hoveringCard = currentGroupCards[j];
+
+                /*
+                Card_ScrObj cardScrObj = ;
+                string foramtDescription = Utility.FormatUpdate_Description(cardScrObj.cardDescription, placedCard.data.currentData.DescriptionFormats());
+
+                _groupCardHoverToolTip.ToggleOn_CursorPoint(true);
+                _groupCardHoverToolTip.Update_Contents(null, cardScrObj.contentSprite, cardScrObj.cardName, foramtDescription);
+                */
+
+                return;
+            }
+        }
+    }
+
     public void Select_GroupCards(DeckBuild_Group selectGroup)
     {
+        if (_data.deckBuildComplete) return;
+
         for (int i = 0; i < _buildGroups.Length; i++)
         {
             if (selectGroup != _buildGroups[i]) continue;
@@ -200,13 +251,12 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         }
 
         int buildCardCount = _progressionIcons.Length * MaxCardCount_inGroup();
-        bool deckBuildComplete = _data.Complete_DeckBuild(buildCardCount);
 
-        _panelToggleController.Toggle(deckBuildComplete == false);
-
-        if (deckBuildComplete == false)
+        if (_data.Complete_DeckBuild(buildCardCount) == false)
         {
+            _panelToggleController.Toggle(true);
             Load_CardPoolCards_toGroups();
+
             return;
         }
         GameManager.instance.Continue_GamePlay();

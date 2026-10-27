@@ -70,24 +70,27 @@ public class GameManager : MonoBehaviour, ISaveLoadable
 
 
     // Global
-    private void Reload_GameScene()
+    private IEnumerator Reload_GameScene()
     {
         EventBus_GlobalController.UnSubscribeAll_SubscriptionHandlers();
 
-        // Screen Hide Animation ?
+        _environmentManager.Toggle_TransitionScreen(true);
+        yield return null;
+        while (_environmentManager.TransitionScreen_Playing()) yield return null;
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void Continue_GamePlay()
     {
         SaveLoad_Controller.instance.SaveAll_ISaveLoadable();
-        Reload_GameScene();
+        StartCoroutine(Reload_GameScene());
     }
     public void Reset_GamePlay()
     {
         Save_Data();
 
         ES3.DeleteFile(SaveKeys.GamePlayFile);
-        Reload_GameScene();
+        StartCoroutine(Reload_GameScene());
     }
 }

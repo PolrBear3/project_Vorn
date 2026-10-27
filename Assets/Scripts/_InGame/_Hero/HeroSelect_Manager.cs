@@ -92,6 +92,7 @@ public class HeroSelect_Manager : MonoBehaviour, ISubscriptionHandler
     public void Select_Hero(Hero_SelectGroup selectGroup)
     {
         HeroManager_Data data = GameManager.instance.heroManager.data;
+        if (data.selectedHero != null) return;
 
         for (int i = 0; i < _selectGroups.Length; i++)
         {

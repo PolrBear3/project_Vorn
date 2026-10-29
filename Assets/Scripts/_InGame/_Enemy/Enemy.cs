@@ -16,6 +16,8 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
     [SerializeField] private InteractionData_UpdateController _interactionDataUpdater;
     public InteractionData_UpdateController interactionDataUpdater => _interactionDataUpdater;
 
+    [Space(10)]
+    [SerializeField] private InteractionBar _healthBar;
     [SerializeField] private ActionClock _actionClock;
 
     [Space(20)]

@@ -207,6 +207,8 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     // Interaction
     private void Hover_GroupCard(DisplayCard hoverCard)
     {
+        _groupCardHoverToolTip.ToggleOn_CursorPoint(hoverCard != null);
+
         if (hoverCard == null) return;
 
         for (int i = 0; i < _buildGroups.Length; i++)
@@ -220,13 +222,8 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
                 List<Card_ScrObj> currentGroupCards = _data.TargetGroup_CurrentCards(i);
                 Card_ScrObj hoveringCard = currentGroupCards[j];
 
-                /*
-                Card_ScrObj cardScrObj = ;
-                string foramtDescription = Utility.FormatUpdate_Description(cardScrObj.cardDescription, placedCard.data.currentData.DescriptionFormats());
-
-                _groupCardHoverToolTip.ToggleOn_CursorPoint(true);
-                _groupCardHoverToolTip.Update_Contents(null, cardScrObj.contentSprite, cardScrObj.cardName, foramtDescription);
-                */
+                string foramtDescription = Utility.FormatUpdate_Description(hoveringCard.cardDescription, hoveringCard.interactionData.DescriptionFormats());
+                _groupCardHoverToolTip.Update_Contents(null, hoveringCard.contentSprite, hoveringCard.cardName, foramtDescription);
 
                 return;
             }

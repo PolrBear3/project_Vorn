@@ -1,10 +1,15 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Hero_SelectGroup : MonoBehaviour
+public class Hero_SelectGroup : MonoBehaviour, ISubscriptionHandler
 {
+    [Space(20)]
+    [SerializeField] private EventSystems_Controller _heroHoverDetector;
+    [SerializeField] private EventSystems_Controller _spawnCardHoverDetector;
+
     [Space(20)]
     [SerializeField] private Image _layoutPlatform;
 
@@ -15,6 +20,40 @@ public class Hero_SelectGroup : MonoBehaviour
     [Space(20)]
     [SerializeField] private Sprite[] _coinSprites;
     [SerializeField] private Image[] _coinImages;
+
+
+    public Action<Hero_SelectGroup> OnHeroHover;
+    public Action<Hero_SelectGroup> OnSpawnCardHover;
+
+
+    // MonoBehaviour
+    private void Awake()
+    {
+        EventBus_GlobalController.Register(this);
+        EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
+    }
+
+    private void OnDestroy()
+    {
+        UnSubscribe_All();
+
+        EventBus_GlobalController.UnRegister(this);
+        EventBus_GlobalController.UnRegister(Subscribe_All);
+    }
+
+
+    // ISubscriptionHandler
+    public void Subscribe_All()
+    {
+        _heroHoverDetector.OnPointerState += Hover_Hero;
+        _spawnCardHoverDetector.OnPointerState += Hover_SpawnCard;
+    }
+
+    public void UnSubscribe_All()
+    {
+        _heroHoverDetector.OnPointerState -= Hover_Hero;
+        _spawnCardHoverDetector.OnPointerState -= Hover_SpawnCard;
+    }
 
 
     // UI
@@ -38,7 +77,16 @@ public class Hero_SelectGroup : MonoBehaviour
     }
 
 
-    // Button
+    // Interaction
+    public void Hover_Hero(bool hoverDetected)
+    {
+        OnHeroHover?.Invoke(hoverDetected ? this : null);
+    }
+    public void Hover_SpawnCard(bool hoverDetected)
+    {
+        OnSpawnCardHover?.Invoke(hoverDetected ? this : null);
+    }
+
     public void Select()
     {
         GameManager.instance.heroManager.heroSelectManager.Select_Hero(this);

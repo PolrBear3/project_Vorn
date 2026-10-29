@@ -5,6 +5,10 @@ using UnityEngine;
 public class HeroSelect_Manager : MonoBehaviour, ISubscriptionHandler
 {
     [Space(20)]
+    [SerializeField] private ToolTip _heroHoverToolTip;
+    [SerializeField] private ToolTip _spawnCarddHoverToolTip;
+
+    [Space(20)]
     [SerializeField] private UIPanel_ToggleController _toggleController;
     [SerializeField] private Hero_SelectGroup[] _selectGroups;
 
@@ -39,12 +43,24 @@ public class HeroSelect_Manager : MonoBehaviour, ISubscriptionHandler
     // ISubscriptionHandler
     public void Subscribe_All()
     {
+        for (int i = 0; i < _selectGroups.Length; i++)
+        {
+            Hero_SelectGroup selectGroup = _selectGroups[i];
 
+            selectGroup.OnHeroHover += Hover_Hero;
+            selectGroup.OnSpawnCardHover += Hover_SpawnCard;
+        }
     }
 
     public void UnSubscribe_All()
     {
+        for (int i = 0; i < _selectGroups.Length; i++)
+        {
+            Hero_SelectGroup selectGroup = _selectGroups[i];
 
+            selectGroup.OnHeroHover -= Hover_Hero;
+            selectGroup.OnSpawnCardHover -= Hover_SpawnCard;
+        }
     }
 
 
@@ -69,6 +85,38 @@ public class HeroSelect_Manager : MonoBehaviour, ISubscriptionHandler
         }
         return selectableHeroes;
     }
+
+
+    private Hero_ScrObj Hovering_Hero(Hero_SelectGroup hoveringGroup)
+    {
+        for (int i = 0; i < _selectGroups.Length; i++)
+        {
+            if (hoveringGroup != _selectGroups[i]) continue;
+            return GameManager.instance.heroManager.data.selectableHeros[i];
+        }
+        return null;
+    }
+
+    private void Hover_Hero(Hero_SelectGroup hovergroup)
+    {
+        Hero_ScrObj hoveringHero = Hovering_Hero(hovergroup);
+        _heroHoverToolTip.ToggleOn_CursorPoint(hoveringHero != null);
+
+        if (hoveringHero == null) return;
+        _heroHoverToolTip.Update_Contents(hoveringHero.toolTipBaseSprite, null, hoveringHero.characterName, hoveringHero.characterDescription);
+    }
+    private void Hover_SpawnCard(Hero_SelectGroup hovergroup)
+    {
+        Hero_ScrObj hoveringHero = Hovering_Hero(hovergroup);
+        _spawnCarddHoverToolTip.ToggleOn_CursorPoint(hoveringHero != null);
+
+        if (hoveringHero == null) return;
+        Card_ScrObj spawnCard = hoveringHero.spawnCard;
+
+        string foramtDescription = Utility.FormatUpdate_Description(spawnCard.cardDescription, spawnCard.interactionData.DescriptionFormats());
+        _spawnCarddHoverToolTip.Update_Contents(null, spawnCard.contentSprite, spawnCard.cardName, foramtDescription);
+    }
+
 
     private void Toggle_HeroSelect()
     {

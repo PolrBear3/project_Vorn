@@ -8,6 +8,9 @@ public class DeckModify_EventMenu : EventMenu, ISubscriptionHandler
 
     [Space(40)]
     [SerializeField] private GameObject _displayCardsPlatform;
+
+    [Space(20)]
+    [SerializeField] private ToolTip _selectableCardHoverToolTip;
     [SerializeField] private DisplayCard[] _selectableDisplayCards;
 
     [Space(20)]
@@ -41,7 +44,10 @@ public class DeckModify_EventMenu : EventMenu, ISubscriptionHandler
 
         for (int i = 0; i < _selectableDisplayCards.Length; i++)
         {
-            _selectableDisplayCards[i].OnSelect += Select;
+            DisplayCard displayCard = _selectableDisplayCards[i];
+
+            displayCard.OnHover += Hover_SelectableCard;
+            displayCard.OnSelect += Select;
         }
     }
 
@@ -51,7 +57,10 @@ public class DeckModify_EventMenu : EventMenu, ISubscriptionHandler
 
         for (int i = 0; i < _selectableDisplayCards.Length; i++)
         {
-            _selectableDisplayCards[i].OnSelect -= Select;
+            DisplayCard displayCard = _selectableDisplayCards[i];
+
+            displayCard.OnHover -= Hover_SelectableCard;
+            displayCard.OnSelect -= Select;
         }
     }
 
@@ -122,6 +131,26 @@ public class DeckModify_EventMenu : EventMenu, ISubscriptionHandler
             Sprite updateSprite = _selectedCardDatas.Contains(selectableData) ? SelectIndication_Sprite() : null;
 
             _selectableDisplayCards[i].Load_IndicationIcon(updateSprite);
+        }
+    }
+
+    private void Hover_SelectableCard(DisplayCard hoverCard)
+    {
+        _selectableCardHoverToolTip.ToggleOn_CursorPoint(hoverCard != null);
+
+        if (hoverCard == null) return;
+
+        for (int i = 0; i < _selectableDisplayCards.Length; i++)
+        {
+            if (hoverCard != _selectableDisplayCards[i]) continue;
+
+            CardData hoveringData = _selectableCardDatas[i];
+            Card_ScrObj hoveringCard = hoveringData.cardScrObj;
+
+            string foramtDescription = Utility.FormatUpdate_Description(hoveringCard.cardDescription, hoveringData.currentData.DescriptionFormats());
+            _selectableCardHoverToolTip.Update_Contents(null, hoveringCard.contentSprite, hoveringCard.cardName, foramtDescription);
+
+            return;
         }
     }
 

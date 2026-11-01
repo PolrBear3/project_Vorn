@@ -22,7 +22,7 @@ public class Hero_StatPanel : MonoBehaviour
     {
         _materialBackground.material.SetFloat("_Speed", _backgroundEffectSpeed);
     }
-    
+
     private void OnApplicationQuit()
     {
         _materialBackground.material.SetFloat("_Speed", 0f);
@@ -30,7 +30,7 @@ public class Hero_StatPanel : MonoBehaviour
 
 
     // Visual
-    public void Update_ValueText(int currentValue, int maxValue)
+    public void Update_ValueText(int maxValue, int currentValue)
     {
         _valueText.text = currentValue + "/" + maxValue;
     }

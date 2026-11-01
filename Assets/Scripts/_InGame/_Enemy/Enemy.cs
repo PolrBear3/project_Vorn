@@ -18,6 +18,8 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
 
     [Space(10)]
     [SerializeField] private InteractionBar _healthBar;
+    public InteractionBar healthBar => _healthBar;
+
     [SerializeField] private ActionClock _actionClock;
 
     [Space(20)]
@@ -62,6 +64,7 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
 
         // from Set_Data
         _interactionDataUpdater.OnPreDeathActionDataUpdate -= Remove_Data;
+        _data.currentData.OnHealthUpdate -= _healthBar.Update_Fill;
     }
 
 
@@ -74,6 +77,12 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
 
         _interactionDataUpdater.Set_Data(_data.currentData);
         _interactionDataUpdater.OnPreDeathActionDataUpdate += Remove_Data;
+
+        InteractionData currentData = _data.currentData;
+        currentData.OnHealthUpdate += _healthBar.Update_Fill;
+
+        _healthBar.Update_Fill(currentData.maxHealth, currentData.currentHealth);
+        _healthBar.Toggle_ValueBox(false);
 
         _actionClock.Toggle(false);
     }
@@ -246,6 +255,8 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
     public IEnumerator Run_EndTurnActions()
     {
         _runTimeAction.Toggle_RunAction(true);
+
+        _healthBar.Toggle_ValueBox(true);
         _actionClock.Toggle(true);
 
         yield return _preMovementSkillBus.RunSequential_DelayBusEvents(); // movement
@@ -277,6 +288,8 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
         _damagingTile = null;
 
         _runTimeAction.Toggle_RunAction(false);
+
+        _healthBar.Toggle_ValueBox(false);
         _actionClock.Toggle(false);
 
         yield break;

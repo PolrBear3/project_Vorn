@@ -45,7 +45,7 @@ public class InteractionData
 
 
     /// <summary>
-    /// currentHealth, maxHealth
+    /// maxHealth, currentHealth
     /// </summary>
     public Action<int, int> OnHealthUpdate;
     /// <summary>
@@ -97,7 +97,7 @@ public class InteractionData
 
         _maxHealth = newValue;
 
-        OnHealthUpdate?.Invoke(_currentHealth, _maxHealth);
+        OnHealthUpdate?.Invoke(_maxHealth, _currentHealth);
         OnHealthModifiedUpdate?.Invoke(modifyValue);
 
         return true;
@@ -113,7 +113,7 @@ public class InteractionData
         if (modifyValue < 0 && Remove_State(InteractableState.Shield)) return false;
 
         _currentHealth = newValue;
-        OnHealthUpdate?.Invoke(_currentHealth, _maxHealth);
+        OnHealthUpdate?.Invoke(_maxHealth, _currentHealth);
 
         return true;
     }

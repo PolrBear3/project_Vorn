@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class EnemyManager : MonoBehaviour, ISubscriptionHandler
@@ -53,6 +54,7 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         endTurnBus.OnSequentialDelayFinish += Hover_Enemy;
 
         endTurnBus.Register(0, _enemyHoverToolTip.UnToggle);
+        endTurnBus.Register(0, UnToggle_EnemyStats);
     }
 
     public void UnSubscribe_All()
@@ -76,6 +78,7 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         endTurnBus.OnSequentialDelayFinish -= Hover_Enemy;
 
         endTurnBus.UnRegister(_enemyHoverToolTip.UnToggle);
+        endTurnBus.UnRegister(UnToggle_EnemyStats);
     }
 
 
@@ -181,52 +184,78 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
 
 
     // Hover
-    private List<Tile> HoverIndicate_InteractRangeTiles(Enemy hoverEnemy)
+    private List<Tile> Enemy_InteractRangeTiles(Enemy targetEnemy)
     {
-        if (hoverEnemy == null) return null;
+        if (targetEnemy == null) return null;
 
-        Tile currentTile = hoverEnemy.movement.currentTile;
-        int interactRange = hoverEnemy.data.currentData.interactRange;
+        Tile currentTile = targetEnemy.movement.currentTile;
+        int interactRange = targetEnemy.data.currentData.interactRange;
 
         List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(currentTile, interactRange);
         interactRangeTiles.Remove(currentTile);
 
         return interactRangeTiles;
     }
-    private void HoverIndicate_TargetTile(Enemy hoverEnemy)
+
+    private void Indicate_EnemyCurrentTile(Enemy hoverEnemy)
     {
         Tile indicateTargetTile = hoverEnemy.TargetTile();
         if (indicateTargetTile == null) return;
 
         indicateTargetTile.indicatorAnimController.Play_State(UIAnimation.Restricted);
     }
+    private void Indicate_EnemyTiles(Enemy targetEnemy)
+    {
+        if (targetEnemy == null) return;
+        List<Tile> indicateTiles = Enemy_InteractRangeTiles(targetEnemy);
+
+        foreach (Tile tile in indicateTiles)
+        {
+            tile.indicatorAnimController.Play_State(UIAnimation.Toggle);
+        }
+        Indicate_EnemyCurrentTile(targetEnemy);
+    }
+
+    private void ToggleEnemy_StatIndications(Enemy toggleEnemy)
+    {
+        foreach (Enemy enemy in _spawnedEnemies)
+        {
+            bool isHoveringEnemy = enemy == toggleEnemy;
+            enemy.healthBar.Toggle_ValueBox(isHoveringEnemy);
+        }
+    }
+    private void UnToggle_EnemyStats()
+    {
+        foreach (Enemy enemy in _spawnedEnemies)
+        {
+            enemy.healthBar.Toggle_ValueBox(false);
+        }
+    }
 
     private void Hover_Enemy()
     {
         GameManager manager = GameManager.instance;
-        if (manager.stageManager.endTurnEventBus.DelayBus_Running()) return;
+        StageManager stageManager = manager.stageManager;
+
+        if (stageManager.endTurnEventBus.DelayBus_Running()) return;
+        if (stageManager.endStageEventBus.DelayBus_Running()) return;
 
         TileManager tileManager = manager.tileManager;
         Tile hoveringTile = tileManager.hoveringTile;
 
         Enemy hoveringEnemy = Spawned_Enemy(hoveringTile);
-        bool enemyStanding = hoveringEnemy != null;
-
-        _enemyHoverToolTip.Toggle(enemyStanding);
+        ToggleEnemy_StatIndications(hoveringEnemy);
 
         if (hoveringTile == null || hoveringTile.currentOccupant == null)
         {
             tileManager.Reset_TileIndicators();
+            _enemyHoverToolTip.Toggle(false);
+
             return;
         }
-        if (enemyStanding == false) return;
+        if (hoveringEnemy == null) return;
 
-        List<Tile> indicateTiles = HoverIndicate_InteractRangeTiles(hoveringEnemy);
-        foreach (Tile tile in indicateTiles)
-        {
-            tile.indicatorAnimController.Play_State(UIAnimation.Toggle);
-        }
-        HoverIndicate_TargetTile(hoveringEnemy);
+        Indicate_EnemyTiles(hoveringEnemy);
 
         // ToolTip
         CharacterScrObj enemyScrObj = hoveringEnemy.data.enemyScrObj;

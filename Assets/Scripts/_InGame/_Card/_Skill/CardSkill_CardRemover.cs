@@ -47,11 +47,11 @@ public class CardSkill_CardRemover : CardSkill
             Card removeCard = removeCards[i];
             if (removeCard == null) continue;
 
-            InteractionData data = removeCard.data.currentData;
-            data.Update_CurrentHealth(0);
+            InteractionData_UpdateController dataController = removeCard.dataUpdateController;
+            InteractionData data = dataController.targetData;
 
-            yield return null;
-            while (data.dataUpdating) yield return null;
+            data.Update_CurrentHealth(0, out int modifiedValue);
+            yield return dataController.Handle_HealthUpdate(modifiedValue);
         }
         yield break;
     }

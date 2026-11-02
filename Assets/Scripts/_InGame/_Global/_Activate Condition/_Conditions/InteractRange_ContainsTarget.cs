@@ -20,7 +20,7 @@ public class InteractRange_ContainsTarget : ActivateCondition_ScrObj
         IInteractable interactable = currentTile.CurrentOccupant_Interactable();
         if (interactable == null) return 0;
 
-        return interactable.interactionData.interactRange;
+        return interactable.dataUpdateController.targetData.interactRange;
     }
 
     private bool HeroContain_Check(List<Tile> rangeTiles)

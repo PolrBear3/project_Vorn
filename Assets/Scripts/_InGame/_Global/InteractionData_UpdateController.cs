@@ -25,6 +25,10 @@ public class InteractionData_UpdateController : MonoBehaviour, ISubscriptionHand
     public Action OnPreDeathActionDataUpdate;
 
 
+    private bool _healthHandleUpdateRunning;
+    public bool healthHandleUpdateRunning => _healthHandleUpdateRunning;
+
+
     // MonoBehaviour
     private void Awake()
     {
@@ -37,8 +41,6 @@ public class InteractionData_UpdateController : MonoBehaviour, ISubscriptionHand
         EventBus_GlobalController.UnRegister(this);
 
         if (_targetData == null) return;
-
-        _targetData.OnHealthModifiedUpdate -= Handle_HealthUpdate;
         _targetData.OnStateUpdate -= Handle_StateUpdate;
     }
 
@@ -51,7 +53,6 @@ public class InteractionData_UpdateController : MonoBehaviour, ISubscriptionHand
 
     public void UnSubscribe_All()
     {
-        _targetData.OnHealthModifiedUpdate -= Handle_HealthUpdate;
         _targetData.OnStateUpdate -= Handle_StateUpdate;
     }
 
@@ -62,14 +63,21 @@ public class InteractionData_UpdateController : MonoBehaviour, ISubscriptionHand
         if (targetData == null) return;
 
         _targetData = targetData;
-        Handle_StateUpdate();
 
-        _targetData.OnHealthModifiedUpdate += Handle_HealthUpdate;
+        Handle_StateUpdate();
         _targetData.OnStateUpdate += Handle_StateUpdate;
     }
 
 
     // Animator_Controller
+    public bool CurrentAnimatorState_Playing()
+    {
+        for (int i = 0; i < _healthUpdateAnimators.Length; i++)
+        {
+            if (_healthUpdateAnimators[i].CurrentState_Playing()) return true;
+        }
+        return false;
+    }
     private void Play_AnimatorState(string animState)
     {
         if (animState == null) return;
@@ -80,29 +88,16 @@ public class InteractionData_UpdateController : MonoBehaviour, ISubscriptionHand
         }
     }
 
-    public bool CurrentAnimatorState_Playing()
-    {
-        for (int i = 0; i < _healthUpdateAnimators.Length; i++)
-        {
-            if (_healthUpdateAnimators[i].CurrentState_Playing()) return true;
-        }
-        return false;
-    }
-
 
     // Health
-    private void Handle_HealthUpdate(int healthModifyValue)
+    public IEnumerator Handle_HealthUpdate(int healthModifyValue)
     {
-        string damageAnimState = _targetData.currentHealth > 0 ? OccupantAnimation.Damaged : null;
-        string animState = healthModifyValue <= 0 ? damageAnimState : OccupantAnimation.Healed;
+        int currentHealth = _targetData.currentHealth;
+        if (healthModifyValue == 0 && currentHealth > 0) yield break;
 
-        Play_AnimatorState(animState);
+        _healthHandleUpdateRunning = true;
 
-        _targetData.Toggle_DataUpdate(true);
-        StartCoroutine(HealthUpdate_Handle());
-    }
-    private IEnumerator HealthUpdate_Handle()
-    {
+        Play_AnimatorState(healthModifyValue <= 0 ? OccupantAnimation.Damaged : OccupantAnimation.Healed);
         yield return null;
         while (CurrentAnimatorState_Playing()) yield return null;
 
@@ -110,24 +105,23 @@ public class InteractionData_UpdateController : MonoBehaviour, ISubscriptionHand
 
         if (_targetData.currentHealth > 0)
         {
-            _targetData.Toggle_DataUpdate(false);
+            _healthHandleUpdateRunning = false;
             yield break;
         }
 
         Play_AnimatorState(OccupantAnimation.Remove);
-
         yield return null;
         while (CurrentAnimatorState_Playing()) yield return null;
 
         OnPreDeathActionDataUpdate?.Invoke();
         yield return _deathUpdateActionBus.RunSequential_DelayBusEvents();
 
-        _targetData.Toggle_DataUpdate(false);
-
-        if (_preserveAfterDeath) yield break;
+        if (_preserveAfterDeath)
+        {
+            _healthHandleUpdateRunning = false;
+            yield break;
+        }
         Destroy(gameObject);
-
-        yield break;
     }
 
 

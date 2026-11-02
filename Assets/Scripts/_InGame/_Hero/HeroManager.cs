@@ -154,7 +154,10 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         // from Track_CurrentHero
         if (_spawnedHero == null) return;
 
-        _spawnedHero.interactionData.OnHealthUpdate -= _healthPanel.Update_ValueText;
+        InteractionData data = _spawnedHero.data.currentData;
+
+        data.OnHealthUpdate -= _healthPanel.Update_ValueText;
+        data.OnHealthUpdate -= _spawnedHero.healthBar.Update_Fill;
         _spawnedHero.data.OnManaUpdate -= _manaPanel.Update_ValueText;
     }
 
@@ -202,10 +205,13 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
     {
         if (heroToTrack == null) return;
 
+        _spawnedHero = heroToTrack;
         heroToTrack.transform.SetParent(transform);
 
-        _spawnedHero = heroToTrack;
-        _spawnedHero.interactionData.OnHealthUpdate += _healthPanel.Update_ValueText;
+        InteractionData data = _spawnedHero.data.currentData;
+
+        data.OnHealthUpdate += _healthPanel.Update_ValueText;
+        data.OnHealthUpdate += _spawnedHero.healthBar.Update_Fill;
         _spawnedHero.data.OnManaUpdate += _manaPanel.Update_ValueText;
 
         Update_HealthPanel();
@@ -423,14 +429,18 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
     // Current Hero
     private void Hover_CurrentHero()
     {
+        if (_spawnedHero == null) return;
+
         GameManager manager = GameManager.instance;
         if (manager.stageManager.endTurnEventBus.DelayBus_Running()) return;
 
         Tile hoveringTile = manager.tileManager.hoveringTile;
-        bool toggleToolTip = _spawnedHero != null && hoveringTile == _spawnedHero.movement.currentTile;
+        bool heroHoverDetected = hoveringTile == _spawnedHero.movement.currentTile;
 
-        _heroHoverToolTip.Toggle(toggleToolTip);
-        if (toggleToolTip == false) return;
+        _heroHoverToolTip.Toggle(heroHoverDetected);
+        _spawnedHero.healthBar.Toggle_ValueBox(heroHoverDetected);
+
+        if (heroHoverDetected == false) return;
 
         // ToolTip
         CharacterScrObj heroScrObj = _spawnedHero.data.heroScrObj;

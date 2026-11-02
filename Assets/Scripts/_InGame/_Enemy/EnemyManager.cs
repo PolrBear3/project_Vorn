@@ -221,7 +221,14 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         foreach (Enemy enemy in _spawnedEnemies)
         {
             bool isHoveringEnemy = enemy == toggleEnemy;
+
             enemy.healthBar.Toggle_ValueBox(isHoveringEnemy);
+
+            HealthModify_Indicator modifyIndicator = enemy.modifyIndicator;
+            modifyIndicator.gameObject.SetActive(isHoveringEnemy);
+
+            if (isHoveringEnemy == false) continue;
+            modifyIndicator.Update_ModifyValue(enemy.data.currentData.healthModifyValue);
         }
     }
     private void UnToggle_EnemyStats()
@@ -229,6 +236,7 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         foreach (Enemy enemy in _spawnedEnemies)
         {
             enemy.healthBar.Toggle_ValueBox(false);
+            enemy.modifyIndicator.gameObject.SetActive(false);
         }
     }
 
@@ -278,7 +286,7 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
             if (enemy == null) continue;
 
             StartCoroutine(enemy.Run_EndTurnActions());
-            while (enemy != null && enemy.runTimeAction.actionRunning || enemy.data.currentData.dataUpdating) yield return null;
+            while (enemy != null && (enemy.runTimeActionData.actionRunning || enemy.dataUpdateController.healthHandleUpdateRunning)) yield return null;
         }
 
         yield break;

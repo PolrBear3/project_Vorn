@@ -5,20 +5,17 @@ using UnityEngine;
 
 public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IInteractable, IRunTimeAction
 {
-    [Space(10)]
+    [Space(20)]
     [SerializeField] private SpriteRenderer _baseSpriteRenderer;
     [SerializeField] private SpriteRenderer _contentSpriteRenderer;
 
+    [Space(10)]
+    [SerializeField] private HealthModify_Indicator _modifyIndicator;
+    public HealthModify_Indicator modifyIndicator => _modifyIndicator;
+
     [Space(20)]
     [SerializeField] private InteractionData_UpdateController _interactionDataUpdater;
-    public InteractionData_UpdateController interactionDataUpdater => _interactionDataUpdater;
-
-    [Space(20)]
-    [SerializeField] private Animator_Controller _baseAnimator;
-    public Animator_Controller baseAnimator => _baseAnimator;
-
-    [SerializeField] private Animator_Controller _contentAnimator;
-    public Animator_Controller contentAnimator => _contentAnimator;
+    public InteractionData_UpdateController dataUpdateController => _interactionDataUpdater;
 
     [Space(20)]
     [SerializeField] private ActivateCondition_ScrObj[] _targetingConditions;
@@ -38,7 +35,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     public TileTargeting_Data tileTargeting => _tileTargeting;
 
     private RunTimeAction_Data _runTimeAction = new();
-    public RunTimeAction_Data runTimeAction => _runTimeAction;
+    public RunTimeAction_Data runTimeActionData => _runTimeAction;
 
 
     private EventBus_Controller _placeUpdateActionBus = new();
@@ -67,12 +64,6 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
         int distance = Utility.Chebyshev_Distance(_placedTile.data.position, targetingTile.data.position);
         return distance <= _data.currentData.interactRange;
     }
-
-    // IInteractable
-    public InteractionData interactionData => _data.currentData;
-
-    // IRunTimeAction
-    public RunTimeAction_Data runTimeActionData => _runTimeAction;
 
 
     // MonoBehaviour
@@ -114,6 +105,9 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
         Register_SkillDatas();
 
         OnSetData?.Invoke();
+
+        _modifyIndicator.Update_ModifyValue(_data.currentData.healthModifyValue);
+        _modifyIndicator.Toggle_ValueBox(false);
     }
     public void Set_Data(Card_ScrObj setData, Tile placeTile)
     {
@@ -188,7 +182,9 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     private void Reset_ActionDatas()
     {
         _tileTargeting.targetingTiles.Clear();
+
         _runTimeAction.Toggle_RunAction(false);
+        _modifyIndicator.Toggle_ValueBox(false);
     }
 
     private IEnumerator Run_TileTargeting_HealthModify()
@@ -196,6 +192,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
         if (CustomData_Utility.AllConditions_ActivateAvailable(_placedTile, _targetingConditions) == false) yield break;
 
         List<Tile> targetingTiles = new(_tileTargeting.targetingTiles);
+        _modifyIndicator.Toggle_ValueBox(targetingTiles.Count > 0);
 
         for (int i = 0; i < targetingTiles.Count; i++)
         {
@@ -205,20 +202,14 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
             yield return _preTargetingSkillBus.RunSequential_DelayBusEvents();
 
             IInteractable tileInteractable = tile.CurrentOccupant_Interactable();
-            if (tileInteractable != null)
+            InteractionData_UpdateController dataController = tileInteractable?.dataUpdateController;
+
+            if (dataController != null)
             {
-                InteractionData targetData = tileInteractable.interactionData;
-                if (targetData != null)
-                {
-                    // run health updating animation (animation is set relative to updateValue) ?
-                    // while (_baseAnimator.CurrentState_Playing()) yield return null;
+                int modifyValue = _data.currentData.Modify_OtherData_CurrentHealth(dataController.targetData);
+                _runTimeAction.CountUpdate_TargetingHealthModify(modifyValue != 0);
 
-                    bool modifySuccessful = interactionData.Modify_OtherData_CurrentHealth(targetData);
-                    _runTimeAction.CountUpdate_TargetingHealthModify(modifySuccessful);
-
-                    yield return null;
-                    while (targetData.dataUpdating) yield return null;
-                }
+                yield return dataController.Handle_HealthUpdate(modifyValue);
             }
 
             yield return _afterTargetingSkillBus.RunSequential_DelayBusEvents();

@@ -13,7 +13,13 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
 
     [Space(10)]
     [SerializeField] private InteractionData_UpdateController _healthController;
-    public InteractionData_UpdateController healthController => _healthController;
+    public InteractionData_UpdateController dataUpdateController => _healthController;
+
+    [Space(20)]
+    [SerializeField] private InteractionBar _healthBar;
+    public InteractionBar healthBar => _healthBar;
+
+    [SerializeField] private ActionClock _actionClock;
 
 
     private HeroData _data;
@@ -24,13 +30,6 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
 
     private bool _actionsRunning;
     public bool actionsRunning => _actionsRunning;
-
-
-    // IInteractable
-    public InteractionData interactionData => _data.currentData;
-
-    private bool _healthUpdating;
-    public bool healthUpdating => _healthUpdating;
 
 
     // ITileTargeting
@@ -51,7 +50,14 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
     public void Set_Data(Hero_ScrObj setHero)
     {
         _data = new(setHero);
-        _healthController.Set_Data(_data.currentData);
+
+        InteractionData currentData = _data.currentData;
+        _healthController.Set_Data(currentData);
+
+        _healthBar.Update_Fill(currentData.maxHealth, currentData.currentHealth);
+        _healthBar.Toggle_ValueBox(false);
+
+        _actionClock.Toggle(false);
     }
 
 
@@ -59,6 +65,9 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
     public IEnumerator Run_EndTurnActions()
     {
         _actionsRunning = true;
+
+        _healthBar.Toggle_ValueBox(true);
+        _actionClock.Toggle(true);
 
         // movement
         TileManager tileManager = GameManager.instance.tileManager;
@@ -78,7 +87,9 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
             }
         }
 
+        _healthBar.Toggle_ValueBox(false);
+        _actionClock.Toggle(false);
+
         _actionsRunning = false;
-        yield break;
     }
 }

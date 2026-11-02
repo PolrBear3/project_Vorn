@@ -15,12 +15,12 @@ MonoBehaviour:
   _characterName: Sorcerer
   _characterDescription: 
   _toolTipBaseSprite: {fileID: -466947991, guid: 670bf62ffb65a4c3d943af234a4a26c5, type: 3}
-  _spawnPrefab: {fileID: 2898224727119453378, guid: 50fe8dbc4047b41f1958f8e9bcc85fac, type: 3}
+  _spawnPrefab: {fileID: 5543555791298312943, guid: d6001d9fd10a9476786a8fe22b61fd0e, type: 3}
   _spawnOffset: {x: 0, y: 0.625}
   _interactionData:
     _maxHealth: 10
-    _healthModifyValue: 0
     _states: 
+    _healthModifyValue: 0
     _interactRange: 0
     _targetSelectCount: 1
   _maxManaCount: 10

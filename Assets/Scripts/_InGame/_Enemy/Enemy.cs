@@ -14,13 +14,14 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
 
     [Space(10)]
     [SerializeField] private InteractionData_UpdateController _interactionDataUpdater;
-    public InteractionData_UpdateController interactionDataUpdater => _interactionDataUpdater;
+    public InteractionData_UpdateController dataUpdateController => _interactionDataUpdater;
 
     [Space(10)]
     [SerializeField] private InteractionBar _healthBar;
     public InteractionBar healthBar => _healthBar;
 
-    [SerializeField] private ActionClock _actionClock;
+    [SerializeField] private HealthModify_Indicator _modifyIndicator;
+    public HealthModify_Indicator modifyIndicator => _modifyIndicator;
 
     [Space(20)]
     [SerializeField] private EnemySkill_TriggerData[] _skillDatas;
@@ -34,7 +35,7 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
     public Tile damagingTile => _damagingTile;
 
     private RunTimeAction_Data _runTimeAction = new();
-    public RunTimeAction_Data runTimeAction => _runTimeAction;
+    public RunTimeAction_Data runTimeActionData => _runTimeAction;
 
 
     private EventBus_Controller _preMovementSkillBus = new();
@@ -48,13 +49,6 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
 
     private EventBus_Controller _afterDamageSkillBus = new();
     public EventBus_Controller afterDamageSkillBus => _afterDamageSkillBus;
-
-
-    // IInteractable
-    public InteractionData interactionData => _data.currentData;
-
-    // IRunTimeAction
-    public RunTimeAction_Data runTimeActionData => _runTimeAction;
 
 
     // MonoBehaviour
@@ -84,7 +78,9 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
         _healthBar.Update_Fill(currentData.maxHealth, currentData.currentHealth);
         _healthBar.Toggle_ValueBox(false);
 
-        _actionClock.Toggle(false);
+        _modifyIndicator.Update_ModifyValue(currentData.healthModifyValue);
+        _modifyIndicator.Toggle_ValueBox(true);
+        _modifyIndicator.gameObject.SetActive(false);
     }
     private void Remove_Data()
     {
@@ -146,7 +142,7 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
 
 
     // Damage
-    private InteractionData Damageable_InteractionData(out Tile damageTargetTile)
+    private InteractionData_UpdateController Damageable_InteractionData(out Tile damageTargetTile)
     {
         damageTargetTile = null;
 
@@ -165,7 +161,7 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
         if (tauntCardDamageable)
         {
             damageTargetTile = tauntCard.placedTile;
-            return tauntCard.interactionData;
+            return tauntCard.dataUpdateController;
         }
         if (tauntCard != null) return null; // restrict damaging if taunt cards are not in range
 
@@ -174,7 +170,7 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
         if (currentHero != null && Utility.Chebyshev_Distance(currentTilePos, currentHero.movement.currentTile.data.position) <= interactRange)
         {
             damageTargetTile = currentHero.movement.currentTile;
-            return currentHero.interactionData;
+            return currentHero.dataUpdateController;
         }
 
         // interact range card
@@ -185,14 +181,16 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
         if (distanceToCard > interactRange) return null;
 
         damageTargetTile = damageCard.placedTile;
-        return damageCard.interactionData;
+        return damageCard.dataUpdateController;
     }
-    private void Damage_InteractionData(InteractionData damageData)
+    private int Damage_InteractionData(InteractionData damageData)
     {
-        if (damageData == null) return;
+        if (damageData == null) return 0;
 
-        bool damageSuccessful = _data.currentData.Modify_OtherData_CurrentHealth(damageData);
-        _runTimeAction.CountUpdate_TargetingHealthModify(damageSuccessful);
+        int damageValue = _data.currentData.Modify_OtherData_CurrentHealth(damageData);
+        _runTimeAction.CountUpdate_TargetingHealthModify(damageValue != 0);
+
+        return damageValue;
     }
 
 
@@ -257,7 +255,7 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
         _runTimeAction.Toggle_RunAction(true);
 
         _healthBar.Toggle_ValueBox(true);
-        _actionClock.Toggle(true);
+        _modifyIndicator.gameObject.SetActive(true);
 
         yield return _preMovementSkillBus.RunSequential_DelayBusEvents(); // movement
         int movementRange = _data.movementRange;
@@ -268,30 +266,27 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
             while (_movement.movementCoroutine != null) yield return null;
         }
 
-        InteractionData damageData = Damageable_InteractionData(out Tile damageTargetTile); // damage interactable
+        InteractionData_UpdateController damageDataController = Damageable_InteractionData(out Tile damageTargetTile); // damage interactable
         _damagingTile = damageTargetTile;
 
         yield return _afterMovementSkillBus.RunSequential_DelayBusEvents();
 
-        if (damageData != null)
+        if (damageDataController != null)
         {
             yield return _preDamageSkillBus.RunSequential_DelayBusEvents();
 
-            Damage_InteractionData(damageData);
-
-            yield return null;
-            while (damageData.dataUpdating) yield return null;
+            int damageValue = Damage_InteractionData(damageDataController.targetData);
+            yield return damageDataController.Handle_HealthUpdate(damageValue);
 
             yield return _afterDamageSkillBus.RunSequential_DelayBusEvents();
         }
 
         _damagingTile = null;
 
-        _runTimeAction.Toggle_RunAction(false);
-
         _healthBar.Toggle_ValueBox(false);
-        _actionClock.Toggle(false);
+        _modifyIndicator.gameObject.SetActive(false);
 
+        _runTimeAction.Toggle_RunAction(false);
         yield break;
     }
 }

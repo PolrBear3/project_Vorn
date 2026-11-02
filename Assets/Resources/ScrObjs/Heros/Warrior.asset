@@ -15,12 +15,12 @@ MonoBehaviour:
   _characterName: Warrior
   _characterDescription: 
   _toolTipBaseSprite: {fileID: 1706022855, guid: 670bf62ffb65a4c3d943af234a4a26c5, type: 3}
-  _spawnPrefab: {fileID: 2898224727119453378, guid: 8070969ea02a34c579b978543a027696, type: 3}
+  _spawnPrefab: {fileID: 7472243981325194373, guid: 2e4ce569e1e224f0ebe44abe24b552d8, type: 3}
   _spawnOffset: {x: 0, y: 0.625}
   _interactionData:
     _maxHealth: 10
-    _healthModifyValue: 0
     _states: 
+    _healthModifyValue: 0
     _interactRange: 0
     _targetSelectCount: 1
   _maxManaCount: 10

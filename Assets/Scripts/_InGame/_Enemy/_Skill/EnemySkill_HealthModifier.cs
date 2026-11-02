@@ -98,10 +98,10 @@ public class EnemySkill_HealthModifier : EnemySkill
 
         for (int i = 0; i < targetInteractables.Count; i++)
         {
-            InteractionData data = targetInteractables[i].interactionData;
+            InteractionData_UpdateController dataController = targetInteractables[i].dataUpdateController;
+            int modifyValue = enemy.data.currentData.Modify_OtherData_CurrentHealth(dataController.targetData, _healthModifyValue);
 
-            enemy.interactionData.Modify_OtherData_CurrentHealth(data, _healthModifyValue);
-            while (data.dataUpdating) yield return null;
+            yield return dataController.Handle_HealthUpdate(modifyValue);
         }
         yield break;
     }

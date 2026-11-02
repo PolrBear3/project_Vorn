@@ -244,7 +244,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -265,7 +265,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -273,6 +273,27 @@ TextureImporter:
       bones: []
       spriteID: db8b7ecde997843d5a30a8fff872a06b
       internalID: -466947991
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Players_8
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 48
+        width: 16
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0487112bd11b9480eb1d38286f3cad11
+      internalID: 1418443693
       vertices: []
       indices: 
       edges: []
@@ -296,6 +317,7 @@ TextureImporter:
       Players_5: -1636192044
       Players_6: 1706022855
       Players_7: -466947991
+      Players_8: 1418443693
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

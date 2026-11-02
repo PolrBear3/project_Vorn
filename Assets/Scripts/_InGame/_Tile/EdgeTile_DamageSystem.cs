@@ -75,16 +75,16 @@ public class EdgeTile_DamageSystem : MonoBehaviour, ISubscriptionHandler
             IInteractable interactable = damageInteractables[i];
             if (interactable is Enemy) continue;
 
-            InteractionData data = interactable.interactionData;
-            int damageCount = _data.Current_StackDamageCount(interactable) + 1;
+            int stackDamageCount = _data.Current_StackDamageCount(interactable) + 1;
 
-            data.Update_CurrentHealth(data.currentHealth - damageCount);
             _data.Update_StackDamage(interactable);
-
             Play_DamagingStates(tiles);
 
-            yield return null;
-            while (data.dataUpdating) yield return null;
+            InteractionData_UpdateController dataController = interactable.dataUpdateController;
+            InteractionData data = dataController.targetData;
+
+            data.Update_CurrentHealth(data.currentHealth - stackDamageCount, out int modifiedValue);
+            yield return dataController.Handle_HealthUpdate(modifiedValue);
         }
 
         yield break;

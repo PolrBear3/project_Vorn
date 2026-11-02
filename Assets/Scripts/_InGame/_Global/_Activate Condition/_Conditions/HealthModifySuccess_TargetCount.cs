@@ -17,7 +17,7 @@ public class HealthModifySuccess_TargetCount : ActivateCondition_ScrObj
         if (interactable == null) return false;
 
         // overall count
-        int interactableCount = interactable.interactionData.healthModifySuccessCount;
+        int interactableCount = interactable.dataUpdateController.targetData.healthModifySuccessCount;
         if (interactableCount < _overallCount) return false;
 
         if (activatingTile.currentOccupant.TryGetComponent(out IRunTimeAction runTimeAction) == false) return false;

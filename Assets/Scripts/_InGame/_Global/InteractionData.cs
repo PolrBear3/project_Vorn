@@ -12,7 +12,7 @@ public enum InteractableState
 
 public interface IInteractable
 {
-    InteractionData interactionData { get; }
+    InteractionData_UpdateController dataUpdateController { get; }
 }
 
 [System.Serializable]
@@ -52,10 +52,10 @@ public class InteractionData
     /// modified value
     /// </summary>
     public Action<int> OnHealthModifiedUpdate;
+    /// <summary>
+    /// udpated state
+    /// </summary>
     public Action<InteractableState> OnStateUpdate;
-
-    private bool _dataUpdating;
-    public bool dataUpdating => _dataUpdating;
 
 
     // New
@@ -88,29 +88,29 @@ public class InteractionData
     }
 
 
-    public bool Update_MaxHealth(int newValue)
+    public bool Update_MaxHealth(int newValue, out int modifiedValue)
     {
         newValue = Mathf.Max(_currentHealth, newValue);
-        int modifyValue = newValue - _maxHealth;
+        modifiedValue = newValue - _maxHealth;
 
-        if (modifyValue == 0 && newValue > 0) return false;
+        if (modifiedValue == 0 && newValue > 0) return false;
 
         _maxHealth = newValue;
 
+        OnHealthModifiedUpdate?.Invoke(modifiedValue);
         OnHealthUpdate?.Invoke(_maxHealth, _currentHealth);
-        OnHealthModifiedUpdate?.Invoke(modifyValue);
 
         return true;
     }
-    public bool Update_CurrentHealth(int newValue)
+    public bool Update_CurrentHealth(int newValue, out int modifiedValue)
     {
         newValue = Mathf.Min(newValue, _maxHealth);
+        modifiedValue = newValue - _currentHealth;
 
-        int modifyValue = newValue - _currentHealth;
-        if (modifyValue == 0 && newValue > 0) return false;
+        if (modifiedValue == 0 && newValue > 0) return false;
 
-        OnHealthModifiedUpdate?.Invoke(modifyValue);
-        if (modifyValue < 0 && Remove_State(InteractableState.Shield)) return false;
+        OnHealthModifiedUpdate?.Invoke(modifiedValue);
+        if (modifiedValue < 0 && Remove_State(InteractableState.Shield)) return false;
 
         _currentHealth = newValue;
         OnHealthUpdate?.Invoke(_maxHealth, _currentHealth);
@@ -118,15 +118,21 @@ public class InteractionData
         return true;
     }
 
-    public bool Modify_OtherData_CurrentHealth(InteractionData otherData, int modifyValue)
+    /// <returns>
+    /// other data's modified value
+    /// </returns>
+    public int Modify_OtherData_CurrentHealth(InteractionData otherData, int modifyValue)
     {
-        if (otherData == null || otherData == this) return false;
-        if (otherData.Update_CurrentHealth(otherData.currentHealth + modifyValue) == false) return false;
+        if (otherData == null || otherData == this) return 0;
+        if (otherData.Update_CurrentHealth(otherData.currentHealth + modifyValue, out int modifiedValue) == false) return 0;
 
         _healthModifySuccessCount++;
-        return true;
+        return modifiedValue;
     }
-    public bool Modify_OtherData_CurrentHealth(InteractionData otherData)
+    /// <returns>
+    /// other data's modified value
+    /// </returns>
+    public int Modify_OtherData_CurrentHealth(InteractionData otherData)
     {
         return Modify_OtherData_CurrentHealth(otherData, _healthModifyValue);
     }
@@ -155,11 +161,5 @@ public class InteractionData
         OnStateUpdate?.Invoke(stateToRemove);
 
         return true;
-    }
-
-
-    public void Toggle_DataUpdate(bool toggle)
-    {
-        _dataUpdating = toggle;
     }
 }

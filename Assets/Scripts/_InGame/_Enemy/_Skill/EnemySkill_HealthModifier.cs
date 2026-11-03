@@ -13,6 +13,7 @@ public class EnemySkill_HealthModifier : EnemySkill
     [SerializeField][Range(-100, 100)] private int _healthModifyValue;
 
 
+    // Data
     private List<IInteractable> InteractRange_TargetInteractables()
     {
         List<Tile> interactRangeTiles = InteractRange_Tiles();
@@ -92,13 +93,15 @@ public class EnemySkill_HealthModifier : EnemySkill
         return targets;
     }
 
+
+    // EnemySkill
     public override IEnumerator Trigger_Skill()
     {
         List<IInteractable> targetInteractables = Target_Interactables();
 
         for (int i = 0; i < targetInteractables.Count; i++)
         {
-            InteractionData_UpdateController dataController = targetInteractables[i].dataUpdateController;
+            InteractionData_UpdateController dataController = targetInteractables[i].interactionDataUpdater;
             int modifyValue = enemy.data.currentData.Modify_OtherData_CurrentHealth(dataController.targetData, _healthModifyValue);
 
             yield return dataController.Handle_HealthUpdate(modifyValue);

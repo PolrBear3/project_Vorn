@@ -21,7 +21,7 @@ public class EdgeTile_DamageSystemData
     {
         if (targetInteractable == null) return;
 
-        if (targetInteractable.dataUpdateController.targetData.currentHealth <= 0)
+        if (targetInteractable.interactionDataUpdater.targetData.currentHealth <= 0)
         {
             _stackDamageDatas.Remove(targetInteractable);
             return;

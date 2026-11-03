@@ -23,7 +23,13 @@ public class CardData
 
         if (setCard == null) return;
         _currentData = new(setCard.interactionData);
+    }
 
+    public CardData(CardData loadData)
+    {
+        _cardScrObj = loadData._cardScrObj;
+        _currentManaPrice = loadData._currentManaPrice;
 
+        _currentData = new(loadData._currentData);
     }
 }

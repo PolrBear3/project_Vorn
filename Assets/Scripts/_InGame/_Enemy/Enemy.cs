@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
+public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTimeAction
 {
     [Space(20)]
     [SerializeField] private TileMovement_Controller _movement;
@@ -14,7 +14,7 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
 
     [Space(10)]
     [SerializeField] private InteractionData_UpdateController _interactionDataUpdater;
-    public InteractionData_UpdateController dataUpdateController => _interactionDataUpdater;
+    public InteractionData_UpdateController interactionDataUpdater => _interactionDataUpdater;
 
     [Space(10)]
     [SerializeField] private InteractionBar _healthBar;
@@ -52,13 +52,39 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
 
 
     // MonoBehaviour
+    private void Awake()
+    {
+        EventBus_GlobalController.Register(this);
+    }
+
     private void OnDestroy()
+    {
+        UnSubscribe_All();
+        EventBus_GlobalController.UnRegister(this);
+    }
+
+
+    // ISubscriptionHandler
+    public void Subscribe_All()
+    {
+        InteractionData currentData = _data.currentData;
+
+        currentData.OnHealthUpdate += _healthBar.Update_Fill;
+        currentData.OnStateUpdate += _interactionDataUpdater.Handle_StateUpdate;
+
+        _interactionDataUpdater.OnPreDeathActionDataUpdate += Remove_Data;
+    }
+
+    public void UnSubscribe_All()
     {
         UnRegister_SkillDatas();
 
-        // from Set_Data
+        InteractionData currentData = _data.currentData;
+
+        currentData.OnHealthUpdate -= _healthBar.Update_Fill;
+        currentData.OnStateUpdate -= _interactionDataUpdater.Handle_StateUpdate;
+
         _interactionDataUpdater.OnPreDeathActionDataUpdate -= Remove_Data;
-        _data.currentData.OnHealthUpdate -= _healthBar.Update_Fill;
     }
 
 
@@ -66,14 +92,12 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
     public void Set_Data(Enemy_ScrObj setEnemy)
     {
         _data = new(setEnemy);
+        _interactionDataUpdater.Set_Data(_data.currentData);
 
+        Subscribe_All();
         Register_SkillDatas();
 
-        _interactionDataUpdater.Set_Data(_data.currentData);
-        _interactionDataUpdater.OnPreDeathActionDataUpdate += Remove_Data;
-
         InteractionData currentData = _data.currentData;
-        currentData.OnHealthUpdate += _healthBar.Update_Fill;
 
         _healthBar.Update_Fill(currentData.maxHealth, currentData.currentHealth);
         _healthBar.Toggle_ValueBox(false);
@@ -161,7 +185,7 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
         if (tauntCardDamageable)
         {
             damageTargetTile = tauntCard.placedTile;
-            return tauntCard.dataUpdateController;
+            return tauntCard.interactionDataUpdater;
         }
         if (tauntCard != null) return null; // restrict damaging if taunt cards are not in range
 
@@ -170,7 +194,7 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
         if (currentHero != null && Utility.Chebyshev_Distance(currentTilePos, currentHero.movement.currentTile.data.position) <= interactRange)
         {
             damageTargetTile = currentHero.movement.currentTile;
-            return currentHero.dataUpdateController;
+            return currentHero.interactionDataUpdater;
         }
 
         // interact range card
@@ -181,7 +205,7 @@ public class Enemy : MonoBehaviour, IInteractable, IRunTimeAction
         if (distanceToCard > interactRange) return null;
 
         damageTargetTile = damageCard.placedTile;
-        return damageCard.dataUpdateController;
+        return damageCard.interactionDataUpdater;
     }
     private int Damage_InteractionData(InteractionData damageData)
     {

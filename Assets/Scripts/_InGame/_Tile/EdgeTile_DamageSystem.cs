@@ -80,7 +80,7 @@ public class EdgeTile_DamageSystem : MonoBehaviour, ISubscriptionHandler
             _data.Update_StackDamage(interactable);
             Play_DamagingStates(tiles);
 
-            InteractionData_UpdateController dataController = interactable.dataUpdateController;
+            InteractionData_UpdateController dataController = interactable.interactionDataUpdater;
             InteractionData data = dataController.targetData;
 
             data.Update_CurrentHealth(data.currentHealth - stackDamageCount, out int modifiedValue);

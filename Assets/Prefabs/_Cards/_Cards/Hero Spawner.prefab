@@ -82,7 +82,7 @@ PrefabInstance:
       objectReference: {fileID: 1564287657574099253}
     - target: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: m_Name
-      value: _Hero Spawner
+      value: Hero Spawner
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -112,6 +112,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 933ebb576dcc043a2835b16736223f24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _triggerConditions: []
+  _duplicateTargeting: 0
+  _includeCurrentTile: 1
   _targetCards:
   - {fileID: 11400000, guid: 985b99e3b79f84187bcb119b55878706, type: 2}
   - {fileID: 11400000, guid: 3315c924a82ca49358b3067216bbf7d7, type: 2}
@@ -127,3 +130,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec362369e9fee4048a96235849abe1d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _triggerConditions: []
+  _duplicateTargeting: 0
+  _includeCurrentTile: 1

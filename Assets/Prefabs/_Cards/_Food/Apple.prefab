@@ -9,6 +9,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -2725206963072578643, guid: 8450f946ef7ad41038abbc4d165eba25, type: 3}
+      propertyPath: _includeCurrentTile
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -2725206963072578643, guid: 8450f946ef7ad41038abbc4d165eba25, type: 3}
       propertyPath: _targetCards.Array.size
       value: 1
       objectReference: {fileID: 0}

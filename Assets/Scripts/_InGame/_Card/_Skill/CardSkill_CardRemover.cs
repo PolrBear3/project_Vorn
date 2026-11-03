@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CardSkill_CardRemover : CardSkill
 {
-    [Space(20)]
+    [Space(40)]
     [SerializeField] private Card_ScrObj[] _targetCards;
     public Card_ScrObj[] targetCards => _targetCards;
 
@@ -47,7 +47,7 @@ public class CardSkill_CardRemover : CardSkill
             Card removeCard = removeCards[i];
             if (removeCard == null) continue;
 
-            InteractionData_UpdateController dataController = removeCard.dataUpdateController;
+            InteractionData_UpdateController dataController = removeCard.interactionDataUpdater;
             InteractionData data = dataController.targetData;
 
             data.Update_CurrentHealth(0, out int modifiedValue);

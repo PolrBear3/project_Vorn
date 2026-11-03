@@ -85,7 +85,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _movement: {fileID: 6068368094005038412}
   _animator: {fileID: 6361876508122871599}
-  _healthController: {fileID: 3546002857372368550}
+  _interactionDataUpdater: {fileID: 3546002857372368550}
   _healthBar: {fileID: 4925559899763196995}
   _actionClock: {fileID: 5889978617246202284}
 --- !u!1 &5178098120391580603

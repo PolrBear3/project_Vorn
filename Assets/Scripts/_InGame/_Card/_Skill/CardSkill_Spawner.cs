@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CardSkill_Spawner : CardSkill
 {
-    [Space(20)]
+    [Space(40)]
     [SerializeField][Range(0, 10)] private int _spawnCount;
     [SerializeField] private Card_ScrObj[] _spawnCards;
 

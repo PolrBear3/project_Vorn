@@ -154,7 +154,7 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         if (addCardData == null || addCardData.cardScrObj == null) return;
 
         int randDeckIndex = UnityEngine.Random.Range(0, _deckCards.Count + 1);
-        _deckCards.Insert(randDeckIndex, addCardData);
+        _deckCards.Insert(randDeckIndex, new(addCardData));
     }
     public void AddCards_toDeck(List<CardData> addCardDatas)
     {

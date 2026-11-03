@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InteractionData_UpdateController : MonoBehaviour, ISubscriptionHandler
+public class InteractionData_UpdateController : MonoBehaviour
 {
     [Space(20)]
     [SerializeField] private Animator_Controller[] _healthUpdateAnimators;
@@ -29,43 +29,11 @@ public class InteractionData_UpdateController : MonoBehaviour, ISubscriptionHand
     public bool healthHandleUpdateRunning => _healthHandleUpdateRunning;
 
 
-    // MonoBehaviour
-    private void Awake()
-    {
-        EventBus_GlobalController.Register(this);
-    }
-
-    private void OnDestroy()
-    {
-        UnSubscribe_All();
-        EventBus_GlobalController.UnRegister(this);
-
-        if (_targetData == null) return;
-        _targetData.OnStateUpdate -= Handle_StateUpdate;
-    }
-
-
-    // ISubscriptionHandler
-    public void Subscribe_All()
-    {
-
-    }
-
-    public void UnSubscribe_All()
-    {
-        _targetData.OnStateUpdate -= Handle_StateUpdate;
-    }
-
-
     // Data
     public void Set_Data(InteractionData targetData)
     {
         if (targetData == null) return;
-
         _targetData = targetData;
-
-        Handle_StateUpdate();
-        _targetData.OnStateUpdate += Handle_StateUpdate;
     }
 
 
@@ -146,7 +114,7 @@ public class InteractionData_UpdateController : MonoBehaviour, ISubscriptionHand
         return null;
     }
 
-    private void Handle_StateUpdate(InteractableState updatedState)
+    public void Handle_StateUpdate(InteractableState updatedState)
     {
         bool stateAdded = _targetData.states.Contains(updatedState);
 
@@ -156,7 +124,7 @@ public class InteractionData_UpdateController : MonoBehaviour, ISubscriptionHand
         string updateStateName = InteractableState_Animation.InteractableState_AnimationName(updatedState, stateAdded);
         updateAnimator.Play_State(updateStateName);
     }
-    private void Handle_StateUpdate()
+    public void Handle_StateUpdate()
     {
         if (_targetData == null) return;
 

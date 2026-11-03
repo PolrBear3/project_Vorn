@@ -5,15 +5,15 @@ using UnityEngine;
 public class Hero : MonoBehaviour, IInteractable, ITileTargeting
 {
     [Space(20)]
-    [SerializeField] private TileMovement_Controller _movement;
-    public TileMovement_Controller movement => _movement;
-
     [SerializeField] private Animator_Controller _animator;
     public Animator_Controller animator => _animator;
 
     [Space(10)]
-    [SerializeField] private InteractionData_UpdateController _healthController;
-    public InteractionData_UpdateController dataUpdateController => _healthController;
+    [SerializeField] private TileMovement_Controller _movement;
+    public TileMovement_Controller movement => _movement;
+
+    [SerializeField] private InteractionData_UpdateController _interactionDataUpdater;
+    public InteractionData_UpdateController interactionDataUpdater => _interactionDataUpdater;
 
     [Space(20)]
     [SerializeField] private InteractionBar _healthBar;
@@ -52,7 +52,9 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
         _data = new(setHero);
 
         InteractionData currentData = _data.currentData;
-        _healthController.Set_Data(currentData);
+
+        _interactionDataUpdater.Set_Data(currentData);
+        _interactionDataUpdater.Handle_StateUpdate();
 
         _healthBar.Update_Fill(currentData.maxHealth, currentData.currentHealth);
         _healthBar.Toggle_ValueBox(false);

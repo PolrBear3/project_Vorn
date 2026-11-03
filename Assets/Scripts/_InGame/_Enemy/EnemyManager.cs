@@ -286,7 +286,7 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
             if (enemy == null) continue;
 
             StartCoroutine(enemy.Run_EndTurnActions());
-            while (enemy != null && (enemy.runTimeActionData.actionRunning || enemy.dataUpdateController.healthHandleUpdateRunning)) yield return null;
+            while (enemy != null && (enemy.runTimeActionData.actionRunning || enemy.interactionDataUpdater.healthHandleUpdateRunning)) yield return null;
         }
 
         yield break;

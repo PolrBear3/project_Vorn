@@ -12,7 +12,7 @@ public enum InteractableState
 
 public interface IInteractable
 {
-    InteractionData_UpdateController dataUpdateController { get; }
+    InteractionData_UpdateController interactionDataUpdater { get; }
 }
 
 [System.Serializable]
@@ -123,7 +123,7 @@ public class InteractionData
     /// </returns>
     public int Modify_OtherData_CurrentHealth(InteractionData otherData, int modifyValue)
     {
-        if (otherData == null || otherData == this) return 0;
+        if (otherData == null) return 0;
         if (otherData.Update_CurrentHealth(otherData.currentHealth + modifyValue, out int modifiedValue) == false) return 0;
 
         _healthModifySuccessCount++;

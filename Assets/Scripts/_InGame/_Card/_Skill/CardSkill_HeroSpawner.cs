@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CardSkill_HeroSpawner : CardSkill
 {
-    // abstract
+    // CardSkill
     public override IEnumerator Trigger_Skill()
     {
         GameManager manager = GameManager.instance;

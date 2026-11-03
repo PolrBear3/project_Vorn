@@ -340,7 +340,7 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
             if (card == null) continue;
 
             StartCoroutine(card.Run_EndTurnActions());
-            while (card != null && (card.runTimeActionData.actionRunning || card.dataUpdateController.healthHandleUpdateRunning)) yield return null;
+            while (card != null && (card.runTimeActionData.actionRunning || card.interactionDataUpdater.healthHandleUpdateRunning)) yield return null;
         }
 
         yield break;

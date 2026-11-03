@@ -15,7 +15,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
 
     [Space(20)]
     [SerializeField] private InteractionData_UpdateController _interactionDataUpdater;
-    public InteractionData_UpdateController dataUpdateController => _interactionDataUpdater;
+    public InteractionData_UpdateController interactionDataUpdater => _interactionDataUpdater;
 
     [Space(20)]
     [SerializeField] private ActivateCondition_ScrObj[] _targetingConditions;
@@ -67,22 +67,30 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
 
 
     // MonoBehaviour
+    private void Awake()
+    {
+        EventBus_GlobalController.Register(this);
+    }
+
     private void OnDestroy()
     {
         UnSubscribe_All();
+        EventBus_GlobalController.UnRegister(this);
     }
 
 
     // ISubscriptionHandler
     public void Subscribe_All()
     {
-
+        _data.currentData.OnStateUpdate += _interactionDataUpdater.Handle_StateUpdate;
+        _interactionDataUpdater.OnPreDeathActionDataUpdate += Remove_Data;
     }
 
     public void UnSubscribe_All()
     {
         UnRegister_SkillDatas();
 
+        _data.currentData.OnStateUpdate -= _interactionDataUpdater.Handle_StateUpdate;
         _interactionDataUpdater.OnPreDeathActionDataUpdate -= Remove_Data;
     }
 
@@ -97,11 +105,13 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
 
         _data = setData;
         _placedTile = placeTile;
+
         _contentSpriteRenderer.sprite = loadCard.contentSprite;
 
         _interactionDataUpdater.Set_Data(_data.currentData);
-        _interactionDataUpdater.OnPreDeathActionDataUpdate += Remove_Data;
+        _interactionDataUpdater.Handle_StateUpdate();
 
+        Subscribe_All();
         Register_SkillDatas();
 
         OnSetData?.Invoke();
@@ -202,7 +212,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
             yield return _preTargetingSkillBus.RunSequential_DelayBusEvents();
 
             IInteractable tileInteractable = tile.CurrentOccupant_Interactable();
-            InteractionData_UpdateController dataController = tileInteractable?.dataUpdateController;
+            InteractionData_UpdateController dataController = tileInteractable?.interactionDataUpdater;
 
             if (dataController != null)
             {

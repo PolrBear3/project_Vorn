@@ -42,6 +42,10 @@ public abstract class CardSkill : MonoBehaviour
     [SerializeField] private ActivateCondition_ScrObj[] _triggerConditions;
     public ActivateCondition_ScrObj[] triggerConditions => _triggerConditions;
 
+    [Space(10)]
+    [SerializeField] private bool _duplicateTargeting;
+    [SerializeField] private bool _includeCurrentTile;
+
 
     private Card _card;
     public Card card => _card;
@@ -56,27 +60,35 @@ public abstract class CardSkill : MonoBehaviour
     // Card Skill Target
     public List<Tile> InteractRange_Tiles()
     {
-        return GameManager.instance.tileManager.Distanced_Tiles(_card.placedTile, _card.data.currentData.interactRange);
+        List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(_card.placedTile, _card.data.currentData.interactRange);
+        if (_includeCurrentTile) return interactRangeTiles;
+
+        interactRangeTiles.Remove(_card.placedTile);
+        return interactRangeTiles;
     }
 
     public List<Tile> CurrentTarget_Tiles()
     {
         List<Tile> targetTiles = new();
+
         Tile placedTile = _card.placedTile;
+        List<Tile> interactRangeTiles = InteractRange_Tiles();
 
 
         switch (_currentTarget)
         {
             case CardSkillTarget.CurrentTile:
 
+                if (_includeCurrentTile == false) return targetTiles;
                 targetTiles.Add(placedTile);
+
                 return targetTiles;
 
 
             case CardSkillTarget.TargetingTile:
 
                 Tile targetingTile = _card.runTimeActionData.targetingTile;
-                if (targetingTile == null) break;
+                if (targetingTile == null) return targetTiles;
 
                 targetTiles.Add(targetingTile);
                 return targetTiles;
@@ -87,24 +99,31 @@ public abstract class CardSkill : MonoBehaviour
 
             case CardSkillTarget.InteractRangeTile:
 
-                List<Tile> interactRangeTiles = InteractRange_Tiles();
-
                 int rangeTileCount = interactRangeTiles.Count;
-                if (rangeTileCount <= 0) break;
+                if (rangeTileCount <= 0) return targetTiles;
 
-                targetTiles.Add(interactRangeTiles[Random.Range(0, rangeTileCount)]);
+                int randIndex = Random.Range(0, rangeTileCount);
+                targetTiles.Add(interactRangeTiles[randIndex]);
+
                 return targetTiles;
 
 
-            case CardSkillTarget.InteractRangeTiles: return InteractRange_Tiles();
+            case CardSkillTarget.InteractRangeTiles: return interactRangeTiles;
         }
         return targetTiles;
     }
     public List<Tile> SpawnTarget_Tiles(int spawnCount)
     {
-        List<Tile> currentTargetTiles = CurrentTarget_Tiles();
-        List<Tile> interactRangeTiles = InteractRange_Tiles();
+        if (spawnCount <= 0) return new();
 
+        List<Tile> currentTargetTiles = CurrentTarget_Tiles();
+        for (int i = currentTargetTiles.Count - 1; i >= 0; i--)
+        {
+            if (currentTargetTiles[i].currentOccupant == null) continue;
+            currentTargetTiles.RemoveAt(i);
+        }
+
+        List<Tile> interactRangeTiles = InteractRange_Tiles();
         for (int i = interactRangeTiles.Count - 1; i >= 0; i--)
         {
             if (interactRangeTiles[i].currentOccupant == null) continue;
@@ -158,6 +177,63 @@ public abstract class CardSkill : MonoBehaviour
                 return interactRangeTiles;
         }
         return new();
+    }
+
+    public List<IInteractable> CurrentTarget_Interactables(int targetingCount)
+    {
+        List<IInteractable> targetInteractables = new();
+        if (targetingCount <= 0) return targetInteractables;
+
+        List<Tile> interactRangeTiles = InteractRange_Tiles();
+        for (int i = interactRangeTiles.Count - 1; i >= 0; i--)
+        {
+            if (interactRangeTiles[i].CurrentOccupant_Interactable() != null) continue;
+            interactRangeTiles.RemoveAt(i);
+        }
+
+        List<Tile> currentTargetTiles = CurrentTarget_Tiles();
+        for (int i = currentTargetTiles.Count - 1; i >= 0; i--)
+        {
+            if (currentTargetTiles[i].CurrentOccupant_Interactable() != null) continue;
+            currentTargetTiles.RemoveAt(i);
+        }
+
+
+        switch (currentTarget)
+        {
+            case CardSkillTarget.TargetingTiles:
+
+                for (int i = 0; i < currentTargetTiles.Count; i++)
+                {
+                    if (targetInteractables.Count >= targetingCount) break;
+                    targetInteractables.Add(currentTargetTiles[i].CurrentOccupant_Interactable());
+                }
+                return targetInteractables;
+
+
+            case CardSkillTarget.InteractRangeTile:
+
+                if (interactRangeTiles.Count <= 0) return targetInteractables;
+
+                targetInteractables.Add(interactRangeTiles[Random.Range(0, interactRangeTiles.Count)].CurrentOccupant_Interactable());
+                return targetInteractables;
+
+
+            case CardSkillTarget.InteractRangeTiles:
+
+                for (int i = 0; i < targetingCount; i++)
+                {
+                    if (interactRangeTiles.Count <= 0) return targetInteractables;
+
+                    int randIndex = Random.Range(0, interactRangeTiles.Count);
+                    targetInteractables.Add(interactRangeTiles[randIndex].CurrentOccupant_Interactable());
+
+                    if (_duplicateTargeting) continue;
+                    interactRangeTiles.RemoveAt(randIndex);
+                }
+                return targetInteractables;
+        }
+        return targetInteractables;
     }
 
 

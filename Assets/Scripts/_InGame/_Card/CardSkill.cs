@@ -179,6 +179,52 @@ public abstract class CardSkill : MonoBehaviour
         return new();
     }
 
+    public List<IInteractable> CurrentTarget_Interactables()
+    {
+        List<IInteractable> targetInteractables = new();
+
+        List<Tile> interactRangeTiles = InteractRange_Tiles();
+        for (int i = interactRangeTiles.Count - 1; i >= 0; i--)
+        {
+            if (interactRangeTiles[i].CurrentOccupant_Interactable() != null) continue;
+            interactRangeTiles.RemoveAt(i);
+        }
+
+        List<Tile> currentTargetTiles = CurrentTarget_Tiles();
+        for (int i = currentTargetTiles.Count - 1; i >= 0; i--)
+        {
+            if (currentTargetTiles[i].CurrentOccupant_Interactable() != null) continue;
+            currentTargetTiles.RemoveAt(i);
+        }
+
+
+        switch (currentTarget)
+        {
+            case CardSkillTarget.TargetingTiles:
+
+                foreach (Tile tile in interactRangeTiles)
+                {
+                    targetInteractables.Add(tile.CurrentOccupant_Interactable());
+                }
+                return targetInteractables;
+
+
+            case CardSkillTarget.InteractRangeTile:
+
+                int rangeTileCount = interactRangeTiles.Count;
+                if (rangeTileCount <= 0) return targetInteractables;
+
+                targetInteractables.Add(interactRangeTiles[Random.Range(0, rangeTileCount)].CurrentOccupant_Interactable());
+                return targetInteractables;
+        }
+
+
+        foreach (Tile tile in currentTargetTiles)
+        {
+            targetInteractables.Add(tile.CurrentOccupant_Interactable());
+        }
+        return targetInteractables;
+    }
     public List<IInteractable> CurrentTarget_Interactables(int targetingCount)
     {
         List<IInteractable> targetInteractables = new();
@@ -232,6 +278,12 @@ public abstract class CardSkill : MonoBehaviour
                     interactRangeTiles.RemoveAt(randIndex);
                 }
                 return targetInteractables;
+        }
+
+
+        foreach (Tile tile in currentTargetTiles)
+        {
+            targetInteractables.Add(tile.CurrentOccupant_Interactable());
         }
         return targetInteractables;
     }

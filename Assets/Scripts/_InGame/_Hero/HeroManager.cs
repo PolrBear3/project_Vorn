@@ -25,8 +25,6 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
     private Hero _spawnedHero;
     public Hero spawnedHero => _spawnedHero;
 
-    private int _recentMovementManaCost;
-
 
     private EventBus_Controller _heroDeathEventBus = new();
     public EventBus_Controller heroDeathEventBus => _heroDeathEventBus;
@@ -74,8 +72,8 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         endTurnBus.Register(Hero_Unavailable);
         endTurnBus.Register(_heroDeathEventBus.DelayBus_Running);
 
+        endTurnBus.Register(0, Refill_CurrentManaCount);
         endTurnBus.Register(1, Run_HeroActions);
-        endTurnBus.Register(5, Refill_CurrentManaCount);
         endTurnBus.Register(6, EndStage_OnHeroDeath);
 
         TileManager tileManager = manager.tileManager;
@@ -205,8 +203,8 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
     {
         if (heroToTrack == null) return;
 
-        _spawnedHero = heroToTrack;
         heroToTrack.transform.SetParent(transform);
+        _spawnedHero = heroToTrack;
 
         InteractionData data = _spawnedHero.data.currentData;
 
@@ -235,7 +233,7 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 
 
     // Movement Targeting
-    private List<Tile> RouteTiles_toDestionation()
+    private List<Tile> RouteTiles_toDestination()
     {
         if (_spawnedHero == null) return null;
 
@@ -258,8 +256,8 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 
         HeroData heroData = _spawnedHero.data;
 
-        heroData.Update_CurrentManaCount(heroData.currentManaCount + _recentMovementManaCost);
-        _recentMovementManaCost = 0;
+        heroData.Update_CurrentManaCount(heroData.currentManaCount + heroData.recentMovementManaCost);
+        heroData.Update_RecentMovementManaCost(0);
     }
 
     private void Cancel_TileMovementTargeting()
@@ -280,7 +278,7 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         List<Tile> targetingTiles = _spawnedHero.tileTargeting.targetingTiles;
         if (targetingTiles.Count <= 0) return;
 
-        List<Tile> routeTiles = RouteTiles_toDestionation();
+        List<Tile> routeTiles = RouteTiles_toDestination();
         for (int i = 0; i < targetingTiles.Count; i++)
         {
             if (routeTiles.Contains(targetingTiles[i])) continue;
@@ -293,13 +291,12 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
     private void UpdateMana_OnTileMovementTarget()
     {
         if (_spawnedHero == null) return;
+        HeroData heroData = _spawnedHero.data;
 
-        int totalManaCost = RouteTiles_toDestionation().Count;
-        int manaCostDifference = totalManaCost - _recentMovementManaCost;
+        int totalManaCost = RouteTiles_toDestination().Count * heroData.movementManaMultiplyValue;
+        int manaCostDifference = totalManaCost - heroData.recentMovementManaCost;
 
         if (manaCostDifference == 0) return;
-
-        HeroData heroData = _spawnedHero.data;
 
         int updatedManaCount = heroData.currentManaCount - manaCostDifference;
         if (updatedManaCount < 0)
@@ -309,7 +306,7 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         }
 
         heroData.Update_CurrentManaCount(updatedManaCount);
-        _recentMovementManaCost = totalManaCost;
+        heroData.Update_RecentMovementManaCost(totalManaCost);
     }
     private void UpdateMana_OnTileMovementTarget(ITileTargeting heroSource)
     {
@@ -324,8 +321,8 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         if (_spawnedHero == null) return;
         HeroData heroData = _spawnedHero.data;
 
-        heroData.Update_CurrentManaCount(heroData.currentManaCount + _recentMovementManaCost);
-        _recentMovementManaCost = 0;
+        heroData.Update_CurrentManaCount(heroData.currentManaCount + heroData.recentMovementManaCost);
+        heroData.Update_RecentMovementManaCost(0);
     }
 
     private void Update_MovementRoute_OnTileTargeting()
@@ -410,6 +407,7 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         if (heroData.currentData.currentHealth <= 0) yield break;
 
         heroData.Update_CurrentManaCount(heroData.maxManaCount);
+        heroData.Reset_MovementMana_MultiplyValue();
     }
 
 

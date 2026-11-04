@@ -119,8 +119,8 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
 
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
 
-        endTurnEventBus.Register(4, DrawCard);
         endTurnEventBus.Register(0, Return_DraggingCard);
+        endTurnEventBus.Register(5, DrawCard);
     }
 
     public void UnSubscribe_All()

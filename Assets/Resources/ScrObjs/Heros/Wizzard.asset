@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a60e2a3f121942f08a8d9ffd2c06a54, type: 3}
-  m_Name: Sorcerer
+  m_Name: Wizzard
   m_EditorClassIdentifier: 
-  _characterName: Sorcerer
+  _characterName: Wizzard
   _characterDescription: 
   _toolTipBaseSprite: {fileID: -466947991, guid: 670bf62ffb65a4c3d943af234a4a26c5, type: 3}
   _spawnPrefab: {fileID: 5543555791298312943, guid: d6001d9fd10a9476786a8fe22b61fd0e, type: 3}
@@ -27,5 +27,5 @@ MonoBehaviour:
   _cardPlatformSprite: {fileID: -1636192044, guid: 670bf62ffb65a4c3d943af234a4a26c5, type: 3}
   _spawnCard: {fileID: 11400000, guid: 985b99e3b79f84187bcb119b55878706, type: 2}
   _proprietaryCards:
-  - {fileID: 11400000, guid: 1624de9b54fcf40f7a7d5d03437357e1, type: 2}
-  _movementManaCost: 0
+  - {fileID: 11400000, guid: d514246c14b7048a29e5c4ede601e6c0, type: 2}
+  _movementManaCost: 1

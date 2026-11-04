@@ -12,11 +12,20 @@ public class HeroData
     private InteractionData _currentData;
     public InteractionData currentData => _currentData;
 
+
     private int _maxManaCount;
     public int maxManaCount => _maxManaCount;
 
     private int _currentManaCount;
     public int currentManaCount => _currentManaCount;
+
+
+    private int _movementManaMultiplyValue;
+    public int movementManaMultiplyValue => _movementManaMultiplyValue;
+
+    private int _recentMovementManaCost;
+    public int recentMovementManaCost => _recentMovementManaCost;
+
 
     public Action<int, int> OnManaUpdate; // currentManaCount, maxManaCount
 
@@ -29,6 +38,8 @@ public class HeroData
 
         _maxManaCount = setHero.maxManaCount;
         _currentManaCount = _maxManaCount;
+
+        _movementManaMultiplyValue = _heroScrObj.movementManaCost;
     }
 
 
@@ -48,5 +59,20 @@ public class HeroData
 
         _currentManaCount = updateCount;
         OnManaUpdate?.Invoke(_currentManaCount, _maxManaCount);
+    }
+
+    public int Modify_MovementMana_MultiplyValue(int modifyValue)
+    {
+        _movementManaMultiplyValue += modifyValue;
+        return _movementManaMultiplyValue;
+    }
+    public void Reset_MovementMana_MultiplyValue()
+    {
+        _movementManaMultiplyValue = _heroScrObj.movementManaCost;
+    }
+
+    public void Update_RecentMovementManaCost(int updateValue)
+    {
+        _recentMovementManaCost = Mathf.Max(0, updateValue);
     }
 }

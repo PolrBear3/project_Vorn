@@ -27,7 +27,7 @@ public class EdgeTile_DamageSystem : MonoBehaviour, ISubscriptionHandler
     // ISubscriptionHandler
     public void Subscribe_All()
     {
-        GameManager.instance.stageManager.endTurnEventBus.Register(0, Damage_EdgeTile_PlayerInteractables);
+        GameManager.instance.stageManager.endTurnEventBus.Register(3, Damage_EdgeTile_PlayerInteractables);
     }
 
     public void UnSubscribe_All()

@@ -43,9 +43,9 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
 
         stageManager.setStageEventBus.Register(1, Spawn_CurrentSpawnData);
 
-        endTurnBus.Register(3, Run_EnemyActions);
-        endTurnBus.Register(3, Update_SpawnData);
-        endTurnBus.Register(3, Spawn_CurrentSpawnData);
+        endTurnBus.Register(4, Run_EnemyActions);
+        endTurnBus.Register(4, Update_SpawnData);
+        endTurnBus.Register(4, Spawn_CurrentSpawnData);
 
         endTurnBus.Register(StageEnemies_Cleared);
         stageManager.endStageEventBus.Register(StageEnemies_NotCleared);

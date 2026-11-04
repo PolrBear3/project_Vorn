@@ -28,4 +28,4 @@ MonoBehaviour:
   _spawnCard: {fileID: 11400000, guid: 3315c924a82ca49358b3067216bbf7d7, type: 2}
   _proprietaryCards:
   - {fileID: 11400000, guid: 3a8d880d0900c40bcb51f3e3b20450c7, type: 2}
-  _movementManaCost: 0
+  _movementManaCost: 1

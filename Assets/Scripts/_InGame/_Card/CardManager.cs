@@ -333,17 +333,27 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
         Hero currentHero = GameManager.instance.heroManager.spawnedHero;
         if (currentHero != null && currentHero.data.currentData.currentHealth <= 0) yield break;
 
-        List<Card> runActionCards = new(_placedCards);
-        for (int i = 0; i < runActionCards.Count; i++)
+        HashSet<Card> actionStartedCards = new();
+
+        while (true)
         {
-            Card card = runActionCards[i];
-            if (card == null) continue;
+            List<Card> runActionCards = new(_placedCards);
+            bool allActionsComplete = true;
 
-            StartCoroutine(card.Run_EndTurnActions());
-            while (card != null && (card.runTimeActionData.actionRunning || card.interactionDataUpdater.healthHandleUpdateRunning)) yield return null;
+            for (int i = 0; i < runActionCards.Count; i++)
+            {
+                Card card = runActionCards[i];
+
+                if (card == null || _placedCards.Contains(card) == false) continue;
+                if (actionStartedCards.Add(card) == false) continue;
+
+                allActionsComplete = false;
+
+                StartCoroutine(card.Run_EndTurnActions());
+                while (card != null && (card.runTimeActionData.actionRunning || card.interactionDataUpdater.healthHandleUpdateRunning)) yield return null;
+            }
+            if (allActionsComplete) yield break;
         }
-
-        yield break;
     }
 
 

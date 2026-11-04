@@ -21,6 +21,5 @@ public class CardSkill_HealthModifier : CardSkill
 
             yield return dataController.Handle_HealthUpdate(modifyValue);
         }
-        yield break;
     }
 }

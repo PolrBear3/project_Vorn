@@ -77,10 +77,14 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
 {
     [Space(20)]
     [SerializeField] private UIPanel_ToggleController _menuPanelController;
-    [SerializeField] private StageMap_Icon[] _icons;
 
-    [Space(10)]
+    [Space(20)]
+    [SerializeField] private StageMap_Icon[] _icons;
     [SerializeField] private Sprite _eventStageIconSprite;
+
+    [Space(20)]
+    [SerializeField] private Image _playerIcon;
+    [SerializeField][Range(0, 10)] private float _playerIconPositionUpdateDuration;
 
     [Space(20)]
     [SerializeField] private LevelSet_StagesData[] _levelSetStageDatas;
@@ -276,20 +280,43 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
         bool toggle = stageDataToggle && GameManager.instance.deckBuildManager.data.deckBuildComplete;
 
         _menuPanelController.Toggle(toggle);
-
         if (toggle == false) return;
+
         Update_MapIconVisuals();
+        Update_PlayerIcon_Visual();
+        Update_PlayerIcon_Position();
     }
     private IEnumerator ToggleMenu_OnStageEnd()
     {
         bool toggle = Stage_NotSelected() && _data.FinalLevel_Complete() == false;
+        if (toggle == false) yield break;
 
-        if (toggle) Update_MapIconVisuals();
+        Update_MapIconVisuals();
+        Update_PlayerIcon_Visual();
+        Update_PlayerIcon_Position();
+
         yield return _menuPanelController.DelayToggle(toggle);
     }
 
 
     // Stage Map Icon
+    private bool Target_StageData_IconIndex(StageData targetData, out int iconIndex)
+    {
+        iconIndex = 0;
+
+        List<StageData> updateDatas = _data.StageDatas(true);
+        if (updateDatas == null || updateDatas.Count <= 0) return false;
+
+        for (int i = 0; i < updateDatas.Count; i++)
+        {
+            if (targetData != updateDatas[i]) continue;
+
+            iconIndex = i;
+            return true;
+        }
+        return false;
+    }
+
     private void Update_MapIconVisuals()
     {
         if (_data == null) return;
@@ -327,10 +354,10 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
             animController.Play_State(UIAnimation.Restricted); // grey
         }
     }
-    public void SelectStage_byMapIcon(StageMap_Icon selectedIcon)
+    public IEnumerator SelectStage_byMapIcon(StageMap_Icon selectedIcon)
     {
-        if (_data == null) return;
-        if (_data.stageSelected) return;
+        if (_data == null) yield break;
+        if (_data.stageSelected) yield break;
 
         List<StageData> currentStageDatas = _data.StageDatas(true);
 
@@ -340,14 +367,54 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
 
             StageData selectedData = currentStageDatas[i];
 
-            if (selectedData == null) return;
-            if (_data.TargetStage_onCurrentLevel(selectedData, out int levelStageIndex) == false) return;
+            if (selectedData == null) yield break;
+            if (_data.TargetStage_onCurrentLevel(selectedData, out int levelStageIndex) == false) yield break;
 
             _data.Update_CurrentLevel_StageIndex(levelStageIndex);
             selectedData.Update_QueueEvents();
 
+            yield return Update_PlayerIcon_Position(selectedData);
             GameManager.instance.Continue_GamePlay();
+
+            yield break;
+        }
+    }
+
+
+    // Player Icon
+    private void Update_PlayerIcon_Visual()
+    {
+        Hero_ScrObj selectedHero = GameManager.instance.heroManager.data.selectedHero;
+        if (selectedHero == null) return;
+
+        _playerIcon.sprite = selectedHero.stageMapIconSprite;
+    }
+
+    private void Update_PlayerIcon_Position()
+    {
+        List<StageData> previousLevelDatas = _data.TargetLevel_StageDatas(_data.currentLevel - 1, true);
+
+        for (int i = 0; i < previousLevelDatas.Count; i++)
+        {
+            StageData previousData = previousLevelDatas[i];
+
+            if (previousData == null || previousData.completed == false) continue;
+            if (Target_StageData_IconIndex(previousData, out int previousIconIndex) == false) continue;
+
+            _playerIcon.transform.SetParent(_icons[previousIconIndex].playerIconAnchor);
+            _playerIcon.rectTransform.anchoredPosition = Vector2.zero;
+
             return;
         }
+    }
+    private IEnumerator Update_PlayerIcon_Position(StageData updatedStageData)
+    {
+        _playerIcon.transform.SetParent(_menuPanelController.togglePanelRect);
+
+        if (Target_StageData_IconIndex(updatedStageData, out int iconIndex) == false) yield break;
+        StageMap_Icon destinationIcon = _icons[iconIndex];
+
+        LeanTween.move(_playerIcon.gameObject, destinationIcon.playerIconAnchor.position, _playerIconPositionUpdateDuration);
+        while (LeanTween.isTweening(_playerIcon.rectTransform)) yield return null;
     }
 }

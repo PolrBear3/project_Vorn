@@ -47,6 +47,41 @@ MonoBehaviour:
   propertyName: _GreyscaleTintColor
   propertyValue: {r: 0.4235294, g: 0.39999998, b: 0.47058815, a: 1}
   isHDR: 0
+--- !u!1 &4652191596735893586
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2603224822635866426}
+  m_Layer: 5
+  m_Name: Player Icon Anchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2603224822635866426
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4652191596735893586}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5839041095709808036}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 31.25, y: -31.25}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &5589412260288078335
 GameObject:
   m_ObjectHideFlags: 0
@@ -84,6 +119,7 @@ RectTransform:
   m_Children:
   - {fileID: 7209080462275279013}
   - {fileID: 1151800953278394440}
+  - {fileID: 2603224822635866426}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -244,6 +280,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _image: {fileID: 4447266954856505948}
   _animController: {fileID: 1623130003224302387}
+  _playerIconAnchor: {fileID: 2603224822635866426}
 --- !u!1 &6590326828923893198
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,13 +9,15 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 {
     [Space(20)]
     [SerializeField] private UIPanel_ToggleController _panelToggleController;
-    [SerializeField] private ToolTip _groupCardHoverToolTip;
 
     [Space(10)]
+    [SerializeField] private ToolTip _groupCardHoverToolTip;
     [SerializeField] private DeckBuild_Group[] _buildGroups;
     public DeckBuild_Group[] buildGroups => buildGroups;
 
-    [SerializeField] private Animator_Controller[] _progressionIcons;
+    [Space(10)]
+    [SerializeField] private DeckBuildGroup_ToolTip _progressionIconHoverHoverToolTip;
+    [SerializeField] private DeckBuild_ProgressionIcon[] _progressionIcons;
 
     [Space(20)]
     [SerializeField] private Card_ScrObj[] _defaultCardPool;
@@ -70,7 +72,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
             for (int j = 0; j < groupCards.Length; j++)
             {
-                groupCards[j].OnHover += Hover_GroupCard;
+                groupCards[j].OnHover += Hover_GroupCards;
             }
         }
     }
@@ -93,7 +95,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
             for (int j = 0; j < groupCards.Length; j++)
             {
-                groupCards[j].OnHover -= Hover_GroupCard;
+                groupCards[j].OnHover -= Hover_GroupCards;
             }
         }
     }
@@ -193,8 +195,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
         for (int i = 0; i < _progressionIcons.Length; i++)
         {
-
-            _progressionIcons[i].Play_State(i < updateCount ? UIAnimation.Available : UIAnimation.Restricted);
+            _progressionIcons[i].animController.Play_State(i < updateCount ? UIAnimation.Available : UIAnimation.Restricted);
         }
     }
 
@@ -205,7 +206,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
 
     // Interaction
-    private void Hover_GroupCard(DisplayCard hoverCard)
+    private void Hover_GroupCards(DisplayCard hoverCard)
     {
         _groupCardHoverToolTip.ToggleOn_CursorPoint(hoverCard != null);
 
@@ -229,7 +230,6 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
             }
         }
     }
-
     public void Select_GroupCards(DeckBuild_Group selectGroup)
     {
         if (_data.deckBuildComplete) return;
@@ -257,5 +257,17 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
             return;
         }
         GameManager.instance.Continue_GamePlay();
+    }
+
+    public void Hover_ProgressionIcon(DeckBuild_ProgressionIcon hoverIcon)
+    {
+        for (int i = 0; i < _progressionIcons.Length; i++)
+        {
+            if (hoverIcon != _progressionIcons[i]) continue;
+
+            // to do: get selected group cards from index i groups
+            Debug.Log(i);
+            return;
+        }
     }
 }

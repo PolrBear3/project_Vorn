@@ -40,8 +40,8 @@ public class ToolTip : MonoBehaviour
     // MonoBehaviour
     private void Awake()
     {
-        _defaultBaseSprite = _baseImage.sprite;
-        _defaultNameFontSize = _nameText.fontSize;
+        _defaultBaseSprite = _baseImage != null ? _baseImage.sprite : null;
+        _defaultNameFontSize = _nameText != null ? _nameText.fontSize : 0f;
 
         UnToggle();
     }

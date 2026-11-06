@@ -9,6 +9,9 @@ public class Hero_ScrObj : CharacterScrObj
     public int maxManaCount => _maxManaCount;
 
     [Space(60)]
+    [SerializeField] private Sprite _stageMapIconSprite;
+    public Sprite stageMapIconSprite => _stageMapIconSprite;
+
     [SerializeField] private Sprite _cardPlatformSprite;
     public Sprite cardPlatformSprite => _cardPlatformSprite;
 

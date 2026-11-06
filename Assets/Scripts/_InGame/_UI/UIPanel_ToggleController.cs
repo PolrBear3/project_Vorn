@@ -20,6 +20,7 @@ public class UIPanel_ToggleController : MonoBehaviour
 
 
     private RectTransform _togglePanelRect;
+    public RectTransform togglePanelRect => _togglePanelRect;
 
     private Vector2 _toggledPosition;
     private Vector2 _unToggledPosition;

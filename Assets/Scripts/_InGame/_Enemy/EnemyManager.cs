@@ -261,11 +261,13 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
 
             return;
         }
-        if (hoveringEnemy == null) return;
 
+        if (hoveringEnemy == null) return;
         Indicate_EnemyTiles(hoveringEnemy);
 
         // ToolTip
+        if (manager.cursor.draggingCard != null) return;
+
         CharacterScrObj enemyScrObj = hoveringEnemy.data.enemyScrObj;
 
         _enemyHoverToolTip.ToggleOn_CursorPoint(true);

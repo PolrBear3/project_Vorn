@@ -283,10 +283,11 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
         if (tileManager.tileTargeting.toggledSource != null) return;
 
         Tile hoveringTile = tileManager.hoveringTile;
-        Card placedCard = PlacedCard(hoveringTile);
 
+        Card placedCard = PlacedCard(hoveringTile);
         ToggleCard_StatIndications(placedCard);
-        _placedCardHoverToolTip.Toggle(placedCard);
+
+        _placedCardHoverToolTip.Toggle(false);
 
         if (hoveringTile == null || hoveringTile.currentOccupant == null)
         {
@@ -302,6 +303,8 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
         }
 
         // ToolTip
+        if (manager.cursor.draggingCard != null) return;
+
         Card_ScrObj cardScrObj = placedCard.data.cardScrObj;
         string foramtDescription = Utility.FormatUpdate_Description(cardScrObj.cardDescription, placedCard.data.currentData.DescriptionFormats());
 

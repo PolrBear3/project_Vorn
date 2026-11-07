@@ -21,6 +21,8 @@ public class StageMap_Icon : MonoBehaviour
     public void Select()
     {
         StageMap_Manager stageMap = GameManager.instance.stageManager.stageMap;
+
+        if (stageMap.data.stageSelected) return;
         StartCoroutine(stageMap.SelectStage_byMapIcon(this));
     }
 }

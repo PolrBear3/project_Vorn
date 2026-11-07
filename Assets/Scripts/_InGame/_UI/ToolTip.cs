@@ -31,6 +31,9 @@ public class ToolTip : MonoBehaviour
     private Sprite _defaultBaseSprite;
     private float _defaultNameFontSize;
 
+    private bool _toggled;
+    public bool toggled => _toggled;
+
     private Coroutine _toggleDelayCoroutine;
 
     private List<Func<bool>> _toggleRestrictionChecks = new();
@@ -79,8 +82,7 @@ public class ToolTip : MonoBehaviour
     {
         for (int i = 0; i < _toggleRestrictionChecks.Count; i++)
         {
-            if (_toggleRestrictionChecks[i].Invoke() == false) continue;
-            return true;
+            if (_toggleRestrictionChecks[i].Invoke()) return true;
         }
         return false;
     }
@@ -94,6 +96,7 @@ public class ToolTip : MonoBehaviour
         }
         if (toggle == false || Toggle_Restricted())
         {
+            _toggled = false;
             _panel.gameObject.SetActive(false);
             return;
         }
@@ -102,6 +105,8 @@ public class ToolTip : MonoBehaviour
     private IEnumerator DelayToggle()
     {
         yield return new WaitForSeconds(_toggleDelayTime);
+
+        _toggled = true;
         _panel.gameObject.SetActive(true);
 
         _toggleDelayCoroutine = null;

@@ -81,8 +81,13 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 
         tileHoverEventBus.Register(0, Update_MovementRoute_OnHeroHover);
         tileHoverEventBus.Register(1, Update_MovementRoute_OnTileTargeting);
+        tileHoverEventBus.Register(1, Update_ManaCostInfoText_OnTileHover);
 
-        tileManager.tileSelectEventBus.Register(0, Toggle_TileMovementTargeting);
+        EventBus_Controller tileSelectEventBus = tileManager.tileSelectEventBus;
+
+        tileSelectEventBus.Register(0, Toggle_TileMovementTargeting);
+        tileSelectEventBus.Register(0, Update_ManaCostInfoText_OnTileHover);
+
         tileManager.tileTargeting.OnTargetTile += UpdateMana_OnTileMovementTarget;
 
         HandInventory handInventory = manager.handInventory;
@@ -132,8 +137,13 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 
         tileHoverEventBus.UnRegister(Update_MovementRoute_OnHeroHover);
         tileHoverEventBus.UnRegister(Update_MovementRoute_OnTileTargeting);
+        tileHoverEventBus.UnRegister(Update_ManaCostInfoText_OnTileHover);
 
-        tileManager.tileSelectEventBus.UnRegister(Toggle_TileMovementTargeting);
+        EventBus_Controller tileSelectEventBus = tileManager.tileSelectEventBus;
+
+        tileSelectEventBus.UnRegister(Toggle_TileMovementTargeting);
+        tileSelectEventBus.UnRegister(Update_ManaCostInfoText_OnTileHover);
+
         tileManager.tileTargeting.OnTargetTile -= UpdateMana_OnTileMovementTarget;
 
         HandInventory handInventory = manager.handInventory;
@@ -353,6 +363,30 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
             routeTile.indicatorAnimController.Play_State(UIAnimation.Available);
         }
     }
+    private void Update_ManaCostInfoText_OnTileHover()
+    {
+        if (_spawnedHero == null) return;
+
+        GameManager manager = GameManager.instance;
+        TileManager tileManager = manager.tileManager;
+
+        if (tileManager.tileTargeting.toggledSource is not Hero hero || _spawnedHero != hero) return;
+
+        Tile hoveringTile = tileManager.hoveringTile;
+        Cursor cursor = manager.cursor;
+
+        if (hoveringTile == null)
+        {
+            cursor.Update_InfoText(null);
+            return;
+        }
+
+        List<Tile> routeToTargetTile = tileManager.PathFind_RouteTiles(hero.movement.currentTile, tileManager.hoveringTile);
+        int totalManaCost = routeToTargetTile.Count * hero.data.movementManaMultiplyValue;
+
+        cursor.Update_InfoText("mana: " + totalManaCost.ToString());
+    }
+
     private void Update_MovementRoute_OnHeroHover()
     {
         if (_spawnedHero == null) return;
@@ -435,15 +469,13 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         Tile hoveringTile = manager.tileManager.hoveringTile;
         bool heroHoverDetected = hoveringTile == _spawnedHero.movement.currentTile;
 
-        _heroHoverToolTip.Toggle(heroHoverDetected);
+        _heroHoverToolTip.ToggleOn_CursorPoint(heroHoverDetected && manager.cursor.draggingCard == null);
         _spawnedHero.healthBar.Toggle_ValueBox(heroHoverDetected);
 
         if (heroHoverDetected == false) return;
 
         // ToolTip
         CharacterScrObj heroScrObj = _spawnedHero.data.heroScrObj;
-
-        _heroHoverToolTip.ToggleOn_CursorPoint(true);
         _heroHoverToolTip.Update_Contents(heroScrObj.toolTipBaseSprite, null, heroScrObj.characterName, heroScrObj.characterDescription);
     }
 

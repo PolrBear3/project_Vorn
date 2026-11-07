@@ -12,13 +12,20 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
     public RectTransform pointerIconRect => _pointerIconRect;
 
     [Space(20)]
+    [SerializeField][Range(0, 1000)] private float _pointerIdleUpdateDistance;
+    [SerializeField][Range(0, 10)] private float _pointerIdleDelayTime;
+
+    [Space(20)]
     [SerializeField] private Image _pointerIconImage;
+
+    [Space(20)]
+    [SerializeField] private Image _infoTextBox;
     [SerializeField] private TextMeshProUGUI _infoText;
 
     [Space(20)]
     [SerializeField] private GameObject _handCardPrefab;
 
-    [Space(20)]
+    [Space(0)]
     [SerializeField] private RectTransform _draggingCardFollowPoint;
     [SerializeField][Range(0, 100)] private float _draggingCardMovementSpeed;
 
@@ -27,9 +34,16 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
 
 
     private bool _pointerIconToggled;
+    private Vector2 _pointerIdlePosition;
 
     private HandCard _draggingCard;
     public HandCard draggingCard => _draggingCard;
+
+    private Coroutine _pointerIdleUpdateDelay;
+    private bool _pointerIdleUpdated;
+
+
+    public Action<bool> OnPointerIdle;
 
 
     // MonoBehaviour
@@ -63,8 +77,12 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
         Input_Controller input = Input_Controller.instance;
 
         input.OnLeftClick += Hide_Cursor;
-        input.OnCursorControl += PointerIcon_MovementUpdate;
         input.OnLeftClickPressed += UpdatePointerIcon_OnClick;
+
+        input.OnCursorControl += PointerIcon_MovementUpdate;
+        input.OnCursorControl += PointerIcon_IdleUpdate;
+
+        OnPointerIdle += Update_DraggingCard_ToolTip;
     }
 
     public void UnSubscribe_All()
@@ -73,8 +91,12 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
         Input_Controller input = Input_Controller.instance;
 
         input.OnLeftClick -= Hide_Cursor;
-        input.OnCursorControl -= PointerIcon_MovementUpdate;
         input.OnLeftClickPressed -= UpdatePointerIcon_OnClick;
+
+        input.OnCursorControl -= PointerIcon_MovementUpdate;
+        input.OnCursorControl -= PointerIcon_IdleUpdate;
+
+        OnPointerIdle -= Update_DraggingCard_ToolTip;
     }
 
 
@@ -84,17 +106,42 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
         UnityEngine.Cursor.visible = false;
     }
 
-    private void Toggle_PointerIcon(bool toggle)
-    {
-        _pointerIconToggled = toggle;
-        _pointerIconImage.gameObject.SetActive(_pointerIconToggled);
-    }
     private void PointerIcon_MovementUpdate(Vector2 cursorPosition)
     {
         if (_pointerIconToggled == false) return;
         _pointerIconRect.transform.position = cursorPosition;
     }
 
+    private void PointerIcon_IdleUpdate(Vector2 cursorPosition)
+    {
+        if (Vector2.Distance(_pointerIdlePosition, cursorPosition) <= _pointerIdleUpdateDistance) return;
+        _pointerIdlePosition = cursorPosition;
+
+        if (_pointerIdleUpdateDelay != null) StopCoroutine(_pointerIdleUpdateDelay);
+
+        bool wasIdle = _pointerIdleUpdated;
+
+        _pointerIdleUpdated = false;
+        _pointerIdleUpdateDelay = StartCoroutine(PointerIcon_IdleUpdateDelay());
+
+        if (wasIdle == false) return;
+        OnPointerIdle?.Invoke(false);
+    }
+    private IEnumerator PointerIcon_IdleUpdateDelay()
+    {
+        yield return new WaitForSecondsRealtime(_pointerIdleDelayTime);
+
+        _pointerIdleUpdated = true;
+        _pointerIdleUpdateDelay = null;
+
+        OnPointerIdle?.Invoke(true);
+    }
+
+    private void Toggle_PointerIcon(bool toggle)
+    {
+        _pointerIconToggled = toggle;
+        _pointerIconImage.gameObject.SetActive(_pointerIconToggled);
+    }
     private void UpdatePointerIcon_OnClick(bool isPressing)
     {
         Vector2 updatePos = isPressing ? new Vector2(-6.25f, 6.25f) : Vector2.zero;
@@ -107,7 +154,7 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
     public void Update_InfoText(string infoString)
     {
         bool toggle = infoString != null;
-        _infoText.gameObject.SetActive(toggle);
+        _infoTextBox.gameObject.SetActive(toggle);
 
         if (toggle == false) return;
         _infoText.text = infoString;
@@ -127,6 +174,7 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
         _draggingCard = dragCard;
         dragCard.Load(dragCardData);
 
+        Update_DraggingCard_ManaCost();
         return true;
     }
     private void DraggingCard_MovementUpdate()
@@ -139,11 +187,32 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
         dragCardRect.anchoredPosition = Vector2.Lerp(dragCardRect.anchoredPosition, _pointerIconRect.anchoredPosition, movementSpeed);
     }
 
+    private void Update_DraggingCard_ManaCost()
+    {
+        Update_InfoText(_draggingCard != null ? "mana: " + _draggingCard.data.currentManaPrice.ToString() : null);
+    }
+    private void Update_DraggingCard_ToolTip(bool toggle)
+    {
+        bool toolTipToggle = _draggingCard != null && toggle;
+        _dragCardToolTip.ToggleOn_CursorPoint(toolTipToggle);
+
+        if (toolTipToggle == false) return;
+
+        CardData dragCardData = _draggingCard.data;
+        Card_ScrObj cardScrObj = dragCardData.cardScrObj;
+
+        string foramtDescription = Utility.FormatUpdate_Description(cardScrObj.cardDescription, dragCardData.currentData.DescriptionFormats());
+        _dragCardToolTip.Update_Contents(null, cardScrObj.contentSprite, cardScrObj.cardName, foramtDescription);
+    }
+
     public void Drop_Card()
     {
         if (_draggingCard == null) return;
 
         Destroy(_draggingCard.gameObject);
         _draggingCard = null;
+
+        Update_DraggingCard_ManaCost();
+        Update_DraggingCard_ToolTip(false);
     }
 }

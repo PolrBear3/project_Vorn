@@ -356,8 +356,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     }
     public IEnumerator SelectStage_byMapIcon(StageMap_Icon selectedIcon)
     {
-        if (_data == null) yield break;
-        if (_data.stageSelected) yield break;
+        if (_data == null || _data.stageSelected) yield break;
 
         List<StageData> currentStageDatas = _data.StageDatas(true);
 

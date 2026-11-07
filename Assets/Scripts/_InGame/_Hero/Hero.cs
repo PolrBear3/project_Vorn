@@ -90,6 +90,10 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
             }
         }
 
+        _tileTargeting.targetingTiles.Clear();
+        _tileTargeting.recentTargetingTiles.Clear();
+        _data.Update_RecentMovementManaCost(0);
+
         _healthBar.Toggle_ValueBox(false);
         _actionClock.Toggle(false);
 

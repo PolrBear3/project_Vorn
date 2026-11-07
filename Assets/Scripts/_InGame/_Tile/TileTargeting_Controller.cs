@@ -187,7 +187,7 @@ public class TileTargeting_Controller : MonoBehaviour, ISubscriptionHandler
 
 
     // Cursor UI
-    private void Update_InfoText()
+    public void Update_InfoText()
     {
         Cursor cursor = GameManager.instance.cursor;
 

@@ -2,27 +2,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Plugins.Animate_UI_Materials;
 
-public class StageMap_Icon : MonoBehaviour
+public class StageMap_Icon : HoverUI
 {
-    [Space(20)]
-    [SerializeField] private Image _image;
-    public Image image => _image;
-
-    [SerializeField] private Animator_Controller _animController;
-    public Animator_Controller animController => _animController;
-
-    [Space(20)]
+    [Space(40)]
     [SerializeField] private RectTransform _playerIconAnchor;
     public RectTransform playerIconAnchor => _playerIconAnchor;
 
+    [SerializeField] private Color _completedStateColor;
 
-    // Button
-    public void Select()
+
+    // HoverUI
+    public override void OnHover_Update(bool _)
+    {
+
+    }
+
+    public override void OnSelect_Update()
     {
         StageMap_Manager stageMap = GameManager.instance.stageManager.stageMap;
 
         if (stageMap.data.stageSelected) return;
         StartCoroutine(stageMap.SelectStage_byMapIcon(this));
+    }
+
+
+    // StageMap_Icon
+    public void Update_CompletedState()
+    {
+        greyscaleTint.PropertyValue = _completedStateColor;
     }
 }

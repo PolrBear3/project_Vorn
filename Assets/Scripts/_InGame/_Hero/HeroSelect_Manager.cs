@@ -144,7 +144,10 @@ public class HeroSelect_Manager : MonoBehaviour, ISubscriptionHandler
 
         for (int i = 0; i < _selectGroups.Length; i++)
         {
-            if (selectGroup != _selectGroups[i]) continue;
+            Hero_SelectGroup heroSelectGroup = _selectGroups[i];
+            heroSelectGroup.Toggle_HoverLock(true);
+
+            if (selectGroup != heroSelectGroup) continue;
 
             data.Update_SelectedHero(data.selectableHeros[i]);
 

@@ -1,32 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
+using Plugins.Animate_UI_Materials;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class DeckBuild_ProgressionIcon : MonoBehaviour
+public class DeckBuild_ProgressionIcon : HoverUI
 {
-    [Space(20)]
-    [SerializeField] private Animator_Controller _animController;
-    public Animator_Controller animController => _animController;
-
-    [SerializeField] private EventSystems_Controller _hoverController;
-    public EventSystems_Controller hoverController => _hoverController;
-
-
-    // MonoBehaviour
-    private void Awake()
-    {
-        _hoverController.OnPointerState += Update_OnHover;
-    }
-
-    private void OnDestroy()
-    {
-        _hoverController.OnPointerState -= Update_OnHover;
-    }
-
-
-    // Interaction
-    private void Update_OnHover(bool isHovering)
+    // HoverUI
+    public override void OnHover_Update(bool isHovering)
     {
         GameManager.instance.deckBuildManager.Hover_ProgressionIcon(isHovering ? this : null);
+    }
+
+    public override void OnSelect_Update()
+    {
+
     }
 }

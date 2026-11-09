@@ -244,5 +244,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75cacfded989047adb9c039b354a8be4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _image: {fileID: 918581903513516621}
+  _greyscaleTint: {fileID: 1961779810008837266}
+  _greyscaleBlend: {fileID: 3204355056895433579}
+  _lockColor: {r: 0.42352942, g: 0.4, b: 0.47058824, a: 1}
   _animController: {fileID: 773599948190717621}
   _hoverController: {fileID: 7620252574796475961}

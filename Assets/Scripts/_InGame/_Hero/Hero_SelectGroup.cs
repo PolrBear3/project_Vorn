@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Hero_SelectGroup : MonoBehaviour, ISubscriptionHandler
+public class Hero_SelectGroup : HoverUI, ISubscriptionHandler
 {
-    [Space(20)]
+    [Space(40)]
     [SerializeField] private EventSystems_Controller _heroHoverDetector;
     [SerializeField] private EventSystems_Controller _spawnCardHoverDetector;
 
@@ -27,18 +27,36 @@ public class Hero_SelectGroup : MonoBehaviour, ISubscriptionHandler
 
 
     // MonoBehaviour
-    private void Awake()
+    public override void Awake()
     {
+        base.Awake();
+
+
         EventBus_GlobalController.Register(this);
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
     }
 
-    private void OnDestroy()
+    public override void OnDestroy()
     {
+        base.OnDestroy();
+
+
         UnSubscribe_All();
 
         EventBus_GlobalController.UnRegister(this);
         EventBus_GlobalController.UnRegister(Subscribe_All);
+    }
+
+
+    // HoverUI
+    public override void OnHover_Update(bool _)
+    {
+
+    }
+
+    public override void OnSelect_Update()
+    {
+        GameManager.instance.heroManager.heroSelectManager.Select_Hero(this);
     }
 
 
@@ -85,10 +103,5 @@ public class Hero_SelectGroup : MonoBehaviour, ISubscriptionHandler
     public void Hover_SpawnCard(bool hoverDetected)
     {
         OnSpawnCardHover?.Invoke(hoverDetected ? this : null);
-    }
-
-    public void Select()
-    {
-        GameManager.instance.heroManager.heroSelectManager.Select_Hero(this);
     }
 }

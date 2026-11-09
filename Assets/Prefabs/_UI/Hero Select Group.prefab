@@ -871,7 +871,10 @@ GameObject:
   - component: {fileID: 8430591057530232391}
   - component: {fileID: 8392661878911408571}
   - component: {fileID: 3730501784342464770}
+  - component: {fileID: 863234502913095352}
   - component: {fileID: 2933126585281150074}
+  - component: {fileID: 4508889101393190713}
+  - component: {fileID: 8725121727962986839}
   - component: {fileID: 6669447057815816649}
   m_Layer: 5
   m_Name: Hero Select Group
@@ -939,6 +942,27 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 0.16
+--- !u!95 &863234502913095352
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8694279143319698515}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 22100000, guid: a0e52c22cc30f4040ab2a550ccb615f7, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &2933126585281150074
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -984,8 +1008,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 6669447057815816649}
-        m_TargetAssemblyTypeName: Hero_SelectGroup, Assembly-CSharp
-        m_MethodName: Select
+        m_TargetAssemblyTypeName: HoverUI, Assembly-CSharp
+        m_MethodName: Update_OnSelect
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -995,6 +1019,30 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &4508889101393190713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8694279143319698515}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c163f59ef2d3e4447834589d976638f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8725121727962986839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8694279143319698515}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92dc3d67d4a0b44e4bf2d9b92e82ccd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &6669447057815816649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1007,6 +1055,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3492b49f6034426db3d83346b8eaae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _image: {fileID: 3730501784342464770}
+  _greyscaleTint: {fileID: 0}
+  _greyscaleBlend: {fileID: 0}
+  _animController: {fileID: 4508889101393190713}
+  _hoverController: {fileID: 8725121727962986839}
   _heroHoverDetector: {fileID: 9217975247711513227}
   _spawnCardHoverDetector: {fileID: 8033208269852724419}
   _layoutPlatform: {fileID: 3730501784342464770}

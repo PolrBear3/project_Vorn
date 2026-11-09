@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 7632882393479546601}
   - component: {fileID: 1248878610821990416}
   - component: {fileID: 1623130003224302387}
+  - component: {fileID: 4328914614258531662}
   - component: {fileID: 5480095419103407015}
   m_Layer: 5
   m_Name: Stage Map Icon
@@ -232,7 +233,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5480095419103407015}
         m_TargetAssemblyTypeName: StageMap_Icon, Assembly-CSharp
-        m_MethodName: Select
+        m_MethodName: OnSelect_Update
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -266,6 +267,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c163f59ef2d3e4447834589d976638f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4328914614258531662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5589412260288078335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92dc3d67d4a0b44e4bf2d9b92e82ccd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &5480095419103407015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279,8 +292,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _image: {fileID: 4447266954856505948}
+  _greyscaleTint: {fileID: 7224793478568858417}
+  _greyscaleBlend: {fileID: 2865826743082628430}
   _animController: {fileID: 1623130003224302387}
+  _hoverController: {fileID: 4328914614258531662}
   _playerIconAnchor: {fileID: 2603224822635866426}
+  _completedStateColor: {r: 0.5686275, g: 0.37254903, b: 0.34901962, a: 1}
 --- !u!1 &6590326828923893198
 GameObject:
   m_ObjectHideFlags: 0

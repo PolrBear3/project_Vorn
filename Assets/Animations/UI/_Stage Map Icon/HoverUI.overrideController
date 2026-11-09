@@ -6,7 +6,7 @@ AnimatorOverrideController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: StageMapIcon
+  m_Name: HoverUI
   m_Controller: {fileID: 9100000, guid: 05aa528b146254672be2c004aeadc703, type: 2}
   m_Clips:
   - m_OriginalClip: {fileID: 7400000, guid: eb8bf9eb42efb4a948f20141c9189bdc, type: 2}

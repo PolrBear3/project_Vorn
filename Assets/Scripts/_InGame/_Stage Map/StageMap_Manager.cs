@@ -335,23 +335,24 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
             if (stageAvailable == false) continue;
 
             Stage_ScrObj stage = dataToUpdate.stage;
-
             Sprite iconSprite = stage is BattleStage_ScrObj battleStage ? battleStage.stageIcon : _eventStageIconSprite;
-            icon.image.sprite = iconSprite;
 
-            Animator_Controller animController = icon.animController;
+            icon.image.sprite = iconSprite;
 
             if (_data.TargetStage_onCurrentLevel(dataToUpdate, out int _))
             {
-                animController.Play_State(UIAnimation.Available); // white
+                icon.Update_UnlockVisuals(true);
                 continue;
             }
+
+            icon.Toggle_HoverLock(true);
+
             if (dataToUpdate.completed || _data.TargetStage_CurrentLevel(dataToUpdate) > _data.currentLevel)
             {
-                animController.Play_State(UIAnimation.Toggle); // brown
+                icon.Update_CompletedState();
                 continue;
             }
-            animController.Play_State(UIAnimation.Restricted); // grey
+            icon.Update_UnlockVisuals(false);
         }
     }
     public IEnumerator SelectStage_byMapIcon(StageMap_Icon selectedIcon)

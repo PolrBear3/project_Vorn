@@ -195,10 +195,25 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
         for (int i = 0; i < _progressionIcons.Length; i++)
         {
-            _progressionIcons[i].animController.Play_State(i < updateCount ? UIAnimation.Available : UIAnimation.Restricted);
+            _progressionIcons[i].Update_UnlockVisuals(i < updateCount);
         }
     }
 
+    private List<CardData> BuiltDeckCards_inGroupIndex(int index)
+    {
+        int cardsPerGroup = MaxCardCount_inGroup();
+        int startIndex = Mathf.Max(0, index) * cardsPerGroup;
+
+        List<CardData> builtCardDatas = new(_data.builtDeckCardDatas);
+        List<CardData> builtGroupCardDatas = new();
+
+        for (int i = startIndex; i < builtCardDatas.Count; i++)
+        {
+            if (builtGroupCardDatas.Count >= cardsPerGroup) break;
+            builtGroupCardDatas.Add(builtCardDatas[i]);
+        }
+        return builtGroupCardDatas;
+    }
     private void Add_BuiltDeckCards_toDeck()
     {
         GameManager.instance.handInventory.AddCards_toDeck(new(_data.builtDeckCardDatas));
@@ -261,12 +276,29 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
     public void Hover_ProgressionIcon(DeckBuild_ProgressionIcon hoverIcon)
     {
+        _progressionIconHoverHoverToolTip.UnToggle();
+
+        if (hoverIcon == null) return;
+
         for (int i = 0; i < _progressionIcons.Length; i++)
         {
-            if (hoverIcon != _progressionIcons[i]) continue;
+            DeckBuild_ProgressionIcon icon = _progressionIcons[i];
+            if (hoverIcon != icon) continue;
 
-            // to do: get selected group cards from index i groups
-            Debug.Log(i);
+            List<CardData> builtCards = BuiltDeckCards_inGroupIndex(i);
+            if (builtCards == null || builtCards.Count <= 0) return;
+
+            DisplayCard[] tooltipCards = _progressionIconHoverHoverToolTip.groupCards;
+            for (int j = 0; j < builtCards.Count; j++)
+            {
+                if (j > tooltipCards.Length - 1) break;
+                tooltipCards[j].Load_CardComponents(builtCards[j].cardScrObj);
+            }
+
+            RectTransform toolTipPanel = _progressionIconHoverHoverToolTip.panel.rectTransform;
+            toolTipPanel.position = new(icon.image.rectTransform.position.x, toolTipPanel.position.y);
+
+            _progressionIconHoverHoverToolTip.Toggle(true);
             return;
         }
     }

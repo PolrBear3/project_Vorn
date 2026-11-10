@@ -61,14 +61,18 @@ public class Hero_SelectGroup : HoverUI, ISubscriptionHandler
 
 
     // ISubscriptionHandler
-    public void Subscribe_All()
+    public override void Subscribe_All()
     {
+        base.Subscribe_All();
+
         _heroHoverDetector.OnPointerState += Hover_Hero;
         _spawnCardHoverDetector.OnPointerState += Hover_SpawnCard;
     }
 
-    public void UnSubscribe_All()
+    public override void UnSubscribe_All()
     {
+        base.UnSubscribe_All();
+
         _heroHoverDetector.OnPointerState -= Hover_Hero;
         _spawnCardHoverDetector.OnPointerState -= Hover_SpawnCard;
     }

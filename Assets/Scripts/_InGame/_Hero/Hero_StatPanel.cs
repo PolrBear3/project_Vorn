@@ -11,6 +11,7 @@ public class Hero_StatPanel : MonoBehaviour
     public RectTransform rectTransform => _rectTransform;
 
     [SerializeField] private TextMeshProUGUI _valueText;
+    public TextMeshProUGUI valueText => _valueText;
 
     [Space(20)]
     [SerializeField] private Image _materialBackground;

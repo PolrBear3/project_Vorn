@@ -33,6 +33,8 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
     [SerializeField] private ToolTip _dragCardToolTip;
 
 
+    private Color _defaultInfoTextColor;
+
     private bool _pointerIconToggled;
     private Vector2 _pointerIdlePosition;
 
@@ -49,6 +51,8 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
     // MonoBehaviour
     private void Awake()
     {
+        _defaultInfoTextColor = _infoText.color;
+
         Hide_Cursor();
         Toggle_PointerIcon(true);
         Update_InfoText(null);
@@ -157,7 +161,13 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
         _infoTextBox.gameObject.SetActive(toggle);
 
         if (toggle == false) return;
+
         _infoText.text = infoString;
+        _infoText.color = _defaultInfoTextColor;
+    }
+    public void Update_InfoText(Color textColor)
+    {
+        _infoText.color = textColor;
     }
 
 
@@ -189,7 +199,8 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
 
     private void Update_DraggingCard_ManaCost()
     {
-        Update_InfoText(_draggingCard != null ? "mana: " + _draggingCard.data.currentManaPrice.ToString() : null);
+        Update_InfoText(_draggingCard != null ? "<sprite=5>" + _draggingCard.data.currentManaPrice.ToString() : null);
+        Update_InfoText(GameManager.instance.heroManager.manaPanel.valueText.color);
     }
     private void Update_DraggingCard_ToolTip(bool toggle)
     {

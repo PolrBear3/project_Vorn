@@ -235,6 +235,15 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
 
         _runTimeAction.Toggle_RunAction(true);
 
+        // check death before action
+        if (_data.currentData.currentHealth <= 0)
+        {
+            yield return _interactionDataUpdater.Handle_HealthUpdate(0);
+
+            Reset_ActionDatas();
+            yield break;
+        }
+
         yield return _preUpdateSkillBus.RunSequential_DelayBusEvents();
         yield return Run_TileTargeting_HealthModify();
         yield return _afterUpdateSkillBus.RunSequential_DelayBusEvents();

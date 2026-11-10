@@ -10,7 +10,9 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 
     [Space(20)]
     [SerializeField] private Hero_StatPanel _healthPanel;
+
     [SerializeField] private Hero_StatPanel _manaPanel;
+    public Hero_StatPanel manaPanel => _manaPanel;
 
     [Space(10)]
     [SerializeField][Range(0, 1000)] private float _statPanelsSpacingValue;
@@ -384,7 +386,8 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         List<Tile> routeToTargetTile = tileManager.PathFind_RouteTiles(hero.movement.currentTile, tileManager.hoveringTile);
         int totalManaCost = routeToTargetTile.Count * hero.data.movementManaMultiplyValue;
 
-        cursor.Update_InfoText("mana: " + totalManaCost.ToString());
+        cursor.Update_InfoText("<sprite=5>" + totalManaCost.ToString());
+        cursor.Update_InfoText(_manaPanel.valueText.color);
     }
 
     private void Update_MovementRoute_OnHeroHover()
@@ -464,7 +467,11 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         if (_spawnedHero == null) return;
 
         GameManager manager = GameManager.instance;
-        if (manager.stageManager.endTurnEventBus.DelayBus_Running()) return;
+
+        StageManager stageManager = manager.stageManager;
+
+        if (stageManager.endTurnEventBus.DelayBus_Running()) return;
+        if (stageManager.stageMap.Stage_NotSelected()) return;
 
         Tile hoveringTile = manager.tileManager.hoveringTile;
         bool heroHoverDetected = hoveringTile == _spawnedHero.movement.currentTile;

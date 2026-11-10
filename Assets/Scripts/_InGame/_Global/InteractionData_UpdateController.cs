@@ -60,12 +60,11 @@ public class InteractionData_UpdateController : MonoBehaviour
     // Health
     public IEnumerator Handle_HealthUpdate(int healthModifyValue)
     {
-        int currentHealth = _targetData.currentHealth;
-        if (healthModifyValue == 0 && currentHealth > 0) yield break;
-
         _healthHandleUpdateRunning = true;
 
-        Play_AnimatorState(healthModifyValue <= 0 ? OccupantAnimation.Damaged : OccupantAnimation.Healed);
+        int currentHealth = _targetData.currentHealth;
+        Play_AnimatorState(currentHealth > 0 && healthModifyValue > 0 ? OccupantAnimation.Healed : OccupantAnimation.Damaged);
+
         yield return null;
         while (CurrentAnimatorState_Playing()) yield return null;
 
@@ -78,6 +77,7 @@ public class InteractionData_UpdateController : MonoBehaviour
         }
 
         Play_AnimatorState(OccupantAnimation.Remove);
+
         yield return null;
         while (CurrentAnimatorState_Playing()) yield return null;
 

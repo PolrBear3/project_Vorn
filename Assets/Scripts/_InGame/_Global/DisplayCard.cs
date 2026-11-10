@@ -8,6 +8,7 @@ public class DisplayCard : MonoBehaviour, ISubscriptionHandler
 {
     [Space(20)]
     [SerializeField] private EventSystems_Controller _hoverDetector;
+    public EventSystems_Controller hoverDetector => _hoverDetector;
 
     [Space(20)]
     [SerializeField] private Image _baseImage;

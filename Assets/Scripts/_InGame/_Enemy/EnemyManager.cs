@@ -243,10 +243,11 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
     private void Hover_Enemy()
     {
         GameManager manager = GameManager.instance;
+
         StageManager stageManager = manager.stageManager;
 
         if (stageManager.endTurnEventBus.DelayBus_Running()) return;
-        if (stageManager.endStageEventBus.DelayBus_Running()) return;
+        if (stageManager.stageMap.Stage_NotSelected()) return;
 
         TileManager tileManager = manager.tileManager;
         Tile hoveringTile = tileManager.hoveringTile;

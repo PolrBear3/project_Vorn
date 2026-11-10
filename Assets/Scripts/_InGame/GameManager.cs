@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEditor;
 
 public class GameManager : MonoBehaviour, ISaveLoadable
 {
@@ -94,3 +95,36 @@ public class GameManager : MonoBehaviour, ISaveLoadable
         StartCoroutine(Reload_GameScene());
     }
 }
+
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(GameManager))]
+public class GameManager_Inspector : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        GameManager controller = (GameManager)target;
+
+        base.OnInspectorGUI();
+        serializedObject.Update();
+
+        GUILayout.Space(60);
+
+        if (GUILayout.Button("Draw Card"))
+        {
+            controller.handInventory.DrawingStateCheck_DrawCard();
+        }
+        if (GUILayout.Button("Damage All Enemies"))
+        {
+            List<Enemy> spawnedEnemies = controller.enemyManager.spawnedEnemies;
+
+            foreach (Enemy enemy in spawnedEnemies)
+            {
+                enemy.data.currentData.Update_CurrentHealth(0, out int _);
+            }
+        }
+
+        serializedObject.ApplyModifiedProperties();
+    }
+}
+#endif

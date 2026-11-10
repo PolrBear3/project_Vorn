@@ -116,9 +116,9 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     public void Toggle_BattleStage()
     {
         GameManager manager = GameManager.instance;
-        bool battleStageToggle = manager.deckBuildManager.data.deckBuildComplete && Is_BattleStage();
 
-        Toggle_BattleStage(battleStageToggle && manager.stageManager.stageMap.data.FinalLevel_Complete() == false);
+        if (manager.stageManager.stageMap.data.FinalLevel_Complete()) return;
+        Toggle_BattleStage(manager.deckBuildManager.data.deckBuildComplete && Is_BattleStage());
     }
 
 

@@ -10,17 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3ab6d7b62706f44cf85f91250d6d2ee0, type: 3}
-  m_Name: Apple
+  m_Name: Sprinkled Donut
   m_EditorClassIdentifier: 
-  _cardName: Apple
+  _cardName: Sprinkled Donut
   _cardDescription: '{healOrDamage} {healthModifyValue} to {targetSelectCount} target(s)
-    within a range of {interactRange} tile(s). Removed after use.'
-  _contentSprite: {fileID: 47873748, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
-  _placePrefab: {fileID: 6583803616044884069, guid: 2242ccf52a0cc40b68c8c0724ccd066d, type: 3}
+    within a range of {interactRange} tile(s). If hero is targeted, movement costs
+    twice as much mana next turn. Removed after use.'
+  _contentSprite: {fileID: -1379354960, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
+  _placePrefab: {fileID: 8945428073879937542, guid: 7d6cd28fcf3374a829f9de59c10068e1, type: 3}
   _interactionData:
     _maxHealth: 1
     _states: 
-    _healthModifyValue: 1
+    _healthModifyValue: 5
     _interactRange: 1
     _targetSelectCount: 1
   _manaCost: 0

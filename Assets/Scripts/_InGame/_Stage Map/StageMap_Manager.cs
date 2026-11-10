@@ -122,18 +122,30 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     // ISubscriptionHandler
     public void Subscribe_All()
     {
-        StageManager stageManager = GameManager.instance.stageManager;
+        GameManager manager = GameManager.instance;
+        StageManager stageManager = manager.stageManager;
 
         stageManager.endStageEventBus.Register(0, ToggleMenu_OnStageEnd);
         stageManager.setStageEventBus.Register(Stage_NotSelected);
+
+        TileManager tileManager = manager.tileManager;
+
+        tileManager.tileHoverEventBus.Register(Stage_NotSelected);
+        tileManager.tileSelectEventBus.Register(Stage_NotSelected);
     }
 
     public void UnSubscribe_All()
     {
-        StageManager stageManager = GameManager.instance.stageManager;
+        GameManager manager = GameManager.instance;
+        StageManager stageManager = manager.stageManager;
 
         stageManager.endStageEventBus.UnRegister(ToggleMenu_OnStageEnd);
         stageManager.setStageEventBus.UnRegister(Stage_NotSelected);
+
+        TileManager tileManager = manager.tileManager;
+
+        tileManager.tileHoverEventBus.UnRegister(Stage_NotSelected);
+        tileManager.tileSelectEventBus.UnRegister(Stage_NotSelected);
     }
 
 
@@ -269,7 +281,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
 
 
     // Menu
-    private bool Stage_NotSelected()
+    public bool Stage_NotSelected()
     {
         return _data.stageSelected == false;
     }
@@ -288,14 +300,13 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     }
     private IEnumerator ToggleMenu_OnStageEnd()
     {
-        bool toggle = Stage_NotSelected() && _data.FinalLevel_Complete() == false;
-        if (toggle == false) yield break;
+        if (Stage_NotSelected() == false || _data.FinalLevel_Complete()) yield break;
 
         Update_MapIconVisuals();
         Update_PlayerIcon_Visual();
         Update_PlayerIcon_Position();
 
-        yield return _menuPanelController.DelayToggle(toggle);
+        yield return _menuPanelController.DelayToggle(true);
     }
 
 
@@ -369,6 +380,13 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
 
             if (selectedData == null) yield break;
             if (_data.TargetStage_onCurrentLevel(selectedData, out int levelStageIndex) == false) yield break;
+
+            List<StageData> currentLevelDatas = _data.TargetLevel_StageDatas(_data.currentLevel, false);
+            foreach (StageData data in currentLevelDatas)
+            {
+                if (Target_StageData_IconIndex(data, out int iconIndex) == false) continue;
+                _icons[iconIndex].Toggle_HoverLock(true);
+            }
 
             _data.Update_CurrentLevel_StageIndex(levelStageIndex);
             selectedData.Update_QueueEvents();

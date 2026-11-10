@@ -58,6 +58,8 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
     private List<HandCard> _handCards = new();
     public List<HandCard> handCards => _handCards;
 
+    private Coroutine _drawCardCoroutine;
+
 
     private HandCard _hoveringCard;
     public HandCard hovaringCard => _hoveringCard;
@@ -248,7 +250,10 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
 
         _deckCards.RemoveAt(drawCardIndex);
         AddCard_toHand(drawCardData);
+
+        GameManager.instance.deckBuildManager.deckManager.Update_DeckCardCount_Text(_deckCards.Count);
     }
+
 
     private IEnumerator DrawCard(int drawCount)
     {
@@ -266,9 +271,19 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
             while (_drawCardFromDeck.DelayBus_Running()) yield return null;
         }
     }
-    private IEnumerator DrawCard()
+    public IEnumerator DrawCard()
     {
         yield return DrawCard(1);
+    }
+
+    public void DrawingStateCheck_DrawCard()
+    {
+        if (_drawCardCoroutine != null)
+        {
+            StopCoroutine(_drawCardCoroutine);
+            _drawCardCoroutine = null;
+        }
+        _drawCardCoroutine = StartCoroutine(DrawCard());
     }
 
 

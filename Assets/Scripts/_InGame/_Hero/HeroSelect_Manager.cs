@@ -100,17 +100,21 @@ public class HeroSelect_Manager : MonoBehaviour, ISubscriptionHandler
     private void Hover_Hero(Hero_SelectGroup hovergroup)
     {
         Hero_ScrObj hoveringHero = Hovering_Hero(hovergroup);
-        _heroHoverToolTip.ToggleOn_CursorPoint(hoveringHero != null);
+        bool toggle = hoveringHero != null && GameManager.instance.heroManager.data.selectedHero == null;
 
-        if (hoveringHero == null) return;
+        _heroHoverToolTip.ToggleOn_CursorPoint(toggle);
+
+        if (toggle == false) return;
         _heroHoverToolTip.Update_Contents(hoveringHero.toolTipBaseSprite, null, hoveringHero.characterName, hoveringHero.characterDescription);
     }
     private void Hover_SpawnCard(Hero_SelectGroup hovergroup)
     {
         Hero_ScrObj hoveringHero = Hovering_Hero(hovergroup);
-        _spawnCarddHoverToolTip.ToggleOn_CursorPoint(hoveringHero != null);
+        bool toggle = hoveringHero != null && GameManager.instance.heroManager.data.selectedHero == null;
 
-        if (hoveringHero == null) return;
+        _spawnCarddHoverToolTip.ToggleOn_CursorPoint(toggle);
+
+        if (toggle == false) return;
         Card_ScrObj spawnCard = hoveringHero.spawnCard;
 
         string foramtDescription = Utility.FormatUpdate_Description(spawnCard.cardDescription, spawnCard.interactionData.DescriptionFormats());
@@ -151,9 +155,12 @@ public class HeroSelect_Manager : MonoBehaviour, ISubscriptionHandler
 
             data.Update_SelectedHero(data.selectableHeros[i]);
 
-            _toggleController.Toggle(false);
-            _heroSelectCompleteBus.RunSequential_BusEvents();
+            _heroHoverToolTip.Toggle(false);
+            _spawnCarddHoverToolTip.Toggle(false);
 
+            _toggleController.Toggle(false);
+
+            _heroSelectCompleteBus.RunSequential_BusEvents();
             return;
         }
     }

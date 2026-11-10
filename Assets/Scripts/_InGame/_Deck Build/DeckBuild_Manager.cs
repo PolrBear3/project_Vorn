@@ -8,6 +8,10 @@ using UnityEngine.UI;
 public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoadable
 {
     [Space(20)]
+    [SerializeField] private DeckManager _deckManager;
+    public DeckManager deckManager => _deckManager;
+
+    [Space(20)]
     [SerializeField] private UIPanel_ToggleController _panelToggleController;
 
     [Space(10)]
@@ -183,6 +187,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         Load_CardPool();
         Load_CardPoolCards_toGroups();
 
+        _deckManager.Update_DeckCardCount_Text(_data.builtDeckCardDatas.Count);
         _panelToggleController.Toggle(true);
     }
     private void Update_ProgressionIcons(bool _)
@@ -216,16 +221,20 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     }
     private void Add_BuiltDeckCards_toDeck()
     {
-        GameManager.instance.handInventory.AddCards_toDeck(new(_data.builtDeckCardDatas));
+        HandInventory handInventory = GameManager.instance.handInventory;
+
+        handInventory.AddCards_toDeck(new(_data.builtDeckCardDatas));
+        _deckManager.Update_DeckCardCount_Text(handInventory.dekcCards.Count);
     }
 
 
     // Interaction
     private void Hover_GroupCards(DisplayCard hoverCard)
     {
-        _groupCardHoverToolTip.ToggleOn_CursorPoint(hoverCard != null);
+        bool toggle = hoverCard != null && _data.deckBuildComplete == false;
+        _groupCardHoverToolTip.ToggleOn_CursorPoint(toggle);
 
-        if (hoverCard == null) return;
+        if (toggle == false) return;
 
         for (int i = 0; i < _buildGroups.Length; i++)
         {
@@ -245,6 +254,23 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
             }
         }
     }
+    private void HoverCurrent_GroupCards()
+    {
+        for (int i = 0; i < _buildGroups.Length; i++)
+        {
+            DisplayCard[] groupCards = _buildGroups[i].groupCards;
+
+            for (int j = 0; j < groupCards.Length; j++)
+            {
+                DisplayCard groupCard = groupCards[j];
+                if (groupCard.hoverDetector.pointerDetected == false) continue;
+
+                Hover_GroupCards(groupCard);
+                return;
+            }
+        }
+    }
+
     public void Select_GroupCards(DeckBuild_Group selectGroup)
     {
         if (_data.deckBuildComplete) return;
@@ -261,16 +287,20 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
             }
             break;
         }
+        _deckManager.Update_DeckCardCount_Text(_data.builtDeckCardDatas.Count);
 
         int buildCardCount = _progressionIcons.Length * MaxCardCount_inGroup();
-
         if (_data.Complete_DeckBuild(buildCardCount) == false)
         {
             _panelToggleController.Toggle(true);
+
             Load_CardPoolCards_toGroups();
+            HoverCurrent_GroupCards();
 
             return;
         }
+        _groupCardHoverToolTip.Toggle(false);
+
         GameManager.instance.Continue_GamePlay();
     }
 

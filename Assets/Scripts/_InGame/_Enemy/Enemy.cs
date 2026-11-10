@@ -274,6 +274,14 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
 
 
     // End Turn
+    private void Reset_ActionDatas()
+    {
+        _healthBar.Toggle_ValueBox(false);
+        _modifyIndicator.gameObject.SetActive(false);
+
+        _runTimeAction.Toggle_RunAction(false);
+    }
+
     public IEnumerator Run_EndTurnActions()
     {
         _runTimeAction.Toggle_RunAction(true);
@@ -281,16 +289,26 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
         _healthBar.Toggle_ValueBox(true);
         _modifyIndicator.gameObject.SetActive(true);
 
-        yield return _preMovementSkillBus.RunSequential_DelayBusEvents(); // movement
-        int movementRange = _data.movementRange;
+        // check death before action
+        if (_data.currentData.currentHealth <= 0)
+        {
+            yield return _interactionDataUpdater.Handle_HealthUpdate(0);
 
+            Reset_ActionDatas();
+            yield break;
+        }
+
+        // movement
+        yield return _preMovementSkillBus.RunSequential_DelayBusEvents();
+
+        int movementRange = _data.movementRange;
         for (int i = 0; i < movementRange; i++)
         {
             Moveto_TargetTile();
             while (_movement.movementCoroutine != null) yield return null;
         }
 
-        InteractionData_UpdateController damageDataController = Damageable_InteractionData(out Tile damageTargetTile); // damage interactable
+        InteractionData_UpdateController damageDataController = Damageable_InteractionData(out Tile damageTargetTile); // damaging interactable
         _damagingTile = damageTargetTile;
 
         yield return _afterMovementSkillBus.RunSequential_DelayBusEvents();

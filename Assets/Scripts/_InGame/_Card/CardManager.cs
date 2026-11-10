@@ -274,10 +274,11 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
     private void Hover_PlacedCard()
     {
         GameManager manager = GameManager.instance;
+
         StageManager stageManager = manager.stageManager;
 
         if (stageManager.endTurnEventBus.DelayBus_Running()) return;
-        if (stageManager.endStageEventBus.DelayBus_Running()) return;
+        if (stageManager.stageMap.Stage_NotSelected()) return;
 
         TileManager tileManager = manager.tileManager;
         if (tileManager.tileTargeting.toggledSource != null) return;

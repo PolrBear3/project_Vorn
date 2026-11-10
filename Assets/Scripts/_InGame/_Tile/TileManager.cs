@@ -52,7 +52,6 @@ public class TileManager : MonoBehaviour, ISubscriptionHandler
     public void Subscribe_All()
     {
         StageManager stageManager = GameManager.instance.stageManager;
-
         EventBus_Controller stageSet = stageManager.setStageEventBus;
 
         stageSet.Register(0, Generate_Tiles);
@@ -68,7 +67,6 @@ public class TileManager : MonoBehaviour, ISubscriptionHandler
     public void UnSubscribe_All()
     {
         StageManager stageManager = GameManager.instance.stageManager;
-
         EventBus_Controller stageSet = stageManager.setStageEventBus;
 
         stageSet.UnRegister(Generate_Tiles);

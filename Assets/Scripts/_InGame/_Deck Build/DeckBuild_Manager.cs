@@ -33,6 +33,9 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
     public Action OnCardPoolLoad;
 
+    private EventBus_Controller _deckBuildUpdateBus = new();
+    public EventBus_Controller deckBuildUpdateBus => _deckBuildUpdateBus;
+
     private EventBus_Controller _deckBuildCompleteBus = new();
     public EventBus_Controller deckBuildCompleteBus => _deckBuildCompleteBus;
 
@@ -224,7 +227,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         HandInventory handInventory = GameManager.instance.handInventory;
 
         handInventory.AddCards_toDeck(new(_data.builtDeckCardDatas));
-        _deckManager.Update_DeckCardCount_Text(handInventory.dekcCards.Count);
+        _deckManager.Update_DeckCardCount_Text(handInventory.deckCards.Count);
     }
 
 
@@ -287,7 +290,9 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
             }
             break;
         }
+
         _deckManager.Update_DeckCardCount_Text(_data.builtDeckCardDatas.Count);
+        _deckManager.Load_DeckCards();
 
         int buildCardCount = _progressionIcons.Length * MaxCardCount_inGroup();
         if (_data.Complete_DeckBuild(buildCardCount) == false)

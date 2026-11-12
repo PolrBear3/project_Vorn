@@ -53,7 +53,7 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
 
 
     private List<CardData> _deckCards = new();
-    public List<CardData> dekcCards => _deckCards;
+    public List<CardData> deckCards => _deckCards;
 
     private List<HandCard> _handCards = new();
     public List<HandCard> handCards => _handCards;
@@ -156,7 +156,7 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         if (addCardData == null || addCardData.cardScrObj == null) return;
 
         int randDeckIndex = UnityEngine.Random.Range(0, _deckCards.Count + 1);
-        _deckCards.Insert(randDeckIndex, new(addCardData));
+        _deckCards.Insert(randDeckIndex, addCardData);
     }
     public void AddCards_toDeck(List<CardData> addCardDatas)
     {
@@ -218,11 +218,11 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         if (_handCards.Count >= _maxHandCardCount) return null;
 
         GameObject addCardObject = Instantiate(_handCardPrefab, _handCardsPositionPoint);
+
         if (addCardObject.TryGetComponent(out HandCard addCard) == false) return null;
-
         _handCards.Add(addCard);
-        addCard.Load(addCardData);
 
+        addCard.Load(new CardData(addCardData));
         return addCard;
     }
     private void RemoveCard_fromHand(HandCard removeCard)
@@ -248,8 +248,8 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         int drawCardIndex = _deckCards.Count - 1;
         CardData drawCardData = _deckCards[drawCardIndex];
 
-        _deckCards.RemoveAt(drawCardIndex);
         AddCard_toHand(drawCardData);
+        _deckCards.RemoveAt(drawCardIndex);
 
         GameManager.instance.deckBuildManager.deckManager.Update_DeckCardCount_Text(_deckCards.Count);
     }
@@ -267,7 +267,9 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
             Update_HandCardPositions();
             Update_CardPlatform();
 
+            _drawCardFromDeck.RunSequential_BusEvents();
             _drawCardFromDeck.RunSequential_DelayBusEvents();
+
             while (_drawCardFromDeck.DelayBus_Running()) yield return null;
         }
     }
@@ -320,9 +322,9 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         CardData hoveringCardData = _hoveringCard.data;
         if (manager.cursor.Drag_Card(hoveringCardData, _hoveringCard.transform) == false) return;
 
-        for (int i = 0; i < handCards.Count; i++)
+        for (int i = 0; i < _handCards.Count; i++)
         {
-            if (_hoveringCard != handCards[i]) continue;
+            if (_hoveringCard != _handCards[i]) continue;
 
             _dragDropData = new(hoveringCardData, i);
             break;

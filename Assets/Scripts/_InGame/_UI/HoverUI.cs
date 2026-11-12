@@ -51,11 +51,13 @@ public abstract class HoverUI : MonoBehaviour, ISubscriptionHandler
     // ISubscriptionHandler
     public virtual void Subscribe_All()
     {
+        if (_hoverController == null) return;
         _hoverController.OnPointerState += Update_OnHover;
     }
 
     public virtual void UnSubscribe_All()
     {
+        if (_hoverController == null) return;
         _hoverController.OnPointerState -= Update_OnHover;
     }
 
@@ -76,6 +78,8 @@ public abstract class HoverUI : MonoBehaviour, ISubscriptionHandler
         _hoverLocked = toggle;
 
         if (_hoverLocked == false) return;
+
+        if (_animController == null) return;
         if (_animController.CurrentState_Playing() == false || _animController.CurrentState_Playing(UIAnimation.UnToggle)) return;
 
         _animController.Play_State(UIAnimation.UnToggle);
@@ -87,6 +91,8 @@ public abstract class HoverUI : MonoBehaviour, ISubscriptionHandler
         if (_hoverLocked) return;
 
         OnHover_Update(isHovering);
+
+        if (_animController == null) return;
         _animController.Play_State(isHovering ? UIAnimation.Toggle : UIAnimation.UnToggle);
     }
 
@@ -96,6 +102,7 @@ public abstract class HoverUI : MonoBehaviour, ISubscriptionHandler
     {
         OnSelect_Update();
 
+        if (_animController == null) return;
         _animController.Play_State(UIAnimation.UnToggle);
     }
 }

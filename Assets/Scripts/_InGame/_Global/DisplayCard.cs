@@ -10,9 +10,11 @@ public class DisplayCard : MonoBehaviour, ISubscriptionHandler
     [SerializeField] private EventSystems_Controller _hoverDetector;
     public EventSystems_Controller hoverDetector => _hoverDetector;
 
+    [SerializeField] private GameObject _toggleComponents;
+
     [Space(20)]
-    [SerializeField] private Image _baseImage;
-    [SerializeField] private Image _contentImage;
+    [SerializeField] private HoverUI_Icon _base;
+    [SerializeField] private HoverUI_Icon _content;
 
     [Space(10)]
     [SerializeField] private Image _IndicationIconImage;
@@ -25,6 +27,8 @@ public class DisplayCard : MonoBehaviour, ISubscriptionHandler
     // MonoBehaviour
     private void Awake()
     {
+        Update_UnlockVisuals(true);
+
         EventBus_GlobalController.Register(this);
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
     }
@@ -51,15 +55,26 @@ public class DisplayCard : MonoBehaviour, ISubscriptionHandler
 
 
     // UI
+    public void Toggle(bool toggle)
+    {
+        _toggleComponents.SetActive(toggle);
+    }
+    public void Update_UnlockVisuals(bool unlock)
+    {
+        if (_base == null || _content == null) return;
+
+        _base.Update_UnlockVisuals(unlock);
+        _content.Update_UnlockVisuals(unlock);
+    }
+
     public void Load_CardComponents(Card_ScrObj cardToLoad)
     {
         bool toggle = cardToLoad != null;
         gameObject.SetActive(toggle);
 
         if (toggle == false) return;
-        _contentImage.sprite = cardToLoad.contentSprite;
+        _content.image.sprite = cardToLoad.contentSprite;
     }
-
     public void Load_IndicationIcon(Sprite indicationSprite)
     {
         bool toggle = indicationSprite != null;

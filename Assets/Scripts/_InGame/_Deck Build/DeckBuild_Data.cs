@@ -40,20 +40,36 @@ public class DeckBuild_Data
     }
 
 
-    public List<CardData> BuiltDeck_CardDatas()
+    public List<Card_ScrObj> DeckCards()
     {
-        List<CardData> datas = new();
+        List<Card_ScrObj> deckCards = new(_deckUpdateCards);
 
         foreach (Card_ScrObj card in _builtDeckCards)
         {
-            datas.Add(new(card));
+            deckCards.Add(card);
+        }
+        return deckCards;
+    }
+    public List<CardData> Deck_CardDatas()
+    {
+        List<CardData> datas = new();
+
+        foreach (Card_ScrObj card in _deckUpdateCards)
+        {
+            datas.Add(new(card, false));
+        }
+        foreach (Card_ScrObj card in _builtDeckCards)
+        {
+            datas.Add(new(card, false));
         }
         return datas;
     }
 
-    // todo check these two, no edits
+
     public void AddCard_toBuiltDeck(Card_ScrObj cardToAdd, int addAmount)
     {
+        if (cardToAdd == null) return;
+
         for (int i = 0; i < addAmount; i++)
         {
             _builtDeckCards.Add(cardToAdd);
@@ -61,6 +77,8 @@ public class DeckBuild_Data
     }
     public void RemoveCard_fromBuiltDeck(Card_ScrObj cardToRemove, int removeAmount)
     {
+        if (cardToRemove == null) return;
+
         int removeCount = 0;
 
         for (int i = _builtDeckCards.Count - 1; i >= 0; i--)
@@ -85,10 +103,12 @@ public class DeckBuild_Data
         _buildGroupCards.Clear();
         _deckUpdateCompleteCount = Mathf.Max(0, updateCount);
     }
-    public bool Complete_DeckUpdate()
+    public bool Complete_DeckUpdate(int maxDeckCapacity)
     {
         int updateCardsCount = _deckUpdateCards.Count;
-        if (updateCardsCount < _deckUpdateCompleteCount) return false;
+        bool isMaxCapacity = _builtDeckCards.Count + _deckUpdateCards.Count >= maxDeckCapacity;
+
+        if (updateCardsCount < _deckUpdateCompleteCount && isMaxCapacity == false) return false;
 
         for (int i = 0; i < updateCardsCount; i++)
         {
@@ -96,7 +116,6 @@ public class DeckBuild_Data
         }
 
         _buildGroupCards.Clear();
-
         _deckUpdateCompleteCount = 0;
         _deckUpdateCards.Clear();
 

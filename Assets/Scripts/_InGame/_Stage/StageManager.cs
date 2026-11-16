@@ -66,7 +66,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         _endStageEventBus.Register(0, Toggle_BattleStage);
 
         _setStageEventBus.Register(0, Toggle_QueuedEventStage);
-        _endTurnEventBus.Register(Is_EventStage);
+        _endTurnEventBus.Register(_stageMap.Is_EventStage);
 
         _endStageEventBus.Register(0, EndGamePlay_OnFinalStageCompletion);
 
@@ -86,7 +86,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         _endStageEventBus.UnRegister(Toggle_BattleStage);
 
         _setStageEventBus.UnRegister(Toggle_QueuedEventStage);
-        _endTurnEventBus.UnRegister(Is_EventStage);
+        _endTurnEventBus.UnRegister(_stageMap.Is_EventStage);
 
         _endStageEventBus.UnRegister(EndGamePlay_OnFinalStageCompletion);
 
@@ -96,14 +96,6 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
 
 
     // Battle Stage
-    public bool Is_BattleStage()
-    {
-        StageData currentStageData = _stageMap.data.Current_StageData();
-        if (currentStageData == null) return false;
-
-        return currentStageData.stage is BattleStage_ScrObj;
-    }
-
     private void Toggle_BattleStage(bool toggle)
     {
         for (int i = 0; i < _battleStagePanelToggles.Length; i++)
@@ -125,34 +117,17 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         bool toggle =
             manager.heroManager.data.selectedHero != null &&
             manager.deckBuildManager.data.DeckUpdate_NotComplete() == false &&
-            stageMap.maptoggleController.toggled == false &&
-            Is_BattleStage();
+            _stageMap.maptoggleController.toggled == false &&
+            _stageMap.Is_BattleStage();
 
         Toggle_BattleStage(toggle);
     }
 
 
     // Event Stage
-    private bool Is_EventStage(out EventStage_ScrObj currentEventStage)
-    {
-        StageData currentStageData = _stageMap.data.Current_StageData();
-
-        currentEventStage = null;
-
-        if (currentStageData == null) return false;
-        if (currentStageData.stage is not EventStage_ScrObj eventStage) return false;
-
-        currentEventStage = eventStage;
-        return true;
-    }
-    public bool Is_EventStage()
-    {
-        return Is_EventStage(out EventStage_ScrObj _);
-    }
-
     public void Toggle_QueuedEventStage()
     {
-        if (Is_EventStage() == false) return;
+        if (_stageMap.Is_EventStage() == false) return;
 
         StageMap_Data stageMapData = _stageMap.data;
 
@@ -166,7 +141,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     }
     private void AutoConfirm_QueuedEventStages()
     {
-        if (Is_EventStage() == false) return;
+        if (_stageMap.Is_EventStage() == false) return;
 
         EventMenu_Manager eventMenuManager = GameManager.instance.eventMenuManager;
         StageMap_Data stageMapData = _stageMap.data;

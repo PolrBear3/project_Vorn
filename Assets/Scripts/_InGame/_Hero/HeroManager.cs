@@ -61,7 +61,7 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 
         stageSetBus.Register(Hero_UnSelected);
 
-        stageSetBus.Register(0, Load_SpawnCard_toDeck);
+        stageSetBus.Register(0, Load_SpawnCard_toHand);
         stageSetBus.Register(0, Update_HealthPanel);
         stageSetBus.Register(0, Update_ManaPanel);
 
@@ -118,7 +118,7 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 
         stageSetBus.Register(Hero_UnSelected);
 
-        stageSetBus.UnRegister(Load_SpawnCard_toDeck);
+        stageSetBus.UnRegister(Load_SpawnCard_toHand);
         stageSetBus.UnRegister(Update_HealthPanel);
         stageSetBus.UnRegister(Update_ManaPanel);
 
@@ -209,12 +209,13 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
             deckBuildManager.data.cardPool.Add(proprietaryCards[i]);
         }
     }
-    private void Load_SpawnCard_toDeck()
+    private void Load_SpawnCard_toHand()
     {
         Hero_ScrObj selectedHero = _data.selectedHero;
         if (selectedHero == null) return;
 
-        GameManager.instance.handInventory.AddCard_toDeck(new(selectedHero.spawnCard));
+        // new(selectedHero.spawnCard, false)
+        GameManager.instance.handInventory.AddCard_toHand(new(selectedHero.spawnCard, false));
     }
 
     public void Track_SpawnedHero(Hero heroToTrack)

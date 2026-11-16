@@ -220,7 +220,7 @@ public class DeckModify_EventMenu : EventMenu, ISubscriptionHandler
             int randIndex = UnityEngine.Random.Range(0, modifyCardDatas.Count);
             Card_ScrObj selectableCard = modifyCardDatas[randIndex];
 
-            _selectableCardDatas.Add(new(selectableCard));
+            _selectableCardDatas.Add(new(selectableCard, false));
             displayCard.Load_CardComponents(selectableCard);
 
             modifyCardDatas.RemoveAt(randIndex);

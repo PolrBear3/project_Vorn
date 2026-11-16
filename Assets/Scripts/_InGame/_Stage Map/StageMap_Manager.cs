@@ -283,6 +283,32 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     }
 
 
+    public bool Is_BattleStage()
+    {
+        StageData currentStageData = _data.Current_StageData();
+        if (currentStageData == null) return false;
+
+        return currentStageData.stage is BattleStage_ScrObj;
+    }
+
+    public bool Is_EventStage(out EventStage_ScrObj currentEventStage)
+    {
+        StageData currentStageData = _data.Current_StageData();
+
+        currentEventStage = null;
+
+        if (currentStageData == null) return false;
+        if (currentStageData.stage is not EventStage_ScrObj eventStage) return false;
+
+        currentEventStage = eventStage;
+        return true;
+    }
+    public bool Is_EventStage()
+    {
+        return Is_EventStage(out EventStage_ScrObj _);
+    }
+
+
     // Menu
     public bool Selecting_Stage()
     {

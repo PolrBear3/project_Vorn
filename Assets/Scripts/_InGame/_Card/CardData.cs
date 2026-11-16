@@ -15,28 +15,37 @@ public class CardData
     [ES3Serializable] private int _currentManaPrice;
     public int currentManaPrice => _currentManaPrice;
 
-    [ES3Serializable] private bool _drawPrioritized;
+
+    private bool _drawPrioritized;
     public bool drawPrioritized => _drawPrioritized;
+
+    private bool _isGenerated;
+    public bool isGenerated => _isGenerated;
 
 
     // New
-    public CardData(Card_ScrObj setCard)
+    public CardData(Card_ScrObj setCard, bool isGeneratedCard)
     {
+        if (setCard == null) return;
+
         _cardScrObj = setCard;
+        _currentData = new(setCard.interactionData);
 
         _currentManaPrice = setCard.manaCost;
-        _drawPrioritized = setCard.drawPrioritized;
 
-        if (setCard == null) return;
-        _currentData = new(setCard.interactionData);
+        _drawPrioritized = setCard.drawPrioritized;
+        _isGenerated = isGeneratedCard;
     }
 
     public CardData(CardData loadData)
     {
         _cardScrObj = loadData._cardScrObj;
+        _currentData = new(loadData._currentData);
+
         _currentManaPrice = loadData._currentManaPrice;
 
-        _currentData = new(loadData._currentData);
+        _drawPrioritized = loadData._drawPrioritized;
+        _isGenerated = loadData._isGenerated;
     }
 
 

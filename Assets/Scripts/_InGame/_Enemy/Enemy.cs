@@ -284,10 +284,10 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
 
     public IEnumerator Run_EndTurnActions()
     {
-        _runTimeAction.Toggle_RunAction(true);
-
         _healthBar.Toggle_ValueBox(true);
         _modifyIndicator.gameObject.SetActive(true);
+
+        _runTimeAction.Toggle_RunAction(true);
 
         // check death before action
         if (_data.currentData.currentHealth <= 0)

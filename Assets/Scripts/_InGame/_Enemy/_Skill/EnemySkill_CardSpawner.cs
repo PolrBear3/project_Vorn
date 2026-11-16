@@ -27,7 +27,7 @@ public class EnemySkill_CardSpawner : EnemySkill
 
         for (int i = 0; i < spawnTiles.Count; i++)
         {
-            cardManager.PlaceCard_OnTile(new(SpawnCard()), spawnTiles[i]);
+            cardManager.PlaceCard_OnTile(new(SpawnCard(), true), spawnTiles[i]);
         }
         yield break;
     }

@@ -119,14 +119,13 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
         _modifyIndicator.Update_ModifyValue(_data.currentData.healthModifyValue);
         _modifyIndicator.Toggle_ValueBox(false);
     }
-    public void Set_Data(Card_ScrObj setData, Tile placeTile)
-    {
-        Set_Data(new CardData(setData), placeTile);
-    }
-
     private void Remove_Data()
     {
-        GameManager.instance.cardManager.placedCards.Remove(this);
+        GameManager manager = GameManager.instance;
+
+        manager.deckBuildManager.data.RemoveCard_fromBuiltDeck(_data.isGenerated ? null : _data.cardScrObj, 1);
+        manager.cardManager.placedCards.Remove(this);
+
         _placedTile.Update_CurrentOccupant(null);
     }
 
@@ -202,7 +201,6 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
         if (CustomData_Utility.AllConditions_ActivateAvailable(_placedTile, _targetingConditions) == false) yield break;
 
         List<Tile> targetingTiles = new(_tileTargeting.targetingTiles);
-        _modifyIndicator.Toggle_ValueBox(targetingTiles.Count > 0);
 
         for (int i = 0; i < targetingTiles.Count; i++)
         {
@@ -217,6 +215,8 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
             if (dataController != null)
             {
                 int modifyValue = _data.currentData.Modify_OtherData_CurrentHealth(dataController.targetData);
+
+                _modifyIndicator.Toggle_ValueBox(modifyValue != 0);
                 _runTimeAction.CountUpdate_TargetingHealthModify(modifyValue != 0);
 
                 yield return dataController.Handle_HealthUpdate(modifyValue);

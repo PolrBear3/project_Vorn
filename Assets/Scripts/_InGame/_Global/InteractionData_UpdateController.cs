@@ -63,10 +63,14 @@ public class InteractionData_UpdateController : MonoBehaviour
         _healthHandleUpdateRunning = true;
 
         int currentHealth = _targetData.currentHealth;
-        Play_AnimatorState(currentHealth > 0 && healthModifyValue > 0 ? OccupantAnimation.Healed : OccupantAnimation.Damaged);
 
-        yield return null;
-        while (CurrentAnimatorState_Playing()) yield return null;
+        if (currentHealth <= 0 || healthModifyValue != 0)
+        {
+            Play_AnimatorState(currentHealth <= 0 || healthModifyValue < 0 ? OccupantAnimation.Damaged : OccupantAnimation.Healed);
+
+            yield return null;
+            while (CurrentAnimatorState_Playing()) yield return null;
+        }
 
         yield return _healthUpdateActionBus.RunSequential_DelayBusEvents();
 

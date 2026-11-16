@@ -44,10 +44,6 @@ public class HandCard : MonoBehaviour
         _rectTransform.localScale = new(1, 1, 1);
         _contentImage.sprite = _cardData.cardScrObj.contentSprite;
     }
-    public void Load(Card_ScrObj setCard)
-    {
-        Load(new CardData(setCard));
-    }
 
 
     // Hover

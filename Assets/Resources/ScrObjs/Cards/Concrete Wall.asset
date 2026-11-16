@@ -15,11 +15,12 @@ MonoBehaviour:
   _cardName: Concrete Wall
   _cardDescription: An obstacle that prevents movement.
   _contentSprite: {fileID: -970812042, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
-  _placePrefab: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+  _placePrefab: {fileID: 5872119147447841748, guid: c66abec44f4fb4e18b7e3912efbe8191, type: 3}
   _interactionData:
     _maxHealth: 1
     _states: 01000000
     _healthModifyValue: 0
-    _interactRange: 0
-    _targetSelectCount: 0
+    _interactRange: 1
+    _targetSelectCount: 1
+  _drawPrioritized: 0
   _manaCost: 1

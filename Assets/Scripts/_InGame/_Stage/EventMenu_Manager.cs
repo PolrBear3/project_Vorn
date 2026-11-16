@@ -47,7 +47,7 @@ public class EventMenu_Manager : MonoBehaviour
 
         StageManager stageManager = GameManager.instance.stageManager;
 
-        if (stageManager.Is_EventStage())
+        if (stageManager.stageMap.Is_EventStage())
         {
             stageManager.Toggle_QueuedEventStage();
             return;

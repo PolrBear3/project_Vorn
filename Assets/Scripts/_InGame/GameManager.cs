@@ -101,6 +101,9 @@ public class GameManager : MonoBehaviour, ISaveLoadable
 [CustomEditor(typeof(GameManager))]
 public class GameManager_Inspector : Editor
 {
+    private Card_ScrObj _cardToAdd;
+    private bool _isGenerated = true;
+
     public override void OnInspectorGUI()
     {
         GameManager controller = (GameManager)target;
@@ -109,6 +112,26 @@ public class GameManager_Inspector : Editor
         serializedObject.Update();
 
         GUILayout.Space(60);
+
+        EditorGUILayout.BeginHorizontal();
+        _cardToAdd = (Card_ScrObj)EditorGUILayout.ObjectField(_cardToAdd, typeof(Card_ScrObj), false);
+        _isGenerated = GUILayout.Toggle(_isGenerated, "Generated", GUILayout.Width(85));
+
+        using (new EditorGUI.DisabledScope(!Application.isPlaying || _cardToAdd == null ||
+        controller.handInventory == null || controller.deckBuildManager == null))
+        {
+            if (GUILayout.Button("Add Card to Deck", GUILayout.Width(120)))
+            {
+                HandInventory inventory = controller.handInventory;
+                inventory.AddCard_toDeck(new CardData(_cardToAdd, _isGenerated));
+
+                DeckManager deckManager = controller.deckBuildManager.deckManager;
+                deckManager.Update_DeckCardCount_Text(inventory.deckCardDatas.Count);
+                deckManager.Load_DisplayCards();
+            }
+        }
+
+        EditorGUILayout.EndHorizontal();
 
         if (GUILayout.Button("Draw Card"))
         {

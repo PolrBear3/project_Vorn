@@ -115,7 +115,6 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
 
         setStage.Register(0, LoadHero_CardPlatform);
         setStage.Register(1, Load_BuiltDeckCards_toDeck);
-        setStage.Register(2, DrawCard);
 
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
 
@@ -140,7 +139,6 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
 
         setStage.UnRegister(LoadHero_CardPlatform);
         setStage.UnRegister(Load_BuiltDeckCards_toDeck);
-        setStage.UnRegister(DrawCard);
 
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
 
@@ -150,9 +148,22 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
 
 
     // Deck
+    public List<Card_ScrObj> DeckCards()
+    {
+        List<Card_ScrObj> cards = new();
+
+        foreach (CardData data in deckCardDatas)
+        {
+            cards.Add(data.cardScrObj);
+        }
+        return cards;
+    }
+
     public void AddCard_toDeck(CardData addCardData)
     {
         if (addCardData == null || addCardData.cardScrObj == null) return;
+        if (_deckCardDatas.Count >= GameManager.instance.deckBuildManager.maxDeckCapacity) return;
+
         _deckCardDatas.Add(addCardData);
     }
     public void AddCards_toDeck(List<CardData> addCardDatas)
@@ -165,7 +176,7 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
     {
         DeckBuild_Manager deckBuildManager = GameManager.instance.deckBuildManager;
 
-        AddCards_toDeck(deckBuildManager.data.BuiltDeck_CardDatas());
+        AddCards_toDeck(deckBuildManager.data.Deck_CardDatas());
         deckBuildManager.deckManager.Update_DeckCardCount_Text(_deckCardDatas.Count);
     }
 
@@ -194,12 +205,12 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
     }
     private void Update_CardPlatform()
     {
-        StageManager stageManager = GameManager.instance.stageManager;
-
         int currentCardCount = _handCards.Count;
-        bool gameStateToggle = stageManager.stageMap.Stage_NotSelected() == false && stageManager.Is_BattleStage();
 
-        _cardPlatformToggler.Toggle(currentCardCount > 0 & gameStateToggle);
+        StageMap_Manager stageMap = GameManager.instance.stageManager.stageMap;
+        bool gameStateToggle = stageMap.Stage_NotSelected() == false && stageMap.Is_BattleStage();
+
+        _cardPlatformToggler.Toggle(currentCardCount > 0 && gameStateToggle);
 
         float updateWidthValue = _defaultPlatformWidth + Mathf.Max(0, (currentCardCount - 2) * _platformWidthUpdateValue);
         updateWidthValue = currentCardCount > 0 ? updateWidthValue : 0f;
@@ -220,9 +231,13 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         _handCards.Add(addCard);
 
         addCard.Load(new CardData(addCardData));
+
+        Update_HandCardPositions();
+        Update_CardPlatform();
+
         return addCard;
     }
-    private void RemoveCard_fromHand(HandCard removeCard)
+    public void RemoveCard_fromHand(HandCard removeCard)
     {
         if (_handCards == null || _handCards.Count <= 0) return;
 
@@ -236,6 +251,9 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
 
             break;
         }
+
+        Update_HandCardPositions();
+        Update_CardPlatform();
     }
 
     private CardData DrawCardData()
@@ -254,7 +272,7 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         CardData drawCardData = DrawCardData();
         if (drawCardData == null) return;
 
-        if (AddCard_toHand(drawCardData) == null) return; ;
+        if (AddCard_toHand(drawCardData) == null) return;
         _deckCardDatas.Remove(drawCardData);
 
         GameManager.instance.deckBuildManager.deckManager.Update_DeckCardCount_Text(_deckCardDatas.Count);
@@ -268,12 +286,6 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         for (int i = 0; i < drawCount; i++)
         {
             DrawCard_UpdateDeck();
-
-            yield return null;
-            // wait AddCard_toHand animation
-
-            Update_HandCardPositions();
-            Update_CardPlatform();
 
             _drawCardFromDeck.RunSequential_BusEvents();
             yield return _drawCardFromDeck.RunSequential_DelayBusEvents();
@@ -338,9 +350,6 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
             break;
         }
         RemoveCard_fromHand(_hoveringCard);
-
-        Update_HandCardPositions();
-        Update_CardPlatform();
     }
 
     private void HoverTile_DraggingCard()

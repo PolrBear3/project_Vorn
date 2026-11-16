@@ -66,6 +66,11 @@ public class ToolTip : MonoBehaviour
 
         _nameText.fontSize = Mathf.Max(0, _defaultNameFontSize * sizeRatio);
     }
+    public void Update_DescriptionText(string descriptionString)
+    {
+        _descriptionText.text = descriptionString;
+    }
+
     public void Update_Contents(Sprite baseSprite, Sprite iconSprite, string nameString, string descriptionString)
     {
         _baseImage.sprite = baseSprite != null ? baseSprite : _defaultBaseSprite;
@@ -196,6 +201,7 @@ public class ToolTip : MonoBehaviour
         }
         if (toggle == false || Toggle_Restricted())
         {
+            _toggled = false;
             _panel.gameObject.SetActive(false);
             return;
         }

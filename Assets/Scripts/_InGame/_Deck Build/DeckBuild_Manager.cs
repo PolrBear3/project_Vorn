@@ -25,6 +25,9 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     [SerializeField] private Card_ScrObj[] _defaultCardPool;
 
 
+    public const int _maxDeckCapacity = 42;
+    public int maxDeckCapacity => _maxDeckCapacity;
+
     private DeckBuild_Data _data;
     public DeckBuild_Data data => _data;
 
@@ -216,6 +219,12 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
     private void Begin_DeckBuild()
     {
+        if (_data.builtDeckCards.Count + _data.deckUpdateCards.Count >= _maxDeckCapacity)
+        {
+            Complete_DeckBuild();
+            return;
+        }
+
         Hero_ScrObj selectedHero = GameManager.instance.heroManager.data.selectedHero;
         if (selectedHero == null) return;
 
@@ -227,6 +236,22 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         if (_data.deckUpdateCompleteCount <= 0) return;
 
         _panelToggleController.Toggle(true);
+    }
+    private void Complete_DeckBuild()
+    {
+        _groupCardHoverToolTip.Toggle(false);
+
+        _deckUpdateCompleteBus.RunSequential_BusEvents();
+        StartCoroutine(_deckUpdateCompleteBus.RunSequential_DelayBusEvents());
+
+        GameManager manager = GameManager.instance;
+
+        if (manager.stageManager.stageMap.Stage_NotSelected())
+        {
+            _panelToggleController.Toggle(false);
+            return;
+        }
+        manager.Continue_GamePlay();
     }
 
     private void DeckUpdate_onStageComplete()
@@ -363,15 +388,16 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
             foreach (Card_ScrObj card in groupCards)
             {
+                if (_data.builtDeckCards.Count + _data.deckUpdateCards.Count >= _maxDeckCapacity) break;
                 _data.deckUpdateCards.Add(card);
             }
             break;
         }
 
         UpdateCurrent_DeckCardCount_Text();
-        _deckManager.Load_DeckCards();
+        _deckManager.Load_DisplayCards();
 
-        if (_data.Complete_DeckUpdate() == false)
+        if (_data.Complete_DeckUpdate(_maxDeckCapacity) == false)
         {
             _data.buildGroupCards.Clear();
             Load_CardPoolCards_toGroups();
@@ -381,18 +407,6 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
             return;
         }
-        _groupCardHoverToolTip.Toggle(false);
-
-        _deckUpdateCompleteBus.RunSequential_BusEvents();
-        StartCoroutine(_deckUpdateCompleteBus.RunSequential_DelayBusEvents());
-
-        GameManager manager = GameManager.instance;
-
-        if (manager.stageManager.stageMap.Stage_NotSelected())
-        {
-            _panelToggleController.Toggle(false);
-            return;
-        }
-        manager.Continue_GamePlay();
+        Complete_DeckBuild();
     }
 }

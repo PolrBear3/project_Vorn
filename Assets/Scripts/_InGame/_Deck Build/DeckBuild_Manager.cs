@@ -2,8 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoadable
 {
@@ -33,11 +31,8 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
 
     public Action OnCardPoolLoad;
 
-    private EventBus_Controller _deckBuildUpdateBus = new();
-    public EventBus_Controller deckBuildUpdateBus => _deckBuildUpdateBus;
-
-    private EventBus_Controller _deckBuildCompleteBus = new();
-    public EventBus_Controller deckBuildCompleteBus => _deckBuildCompleteBus;
+    private EventBus_Controller _deckUpdateCompleteBus = new();
+    public EventBus_Controller deckUpdateCompleteBus => _deckUpdateCompleteBus;
 
 
     // MonoBehaviour
@@ -46,7 +41,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         EventBus_GlobalController.Register(this);
         EventBus_GlobalController.Register(EventBus.AwakeLoad, Subscribe_All);
 
-        EventBus_GlobalController.Register(EventBus.StartLoad, Toggle_DeckBuild);
+        EventBus_GlobalController.Register(EventBus.StartLoad, Resume_DeckBuild);
     }
 
     private void OnDestroy()
@@ -56,7 +51,7 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         EventBus_GlobalController.UnRegister(this);
         EventBus_GlobalController.UnRegister(Subscribe_All);
 
-        EventBus_GlobalController.UnRegister(Toggle_DeckBuild);
+        EventBus_GlobalController.UnRegister(Resume_DeckBuild);
     }
 
 
@@ -65,13 +60,19 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     {
         GameManager manager = GameManager.instance;
 
-        manager.heroManager.heroSelectManager.heroSelectCompleteBus.Register(0, Toggle_DeckBuild);
-        _panelToggleController.OnToggle += Update_ProgressionIcons;
-
         StageManager stageManager = manager.stageManager;
+        stageManager.stageMap.maptoggleController.OnToggle += UpdateCurrent_DeckCardCount_Text;
 
-        stageManager.setStageEventBus.Register(DeckBuild_InComplete);
-        stageManager.setStageEventBus.Register(0, Add_BuiltDeckCards_toDeck);
+        stageManager.setStageEventBus.Register(_data.DeckUpdate_NotComplete);
+        stageManager.endStageEventBus.Register(_data.DeckUpdate_NotComplete);
+
+        manager.heroManager.heroSelectManager.heroSelectCompleteBus.Register(0, Begin_DeckBuild);
+        stageManager.endStageEventBus.Register(0, DeckUpdate_onStageComplete);
+
+        _panelToggleController.OnToggle += Load_DeckBuild;
+
+        _panelToggleController.OnToggle += Update_ProgressionIcons;
+        _deckUpdateCompleteBus.Register(0, Update_ProgressionIcons);
 
         for (int i = 0; i < _buildGroups.Length; i++)
         {
@@ -88,13 +89,19 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     {
         GameManager manager = GameManager.instance;
 
-        manager.heroManager.heroSelectManager.heroSelectCompleteBus.UnRegister(Toggle_DeckBuild);
-        _panelToggleController.OnToggle += Update_ProgressionIcons;
-
         StageManager stageManager = manager.stageManager;
+        stageManager.stageMap.maptoggleController.OnToggle -= UpdateCurrent_DeckCardCount_Text;
 
-        stageManager.setStageEventBus.UnRegister(DeckBuild_InComplete);
-        stageManager.setStageEventBus.UnRegister(Add_BuiltDeckCards_toDeck);
+        stageManager.setStageEventBus.UnRegister(_data.DeckUpdate_NotComplete);
+        stageManager.endStageEventBus.UnRegister(_data.DeckUpdate_NotComplete);
+
+        manager.heroManager.heroSelectManager.heroSelectCompleteBus.UnRegister(Begin_DeckBuild);
+        stageManager.endStageEventBus.UnRegister(DeckUpdate_onStageComplete);
+
+        _panelToggleController.OnToggle -= Load_DeckBuild;
+
+        _panelToggleController.OnToggle -= Update_ProgressionIcons;
+        _deckUpdateCompleteBus.UnRegister(Update_ProgressionIcons);
 
         for (int i = 0; i < _buildGroups.Length; i++)
         {
@@ -134,14 +141,27 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         }
         return maxCount;
     }
-    private bool DeckBuild_InComplete()
+    private List<Card_ScrObj> DeckUpdateCards_inGroupIndex(int index)
     {
-        return _data.deckBuildComplete == false;
+        int cardsPerGroup = MaxCardCount_inGroup();
+        int startIndex = Mathf.Max(0, index) * cardsPerGroup;
+
+        List<Card_ScrObj> deckUpdateCards = new(_data.deckUpdateCards);
+        List<Card_ScrObj> groupCards = new();
+
+        for (int i = startIndex; i < deckUpdateCards.Count; i++)
+        {
+            if (groupCards.Count >= cardsPerGroup) break;
+            groupCards.Add(deckUpdateCards[i]);
+        }
+        return groupCards;
     }
 
 
     private void Load_CardPool()
     {
+        _data.cardPool.Clear();
+
         for (int i = 0; i < _defaultCardPool.Length; i++)
         {
             _data.cardPool.Add(_defaultCardPool[i]);
@@ -166,11 +186,12 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
     }
     private void Load_CardPoolCards_toGroups()
     {
-        _data.buildGroupCards.Clear();
-
         for (int i = 0; i < _buildGroups.Length; i++)
         {
-            _data.buildGroupCards.Add(Random_CardPoolCards_inGroup());
+            if (i >= _data.buildGroupCards.Count) // load new cards if group is empty
+            {
+                _data.buildGroupCards.Add(Random_CardPoolCards_inGroup());
+            }
 
             List<Card_ScrObj> loadCards = _data.TargetGroup_CurrentCards(i);
             DisplayCard[] groupCards = _buildGroups[i].groupCards;
@@ -182,59 +203,87 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         }
     }
 
-    private void Toggle_DeckBuild()
+
+    private void Load_DeckBuild(bool deckBuildToggled)
     {
-        if (GameManager.instance.heroManager.data.selectedHero == null) return;
-        if (_data.deckBuildComplete) return;
+        if (deckBuildToggled == false) return;
 
         Load_CardPool();
         Load_CardPoolCards_toGroups();
 
-        _deckManager.Update_DeckCardCount_Text(_data.builtDeckCardDatas.Count);
+        UpdateCurrent_DeckCardCount_Text();
+    }
+
+    private void Begin_DeckBuild()
+    {
+        Hero_ScrObj selectedHero = GameManager.instance.heroManager.data.selectedHero;
+        if (selectedHero == null) return;
+
+        _data.Toggle_DeckUpdate(selectedHero.deckUpdateSelectCount * MaxCardCount_inGroup());
         _panelToggleController.Toggle(true);
     }
-    private void Update_ProgressionIcons(bool _)
+    private void Resume_DeckBuild()
     {
-        int maxCardCount = _progressionIcons.Length * MaxCardCount_inGroup();
-        int currentDeckCardCount = _data.builtDeckCardDatas.Count;
+        if (_data.deckUpdateCompleteCount <= 0) return;
 
-        int cardCountPerIcon = maxCardCount / _progressionIcons.Length;
-        int updateCount = currentDeckCardCount / cardCountPerIcon;
-
-        for (int i = 0; i < _progressionIcons.Length; i++)
-        {
-            _progressionIcons[i].Update_UnlockVisuals(i < updateCount);
-        }
+        _panelToggleController.Toggle(true);
     }
 
-    private List<CardData> BuiltDeckCards_inGroupIndex(int index)
+    private void DeckUpdate_onStageComplete()
     {
-        int cardsPerGroup = MaxCardCount_inGroup();
-        int startIndex = Mathf.Max(0, index) * cardsPerGroup;
+        StageMap_Manager stageMap = GameManager.instance.stageManager.stageMap;
 
-        List<CardData> builtCardDatas = new(_data.builtDeckCardDatas);
-        List<CardData> builtGroupCardDatas = new();
+        if (stageMap.Selecting_Stage() || stageMap.Stage_NotSelected() == false) return;
+        if (stageMap.data.FinalLevel_Complete()) return;
 
-        for (int i = startIndex; i < builtCardDatas.Count; i++)
-        {
-            if (builtGroupCardDatas.Count >= cardsPerGroup) break;
-            builtGroupCardDatas.Add(builtCardDatas[i]);
-        }
-        return builtGroupCardDatas;
-    }
-    private void Add_BuiltDeckCards_toDeck()
-    {
-        HandInventory handInventory = GameManager.instance.handInventory;
-
-        handInventory.AddCards_toDeck(new(_data.builtDeckCardDatas));
-        _deckManager.Update_DeckCardCount_Text(handInventory.deckCards.Count);
+        Begin_DeckBuild();
     }
 
 
     // Interaction
+    private void UpdateCurrent_DeckCardCount_Text()
+    {
+        _deckManager.Update_DeckCardCount_Text(_data.builtDeckCards.Count + _data.deckUpdateCards.Count);
+    }
+    private void UpdateCurrent_DeckCardCount_Text(bool _)
+    {
+        UpdateCurrent_DeckCardCount_Text();
+    }
+
+    private void Update_ProgressionIcons(bool deckBuildToggled)
+    {
+        if (deckBuildToggled == false) return;
+
+        int cardsPerGroup = MaxCardCount_inGroup();
+
+        int progressionCount = _data.deckUpdateCompleteCount / cardsPerGroup;
+        int completionCount = _data.deckUpdateCards.Count / cardsPerGroup;
+
+        for (int i = 0; i < _progressionIcons.Length; i++)
+        {
+            DeckBuild_ProgressionIcon icon = _progressionIcons[i];
+
+            bool toggle = i < progressionCount;
+            icon.gameObject.SetActive(toggle);
+
+            if (toggle == false) continue;
+            icon.Update_UnlockVisuals(i < completionCount);
+        }
+    }
+    private void Update_ProgressionIcons()
+    {
+        for (int i = 0; i < _progressionIcons.Length; i++)
+        {
+            DeckBuild_ProgressionIcon icon = _progressionIcons[i];
+
+            if (icon.gameObject.activeSelf == false) continue;
+            icon.Update_UnlockVisuals(true);
+        }
+    }
+
     private void Hover_GroupCards(DisplayCard hoverCard)
     {
-        bool toggle = hoverCard != null && _data.deckBuildComplete == false;
+        bool toggle = hoverCard != null && _data.DeckUpdate_NotComplete();
         _groupCardHoverToolTip.ToggleOn_CursorPoint(toggle);
 
         if (toggle == false) return;
@@ -274,41 +323,6 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
         }
     }
 
-    public void Select_GroupCards(DeckBuild_Group selectGroup)
-    {
-        if (_data.deckBuildComplete) return;
-
-        for (int i = 0; i < _buildGroups.Length; i++)
-        {
-            if (selectGroup != _buildGroups[i]) continue;
-
-            List<Card_ScrObj> groupCards = _data.TargetGroup_CurrentCards(i);
-
-            foreach (Card_ScrObj card in groupCards)
-            {
-                _data.builtDeckCardDatas.Add(new(card));
-            }
-            break;
-        }
-
-        _deckManager.Update_DeckCardCount_Text(_data.builtDeckCardDatas.Count);
-        _deckManager.Load_DeckCards();
-
-        int buildCardCount = _progressionIcons.Length * MaxCardCount_inGroup();
-        if (_data.Complete_DeckBuild(buildCardCount) == false)
-        {
-            _panelToggleController.Toggle(true);
-
-            Load_CardPoolCards_toGroups();
-            HoverCurrent_GroupCards();
-
-            return;
-        }
-        _groupCardHoverToolTip.Toggle(false);
-
-        GameManager.instance.Continue_GamePlay();
-    }
-
     public void Hover_ProgressionIcon(DeckBuild_ProgressionIcon hoverIcon)
     {
         _progressionIconHoverHoverToolTip.UnToggle();
@@ -320,14 +334,14 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
             DeckBuild_ProgressionIcon icon = _progressionIcons[i];
             if (hoverIcon != icon) continue;
 
-            List<CardData> builtCards = BuiltDeckCards_inGroupIndex(i);
-            if (builtCards == null || builtCards.Count <= 0) return;
+            List<Card_ScrObj> deckUpdateCards = DeckUpdateCards_inGroupIndex(i);
+            if (deckUpdateCards == null || deckUpdateCards.Count <= 0) return;
 
             DisplayCard[] tooltipCards = _progressionIconHoverHoverToolTip.groupCards;
-            for (int j = 0; j < builtCards.Count; j++)
+            for (int j = 0; j < deckUpdateCards.Count; j++)
             {
                 if (j > tooltipCards.Length - 1) break;
-                tooltipCards[j].Load_CardComponents(builtCards[j].cardScrObj);
+                tooltipCards[j].Load_CardComponents(deckUpdateCards[j]);
             }
 
             RectTransform toolTipPanel = _progressionIconHoverHoverToolTip.panel.rectTransform;
@@ -336,5 +350,49 @@ public class DeckBuild_Manager : MonoBehaviour, ISubscriptionHandler, ISaveLoada
             _progressionIconHoverHoverToolTip.Toggle(true);
             return;
         }
+    }
+    public void Select_GroupCards(DeckBuild_Group selectGroup)
+    {
+        if (_data.deckUpdateCompleteCount <= 0) return;
+
+        for (int i = 0; i < _buildGroups.Length; i++)
+        {
+            if (selectGroup != _buildGroups[i]) continue;
+
+            List<Card_ScrObj> groupCards = _data.TargetGroup_CurrentCards(i);
+
+            foreach (Card_ScrObj card in groupCards)
+            {
+                _data.deckUpdateCards.Add(card);
+            }
+            break;
+        }
+
+        UpdateCurrent_DeckCardCount_Text();
+        _deckManager.Load_DeckCards();
+
+        if (_data.Complete_DeckUpdate() == false)
+        {
+            _data.buildGroupCards.Clear();
+            Load_CardPoolCards_toGroups();
+
+            _panelToggleController.Toggle(true);
+            HoverCurrent_GroupCards();
+
+            return;
+        }
+        _groupCardHoverToolTip.Toggle(false);
+
+        _deckUpdateCompleteBus.RunSequential_BusEvents();
+        StartCoroutine(_deckUpdateCompleteBus.RunSequential_DelayBusEvents());
+
+        GameManager manager = GameManager.instance;
+
+        if (manager.stageManager.stageMap.Stage_NotSelected())
+        {
+            _panelToggleController.Toggle(false);
+            return;
+        }
+        manager.Continue_GamePlay();
     }
 }

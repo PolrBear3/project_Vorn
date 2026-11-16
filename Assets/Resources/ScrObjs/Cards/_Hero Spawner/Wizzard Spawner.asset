@@ -24,3 +24,4 @@ MonoBehaviour:
     _interactRange: 1
     _targetSelectCount: 4
   _manaCost: 0
+  _drawPrioritized: 1

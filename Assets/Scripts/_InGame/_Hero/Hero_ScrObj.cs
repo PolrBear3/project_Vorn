@@ -19,6 +19,10 @@ public class Hero_ScrObj : CharacterScrObj
     [SerializeField] private Card_ScrObj _spawnCard;
     public Card_ScrObj spawnCard => _spawnCard;
 
+    [Space(20)]
+    [SerializeField][Range(0, 10)] private int _deckUpdateSelectCount;
+    public int deckUpdateSelectCount => _deckUpdateSelectCount;
+
     [SerializeField] private Card_ScrObj[] _proprietaryCards;
     public Card_ScrObj[] proprietaryCards => _proprietaryCards;
 

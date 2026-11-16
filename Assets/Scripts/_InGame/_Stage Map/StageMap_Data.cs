@@ -105,7 +105,7 @@ public class StageMap_Data
 
         for (int i = 0; i < finalStageDatas.Count; i++)
         {
-            if (finalStageDatas[i].completed == false) continue;
+            if (finalStageDatas[i].stageCompleted == false) continue;
             return true;
         }
         return false;
@@ -156,7 +156,7 @@ public class StageMap_Data
         StageData currentStageData = Current_StageData();
         if (currentStageData == null) return;
 
-        Current_StageData().Toggle_CompleteState(true);
+        Current_StageData().Complete_Stage();
         Increase_CurrentLevel();
     }
 }

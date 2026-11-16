@@ -23,7 +23,7 @@ public class StageMap_Icon : HoverUI
     {
         StageMap_Manager stageMap = GameManager.instance.stageManager.stageMap;
 
-        if (stageMap.data.stageSelected) return;
+        if (stageMap.Stage_NotSelected() == false) return;
         StartCoroutine(stageMap.SelectStage_byMapIcon(this));
     }
 

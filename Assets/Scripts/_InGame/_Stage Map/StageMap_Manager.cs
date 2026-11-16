@@ -76,7 +76,8 @@ public class LevelSet_StagesData
 public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 {
     [Space(20)]
-    [SerializeField] private UIPanel_ToggleController _menuPanelController;
+    [SerializeField] private UIPanel_ToggleController _mapToggleController;
+    public UIPanel_ToggleController maptoggleController => _mapToggleController;
 
     [Space(20)]
     [SerializeField] private StageMap_Icon[] _icons;
@@ -123,10 +124,11 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     public void Subscribe_All()
     {
         GameManager manager = GameManager.instance;
-        StageManager stageManager = manager.stageManager;
 
-        stageManager.endStageEventBus.Register(0, ToggleMenu_OnStageEnd);
-        stageManager.setStageEventBus.Register(Stage_NotSelected);
+        manager.deckBuildManager.deckUpdateCompleteBus.Register(0, ToggleMenu);
+
+        manager.stageManager.setStageEventBus.Register(Stage_NotSelected);
+        manager.handInventory.drawCardFromDeck.Register(Stage_NotSelected);
 
         TileManager tileManager = manager.tileManager;
 
@@ -137,10 +139,11 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     public void UnSubscribe_All()
     {
         GameManager manager = GameManager.instance;
-        StageManager stageManager = manager.stageManager;
 
-        stageManager.endStageEventBus.UnRegister(ToggleMenu_OnStageEnd);
-        stageManager.setStageEventBus.UnRegister(Stage_NotSelected);
+        manager.deckBuildManager.deckUpdateCompleteBus.UnRegister(ToggleMenu);
+
+        manager.stageManager.setStageEventBus.UnRegister(Stage_NotSelected);
+        manager.handInventory.drawCardFromDeck.UnRegister(Stage_NotSelected);
 
         TileManager tileManager = manager.tileManager;
 
@@ -281,32 +284,29 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
 
 
     // Menu
+    public bool Selecting_Stage()
+    {
+        return _mapToggleController.toggled;
+    }
     public bool Stage_NotSelected()
     {
+        if (_data == null) return false;
         return _data.stageSelected == false;
     }
 
     public void ToggleMenu()
     {
-        bool stageDataToggle = Stage_NotSelected() && _data.FinalLevel_Complete() == false;
-        bool toggle = stageDataToggle && GameManager.instance.deckBuildManager.data.deckBuildComplete;
+        bool toggle =
+            Stage_NotSelected() &&
+            _data.FinalLevel_Complete() == false &&
+            GameManager.instance.deckBuildManager.data.DeckUpdate_NotComplete() == false;
 
-        _menuPanelController.Toggle(toggle);
+        _mapToggleController.Toggle(toggle);
         if (toggle == false) return;
 
         Update_MapIconVisuals();
         Update_PlayerIcon_Visual();
         Update_PlayerIcon_Position();
-    }
-    private IEnumerator ToggleMenu_OnStageEnd()
-    {
-        if (Stage_NotSelected() == false || _data.FinalLevel_Complete()) yield break;
-
-        Update_MapIconVisuals();
-        Update_PlayerIcon_Visual();
-        Update_PlayerIcon_Position();
-
-        yield return _menuPanelController.DelayToggle(true);
     }
 
 
@@ -358,7 +358,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
 
             icon.Toggle_HoverLock(true);
 
-            if (dataToUpdate.completed || _data.TargetStage_CurrentLevel(dataToUpdate) > _data.currentLevel)
+            if (dataToUpdate.stageCompleted || _data.TargetStage_CurrentLevel(dataToUpdate) > _data.currentLevel)
             {
                 icon.Update_CompletedState();
                 continue;
@@ -368,7 +368,10 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     }
     public IEnumerator SelectStage_byMapIcon(StageMap_Icon selectedIcon)
     {
-        if (_data == null || _data.stageSelected) yield break;
+        if (Stage_NotSelected() == false) yield break;
+
+        GameManager manager = GameManager.instance;
+        if (manager.deckBuildManager.data.DeckUpdate_NotComplete()) yield break;
 
         List<StageData> currentStageDatas = _data.StageDatas(true);
 
@@ -392,7 +395,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
             selectedData.Update_QueueEvents();
 
             yield return Update_PlayerIcon_Position(selectedData);
-            GameManager.instance.Continue_GamePlay();
+            manager.Continue_GamePlay();
 
             yield break;
         }
@@ -416,7 +419,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
         {
             StageData previousData = previousLevelDatas[i];
 
-            if (previousData == null || previousData.completed == false) continue;
+            if (previousData == null || previousData.stageCompleted == false) continue;
             if (Target_StageData_IconIndex(previousData, out int previousIconIndex) == false) continue;
 
             _playerIcon.transform.SetParent(_icons[previousIconIndex].playerIconAnchor);
@@ -427,7 +430,7 @@ public class StageMap_Manager : MonoBehaviour, ISaveLoadable, ISubscriptionHandl
     }
     private IEnumerator Update_PlayerIcon_Position(StageData updatedStageData)
     {
-        _playerIcon.transform.SetParent(_menuPanelController.togglePanelRect);
+        _playerIcon.transform.SetParent(_mapToggleController.togglePanelRect);
 
         if (Target_StageData_IconIndex(updatedStageData, out int iconIndex) == false) yield break;
         StageMap_Icon destinationIcon = _icons[iconIndex];

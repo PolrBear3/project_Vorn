@@ -5,6 +5,15 @@ using UnityEngine;
 
 public class StageManager : MonoBehaviour, ISubscriptionHandler
 {
+    [Space(20)]
+    [SerializeField] private StageMap_Manager _stageMap;
+    public StageMap_Manager stageMap => _stageMap;
+
+    [Space(20)]
+    [SerializeField] private UIPanel_ToggleController[] _battleStagePanelToggles;
+    [SerializeField] private Component_ToggleController[] _battleStageComponentToggles;
+
+
     private EventBus_Controller _setStageEventBus = new();
     public EventBus_Controller setStageEventBus => _setStageEventBus;
 
@@ -14,14 +23,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     private EventBus_Controller _endStageEventBus = new();
     public EventBus_Controller endStageEventBus => _endStageEventBus;
 
-
-    [Space(20)]
-    [SerializeField] private StageMap_Manager _stageMap;
-    public StageMap_Manager stageMap => _stageMap;
-
-    [Space(20)]
-    [SerializeField] private UIPanel_ToggleController[] _battleStagePanelToggles;
-    [SerializeField] private Component_ToggleController[] _battleStageComponentToggles;
+    private Coroutine _continueCoroutine;
 
 
     // MonoBehaviour
@@ -117,8 +119,16 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     {
         GameManager manager = GameManager.instance;
 
-        if (manager.stageManager.stageMap.data.FinalLevel_Complete()) return;
-        Toggle_BattleStage(manager.deckBuildManager.data.deckBuildComplete && Is_BattleStage());
+        StageMap_Manager stageMap = manager.stageManager.stageMap;
+        if (stageMap.data.FinalLevel_Complete()) return;
+
+        bool toggle =
+            manager.heroManager.data.selectedHero != null &&
+            manager.deckBuildManager.data.DeckUpdate_NotComplete() == false &&
+            stageMap.maptoggleController.toggled == false &&
+            Is_BattleStage();
+
+        Toggle_BattleStage(toggle);
     }
 
 
@@ -170,7 +180,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
         }
 
         stageMapData.Complete_CurrentStageData();
-        _stageMap.Save_Data();
+        SaveLoad_Controller.instance.SaveAll_ISaveLoadable();
     }
 
 
@@ -201,7 +211,8 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
 
     private void Continue()
     {
-        StartCoroutine(Run_ContinueEvents());
+        if (_continueCoroutine != null) return;
+        _continueCoroutine = StartCoroutine(Run_ContinueEvents());
     }
     private void Continue(bool isPressed)
     {
@@ -217,5 +228,7 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
 
         _endStageEventBus.RunSequential_BusEvents();
         StartCoroutine(_endStageEventBus.RunSequential_DelayBusEvents());
+
+        _continueCoroutine = null;
     }
 }

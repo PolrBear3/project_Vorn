@@ -199,7 +199,7 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
 
     private void Update_DraggingCard_ManaCost()
     {
-        Update_InfoText(_draggingCard != null ? "<sprite=5>" + _draggingCard.data.currentManaPrice.ToString() : null);
+        Update_InfoText(_draggingCard != null ? "<sprite=5>" + _draggingCard.cardData.currentManaPrice.ToString() : null);
         Update_InfoText(GameManager.instance.heroManager.manaPanel.valueText.color);
     }
     private void Update_DraggingCard_ToolTip(bool toggle)
@@ -209,7 +209,7 @@ public class Cursor : MonoBehaviour, ISubscriptionHandler
 
         if (toolTipToggle == false) return;
 
-        CardData dragCardData = _draggingCard.data;
+        CardData dragCardData = _draggingCard.cardData;
         Card_ScrObj cardScrObj = dragCardData.cardScrObj;
 
         string foramtDescription = Utility.FormatUpdate_Description(cardScrObj.cardDescription, dragCardData.currentData.DescriptionFormats());

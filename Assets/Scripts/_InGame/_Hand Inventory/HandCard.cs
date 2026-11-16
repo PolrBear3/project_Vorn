@@ -17,8 +17,8 @@ public class HandCard : MonoBehaviour
     [SerializeField] private Image _contentImage;
 
 
-    private CardData _data;
-    public CardData data => _data;
+    private CardData _cardData;
+    public CardData cardData => _cardData;
 
 
     // MonoBehaviour
@@ -26,7 +26,7 @@ public class HandCard : MonoBehaviour
     {
         _hoverDetector.OnPointerState += Update_OnHover;
     }
-    
+
     private void OnDestroy()
     {
         _hoverDetector.OnPointerState -= Update_OnHover;
@@ -39,10 +39,10 @@ public class HandCard : MonoBehaviour
         if (loadCardData == null) return;
         if (loadCardData.cardScrObj == null) return;
 
-        _data = loadCardData;
+        _cardData = loadCardData;
 
         _rectTransform.localScale = new(1, 1, 1);
-        _contentImage.sprite = _data.cardScrObj.contentSprite;
+        _contentImage.sprite = _cardData.cardScrObj.contentSprite;
     }
     public void Load(Card_ScrObj setCard)
     {

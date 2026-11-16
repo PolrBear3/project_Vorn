@@ -8,8 +8,8 @@ public class StageData
     [ES3Serializable] private Stage_ScrObj _stage;
     public Stage_ScrObj stage => _stage;
 
-    [ES3Serializable] private bool _completed;
-    public bool completed => _completed;
+    [ES3Serializable] private bool _stageCompleted;
+    public bool stageCompleted => _stageCompleted;
 
     [ES3Serializable] private int _enemySpawnIndex;
     public int enemySpawnIndex => _enemySpawnIndex;
@@ -31,9 +31,9 @@ public class StageData
 
 
     // Data
-    public void Toggle_CompleteState(bool toggle)
+    public void Complete_Stage()
     {
-        _completed = toggle;
+        _stageCompleted = true;
     }
 
 

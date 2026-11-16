@@ -26,6 +26,8 @@ public class UIPanel_ToggleController : MonoBehaviour
     private Vector2 _unToggledPosition;
 
     private bool _toggled;
+    public bool toggled => _toggled;
+
     public Action<bool> OnToggle;
 
 

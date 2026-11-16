@@ -59,8 +59,9 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         StageManager stageManager = manager.stageManager;
         EventBus_Controller stageSetBus = stageManager.setStageEventBus;
 
-        stageSetBus.Register(1, Add_SpawnCard_toTopDeck);
+        stageSetBus.Register(Hero_UnSelected);
 
+        stageSetBus.Register(0, Load_SpawnCard_toDeck);
         stageSetBus.Register(0, Update_HealthPanel);
         stageSetBus.Register(0, Update_ManaPanel);
 
@@ -115,8 +116,9 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         StageManager stageManager = manager.stageManager;
         EventBus_Controller stageSetBus = stageManager.setStageEventBus;
 
-        stageSetBus.UnRegister(Add_SpawnCard_toTopDeck);
+        stageSetBus.Register(Hero_UnSelected);
 
+        stageSetBus.UnRegister(Load_SpawnCard_toDeck);
         stageSetBus.UnRegister(Update_HealthPanel);
         stageSetBus.UnRegister(Update_ManaPanel);
 
@@ -185,6 +187,10 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 
 
     // Data
+    private bool Hero_UnSelected()
+    {
+        return _data.selectedHero == null;
+    }
     private bool Hero_Unavailable()
     {
         return _spawnedHero == null && GameManager.instance.cardManager.placedCards.Count <= 0;
@@ -203,12 +209,12 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
             deckBuildManager.data.cardPool.Add(proprietaryCards[i]);
         }
     }
-    private void Add_SpawnCard_toTopDeck()
+    private void Load_SpawnCard_toDeck()
     {
         Hero_ScrObj selectedHero = _data.selectedHero;
         if (selectedHero == null) return;
 
-        GameManager.instance.handInventory.AddCard_toTopDeck(new(selectedHero.spawnCard));
+        GameManager.instance.handInventory.AddCard_toDeck(new(selectedHero.spawnCard));
     }
 
     public void Track_SpawnedHero(Hero heroToTrack)

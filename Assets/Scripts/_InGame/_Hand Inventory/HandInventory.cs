@@ -52,8 +52,8 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
     [SerializeField] private ToolTip _handCardHoverToolTip;
 
 
-    private List<CardData> _deckCards = new();
-    public List<CardData> deckCards => _deckCards;
+    private List<CardData> _deckCardDatas = new();
+    public List<CardData> deckCardDatas => _deckCardDatas;
 
     private List<HandCard> _handCards = new();
     public List<HandCard> handCards => _handCards;
@@ -71,9 +71,6 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
     private float _defaultPlatformWidth;
     public Action<float> OnPlatformWidthUpdate;
 
-
-    private EventBus_Controller _addCardToDeckBus = new();
-    public EventBus_Controller addCardToDeckBus => _addCardToDeckBus;
 
     private EventBus_Controller _drawCardFromDeck = new();
     public EventBus_Controller drawCardFromDeck => _drawCardFromDeck;
@@ -117,6 +114,7 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         EventBus_Controller setStage = stageManager.setStageEventBus;
 
         setStage.Register(0, LoadHero_CardPlatform);
+        setStage.Register(1, Load_BuiltDeckCards_toDeck);
         setStage.Register(2, DrawCard);
 
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
@@ -141,6 +139,7 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         EventBus_Controller setStage = stageManager.setStageEventBus;
 
         setStage.UnRegister(LoadHero_CardPlatform);
+        setStage.UnRegister(Load_BuiltDeckCards_toDeck);
         setStage.UnRegister(DrawCard);
 
         EventBus_Controller endTurnEventBus = stageManager.endTurnEventBus;
@@ -154,22 +153,20 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
     public void AddCard_toDeck(CardData addCardData)
     {
         if (addCardData == null || addCardData.cardScrObj == null) return;
-
-        int randDeckIndex = UnityEngine.Random.Range(0, _deckCards.Count + 1);
-        _deckCards.Insert(randDeckIndex, addCardData);
+        _deckCardDatas.Add(addCardData);
     }
     public void AddCards_toDeck(List<CardData> addCardDatas)
     {
         if (addCardDatas == null || addCardDatas.Count <= 0) return;
-
         foreach (CardData cardData in addCardDatas) AddCard_toDeck(cardData);
     }
 
-    public void AddCard_toTopDeck(CardData addCardData)
+    private void Load_BuiltDeckCards_toDeck()
     {
-        if (addCardData == null || addCardData.cardScrObj == null) return;
+        DeckBuild_Manager deckBuildManager = GameManager.instance.deckBuildManager;
 
-        _deckCards.Add(addCardData);
+        AddCards_toDeck(deckBuildManager.data.BuiltDeck_CardDatas());
+        deckBuildManager.deckManager.Update_DeckCardCount_Text(_deckCardDatas.Count);
     }
 
 
@@ -200,7 +197,7 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         StageManager stageManager = GameManager.instance.stageManager;
 
         int currentCardCount = _handCards.Count;
-        bool gameStateToggle = stageManager.stageMap.data.stageSelected && stageManager.Is_BattleStage();
+        bool gameStateToggle = stageManager.stageMap.Stage_NotSelected() == false && stageManager.Is_BattleStage();
 
         _cardPlatformToggler.Toggle(currentCardCount > 0 & gameStateToggle);
 
@@ -241,22 +238,33 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         }
     }
 
+    private CardData DrawCardData()
+    {
+        if (_deckCardDatas == null || _deckCardDatas.Count <= 0) return null;
+
+        for (int i = 0; i < _deckCardDatas.Count; i++)
+        {
+            if (_deckCardDatas[i].drawPrioritized == false) continue;
+            return _deckCardDatas[i];
+        }
+        return _deckCardDatas[UnityEngine.Random.Range(0, _deckCardDatas.Count)];
+    }
     private void DrawCard_UpdateDeck()
     {
-        if (_deckCards == null || _deckCards.Count <= 0) return;
+        CardData drawCardData = DrawCardData();
+        if (drawCardData == null) return;
 
-        int drawCardIndex = _deckCards.Count - 1;
-        CardData drawCardData = _deckCards[drawCardIndex];
+        if (AddCard_toHand(drawCardData) == null) return; ;
+        _deckCardDatas.Remove(drawCardData);
 
-        AddCard_toHand(drawCardData);
-        _deckCards.RemoveAt(drawCardIndex);
-
-        GameManager.instance.deckBuildManager.deckManager.Update_DeckCardCount_Text(_deckCards.Count);
+        GameManager.instance.deckBuildManager.deckManager.Update_DeckCardCount_Text(_deckCardDatas.Count);
     }
 
 
     private IEnumerator DrawCard(int drawCount)
     {
+        if (_drawCardFromDeck.RunCondition_Available() == false) yield break;
+
         for (int i = 0; i < drawCount; i++)
         {
             DrawCard_UpdateDeck();
@@ -268,7 +276,7 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
             Update_CardPlatform();
 
             _drawCardFromDeck.RunSequential_BusEvents();
-            _drawCardFromDeck.RunSequential_DelayBusEvents();
+            yield return _drawCardFromDeck.RunSequential_DelayBusEvents();
 
             while (_drawCardFromDeck.DelayBus_Running()) yield return null;
         }
@@ -300,7 +308,7 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
 
         if (toggle == false) return;
 
-        CardData hoverCardData = hoveringCard.data;
+        CardData hoverCardData = hoveringCard.cardData;
         Card_ScrObj hoverCardScrObj = hoverCardData.cardScrObj;
 
         string foramtDescription = Utility.FormatUpdate_Description(hoverCardScrObj.cardDescription, hoverCardData.currentData.DescriptionFormats());
@@ -317,9 +325,9 @@ public class HandInventory : MonoBehaviour, ISubscriptionHandler
         StageManager stageManager = manager.stageManager;
 
         if (stageManager.endTurnEventBus.DelayBus_Running()) return;
-        if (stageManager.stageMap.data.stageSelected == false) return;
+        if (stageManager.stageMap.Stage_NotSelected()) return;
 
-        CardData hoveringCardData = _hoveringCard.data;
+        CardData hoveringCardData = _hoveringCard.cardData;
         if (manager.cursor.Drag_Card(hoveringCardData, _hoveringCard.transform) == false) return;
 
         for (int i = 0; i < _handCards.Count; i++)

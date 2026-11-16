@@ -24,6 +24,9 @@ public class Card_ScrObj : ScriptableObject
     public InteractionData interactionData => _interactionData;
 
     [Space(10)]
+    [SerializeField] private bool _drawPrioritized;
+    public bool drawPrioritized => _drawPrioritized;
+
     [SerializeField][Range(0, 50)] private int _manaCost;
     public int manaCost => _manaCost;
 }

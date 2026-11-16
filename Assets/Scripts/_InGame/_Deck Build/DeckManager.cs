@@ -94,32 +94,6 @@ public class DeckManager : MonoBehaviour, ISubscriptionHandler
 
     public void Load_DeckCards()
     {
-        GameManager manager = GameManager.instance;
-        DeckBuild_Data deckBuildData = manager.deckBuildManager.data;
 
-        List<CardData> deckCards = new(deckBuildData.builtDeckCardDatas);
-
-        bool loadCurrentDeck = deckBuildData.deckBuildComplete && manager.stageManager.Is_BattleStage();
-        List<CardData> currentDeckCards = loadCurrentDeck ? new(manager.handInventory.deckCards) : null;
-
-        for (int i = 0; i < _builtDeckDisplayCards.Length; i++)
-        {
-            DisplayCard displayCard = _builtDeckDisplayCards[i];
-
-            bool toggle = i <= deckCards.Count - 1;
-            displayCard.Toggle(toggle);
-
-            if (toggle == false) continue;
-
-            CardData loadCardData = deckCards[i];
-            displayCard.Load_CardComponents(loadCardData.cardScrObj);
-
-            if (loadCurrentDeck == false) continue;
-
-            bool drawn = currentDeckCards.Contains(loadCardData) == false;
-
-            displayCard.Update_UnlockVisuals(drawn == false);
-            displayCard.Load_IndicationIcon(drawn ? _drawnIndicationSprite : null);
-        }
     }
 }

@@ -72,30 +72,33 @@ public class DeckModify_EventMenu : EventMenu, ISubscriptionHandler
         {
             if (UpdateAmount_Selected()) break;
 
-            CardData autoSelectData = _selectableCardDatas[i];
-            if (_selectedCardDatas.Contains(autoSelectData)) continue;
+            CardData autoSelectedData = _selectableCardDatas[i];
+            if (_selectedCardDatas.Contains(autoSelectedData)) continue;
 
-            _selectedCardDatas.Add(autoSelectData);
+            _selectedCardDatas.Add(autoSelectedData);
         }
     }
     public override void Confirm()
     {
         if (_currentModifyEvent == null) return;
 
-        List<CardData> builtDeckCards = GameManager.instance.deckBuildManager.data.builtDeckCardDatas;
+        DeckBuild_Manager deckBuildManager = GameManager.instance.deckBuildManager;
+        DeckBuild_Data deckBuildData = deckBuildManager.data;
+
         bool isAddModify = _currentModifyEvent.modifyAmount >= 0;
 
         for (int i = 0; i < _selectedCardDatas.Count; i++)
         {
-            CardData modifyCardData = _selectedCardDatas[i];
+            Card_ScrObj modifyCard = _selectedCardDatas[i].cardScrObj;
 
             if (isAddModify)
             {
-                builtDeckCards.Add(modifyCardData);
+                deckBuildData.AddCard_toBuiltDeck(modifyCard, 1);
                 continue;
             }
-            builtDeckCards.Remove(modifyCardData);
+            deckBuildData.RemoveCard_fromBuiltDeck(modifyCard, 1);
         }
+        deckBuildManager.deckManager.Update_DeckCardCount_Text(deckBuildData.builtDeckCards.Count);
     }
 
     public override bool Update_TargetEvent(Event_ScrObj checkEvent)
@@ -144,10 +147,9 @@ public class DeckModify_EventMenu : EventMenu, ISubscriptionHandler
         {
             if (hoverCard != _selectableDisplayCards[i]) continue;
 
-            CardData hoveringData = _selectableCardDatas[i];
-            Card_ScrObj hoveringCard = hoveringData.cardScrObj;
+            Card_ScrObj hoveringCard = _selectableCardDatas[i].cardScrObj;
 
-            string foramtDescription = Utility.FormatUpdate_Description(hoveringCard.cardDescription, hoveringData.currentData.DescriptionFormats());
+            string foramtDescription = Utility.FormatUpdate_Description(hoveringCard.cardDescription, hoveringCard.interactionData.DescriptionFormats());
             _selectableCardHoverToolTip.Update_Contents(null, hoveringCard.contentSprite, hoveringCard.cardName, foramtDescription);
 
             return;
@@ -156,49 +158,49 @@ public class DeckModify_EventMenu : EventMenu, ISubscriptionHandler
 
 
     // Main
-    private void Filter_ModifyTargetCards(List<CardData> cardDatas)
+    private void Filter_ModifyTargetCards(List<Card_ScrObj> filterTargetCards)
     {
         if (_currentModifyEvent == null) return;
 
         Card_ScrObj[] modifyCards = _currentModifyEvent.modifyTargetCards;
         if (modifyCards == null || modifyCards.Length == 0) return;
 
-        for (int i = cardDatas.Count - 1; i >= 0; i--)
+        for (int i = filterTargetCards.Count - 1; i >= 0; i--)
         {
-            CardData cardData = cardDatas[i];
+            Card_ScrObj filterCard = filterTargetCards[i];
             bool containsCard = false;
 
             for (int j = 0; j < modifyCards.Length; j++)
             {
-                if (cardData.cardScrObj != modifyCards[j]) continue;
+                if (filterCard != modifyCards[j]) continue;
 
                 containsCard = true;
                 break;
             }
 
             if (containsCard) continue;
-            cardDatas.RemoveAt(i);
+            filterTargetCards.RemoveAt(i);
         }
     }
-
-    private List<CardData> Modify_CardDatas(DeckModify_EventScrObj modifyEvent)
+    private List<Card_ScrObj> ModifyCards(DeckModify_EventScrObj modifyEvent)
     {
         if (modifyEvent == null) return null;
 
         DeckBuild_Data deckBuildData = GameManager.instance.deckBuildManager.data;
 
-        List<CardData> cardDatas = modifyEvent.modifyAmount >= 0
-            ? deckBuildData.CardPool_CardDatas()
-            : new(deckBuildData.builtDeckCardDatas);
+        List<Card_ScrObj> cardDatas = modifyEvent.modifyAmount >= 0
+            ? deckBuildData.CardPool_Cards()
+            : new(deckBuildData.builtDeckCards);
 
         Filter_ModifyTargetCards(cardDatas);
         return cardDatas;
     }
+
     private void Update_SelectableCards()
     {
         if (_currentModifyEvent == null) return;
 
-        List<CardData> modifyCardDatas = Modify_CardDatas(_currentModifyEvent);
+        List<Card_ScrObj> modifyCardDatas = ModifyCards(_currentModifyEvent);
         int updateAmount = Mathf.Min(_currentModifyEvent.updateAmount, modifyCardDatas.Count, _selectableDisplayCards.Length);
 
         bool togglePlatform = updateAmount > 0;
@@ -216,10 +218,10 @@ public class DeckModify_EventMenu : EventMenu, ISubscriptionHandler
             if (displayToggle == false) continue;
 
             int randIndex = UnityEngine.Random.Range(0, modifyCardDatas.Count);
-            CardData selectableData = modifyCardDatas[randIndex];
+            Card_ScrObj selectableCard = modifyCardDatas[randIndex];
 
-            _selectableCardDatas.Add(selectableData);
-            displayCard.Load_CardComponents(selectableData.cardScrObj);
+            _selectableCardDatas.Add(new(selectableCard));
+            displayCard.Load_CardComponents(selectableCard);
 
             modifyCardDatas.RemoveAt(randIndex);
         }
@@ -234,6 +236,8 @@ public class DeckModify_EventMenu : EventMenu, ISubscriptionHandler
     }
     private void Update_SelectedCardDatas(CardData selectedCardData)
     {
+        if (_selectableCardDatas.Contains(selectedCardData) == false) return;
+
         if (_selectedCardDatas.Contains(selectedCardData))
         {
             _selectedCardDatas.Remove(selectedCardData);
@@ -245,15 +249,13 @@ public class DeckModify_EventMenu : EventMenu, ISubscriptionHandler
         _selectedCardDatas.RemoveAt(0);
     }
 
-    public void Select(DisplayCard selectedCard)
+    public void Select(DisplayCard selectedDisplayCard)
     {
         for (int i = 0; i < _selectableDisplayCards.Length; i++)
         {
-            if (selectedCard != _selectableDisplayCards[i]) continue;
+            if (selectedDisplayCard != _selectableDisplayCards[i]) continue;
 
-            CardData selectedData = _selectableCardDatas[i];
-
-            Update_SelectedCardDatas(selectedData);
+            Update_SelectedCardDatas(_selectableCardDatas[i]);
             Update_SelectIndicationIcons();
 
             return;

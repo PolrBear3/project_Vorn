@@ -37,7 +37,7 @@ public class CardSkill_CardRemover : CardSkill
     }
 
 
-    // abstract
+    // CardSkill
     public override IEnumerator Trigger_Skill()
     {
         List<Card> removeCards = TargetTile_Cards();

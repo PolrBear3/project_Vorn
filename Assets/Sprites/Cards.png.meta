@@ -370,7 +370,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -378,6 +378,27 @@ TextureImporter:
       bones: []
       spriteID: b231c451ebf5a4f0d8b6e87f02fb7af2
       internalID: -1379354960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Cards_13
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e23364f395e0345bdb50c607b59875d7
+      internalID: -786707779
       vertices: []
       indices: 
       edges: []
@@ -398,6 +419,7 @@ TextureImporter:
       Cards_10: 1982477793
       Cards_11: 982324649
       Cards_12: -1379354960
+      Cards_13: -786707779
       Cards_2: -1634482492
       Cards_3: 319371553
       Cards_4: 57619007

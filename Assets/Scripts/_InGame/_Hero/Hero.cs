@@ -55,7 +55,6 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
         InteractionData currentData = _data.currentData;
 
         _interactionDataUpdater.Set_Data(currentData);
-        _interactionDataUpdater.Handle_StateUpdate();
 
         _healthBar.Update_Fill(currentData.maxHealth, currentData.currentHealth);
         _healthBar.Toggle_ValueBox(false);

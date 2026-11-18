@@ -19,6 +19,7 @@ public class CardSkill_HealthModifier : CardSkill
             InteractionData_UpdateController dataController = targetInteractables[i].interactionDataUpdater;
             int modifyValue = card.data.currentData.Modify_OtherData_CurrentHealth(dataController.targetData, _healthModifyValue);
 
+            yield return dataController.Handle_StateUpdate();
             yield return dataController.Handle_HealthUpdate(modifyValue);
         }
     }

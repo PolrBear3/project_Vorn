@@ -82,7 +82,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     // ISubscriptionHandler
     public void Subscribe_All()
     {
-        _data.currentData.OnStateUpdate += _interactionDataUpdater.Handle_StateUpdate;
+        _placeUpdateActionBus.Register(0, _interactionDataUpdater.Handle_StateUpdate);
         _interactionDataUpdater.OnPreDeathActionDataUpdate += Remove_Data;
     }
 
@@ -90,7 +90,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     {
         UnRegister_SkillDatas();
 
-        _data.currentData.OnStateUpdate -= _interactionDataUpdater.Handle_StateUpdate;
+        _placeUpdateActionBus.UnRegister(_interactionDataUpdater.Handle_StateUpdate);
         _interactionDataUpdater.OnPreDeathActionDataUpdate -= Remove_Data;
     }
 
@@ -109,7 +109,6 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
         _contentSpriteRenderer.sprite = loadCard.contentSprite;
 
         _interactionDataUpdater.Set_Data(_data.currentData);
-        _interactionDataUpdater.Handle_StateUpdate();
 
         Subscribe_All();
         Register_SkillDatas();
@@ -219,6 +218,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
                 _modifyIndicator.Toggle_ValueBox(modifyValue != 0);
                 _runTimeAction.CountUpdate_TargetingHealthModify(modifyValue != 0);
 
+                yield return dataController.Handle_StateUpdate();
                 yield return dataController.Handle_HealthUpdate(modifyValue);
             }
 
@@ -238,6 +238,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
         // check death before action
         if (_data.currentData.currentHealth <= 0)
         {
+            yield return _interactionDataUpdater.Handle_StateUpdate();
             yield return _interactionDataUpdater.Handle_HealthUpdate(0);
 
             Reset_ActionDatas();

@@ -104,6 +104,7 @@ public class EnemySkill_HealthModifier : EnemySkill
             InteractionData_UpdateController dataController = targetInteractables[i].interactionDataUpdater;
             int modifyValue = enemy.data.currentData.Modify_OtherData_CurrentHealth(dataController.targetData, _healthModifyValue);
 
+            yield return dataController.Handle_StateUpdate();
             yield return dataController.Handle_HealthUpdate(modifyValue);
         }
         yield break;

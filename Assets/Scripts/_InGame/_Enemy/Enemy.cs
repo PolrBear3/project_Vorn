@@ -67,11 +67,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
     // ISubscriptionHandler
     public void Subscribe_All()
     {
-        InteractionData currentData = _data.currentData;
-
-        currentData.OnHealthUpdate += _healthBar.Update_Fill;
-        currentData.OnStateUpdate += _interactionDataUpdater.Handle_StateUpdate;
-
+        _data.currentData.OnHealthUpdate += _healthBar.Update_Fill;
         _interactionDataUpdater.OnPreDeathActionDataUpdate += Remove_Data;
     }
 
@@ -79,11 +75,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
     {
         UnRegister_SkillDatas();
 
-        InteractionData currentData = _data.currentData;
-
-        currentData.OnHealthUpdate -= _healthBar.Update_Fill;
-        currentData.OnStateUpdate -= _interactionDataUpdater.Handle_StateUpdate;
-
+        _data.currentData.OnHealthUpdate += _healthBar.Update_Fill;
         _interactionDataUpdater.OnPreDeathActionDataUpdate -= Remove_Data;
     }
 
@@ -292,6 +284,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
         // check death before action
         if (_data.currentData.currentHealth <= 0)
         {
+            yield return _interactionDataUpdater.Handle_StateUpdate();
             yield return _interactionDataUpdater.Handle_HealthUpdate(0);
 
             Reset_ActionDatas();
@@ -318,6 +311,8 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
             yield return _preDamageSkillBus.RunSequential_DelayBusEvents();
 
             int damageValue = Damage_InteractionData(damageDataController.targetData);
+
+            yield return damageDataController.Handle_StateUpdate();
             yield return damageDataController.Handle_HealthUpdate(damageValue);
 
             yield return _afterDamageSkillBus.RunSequential_DelayBusEvents();

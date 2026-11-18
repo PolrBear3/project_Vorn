@@ -61,8 +61,16 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[1]._target
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _skillDatas.Array.data[0]._trigger
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[1]._trigger
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _targetingActivateConditions.Array.size
@@ -74,6 +82,10 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 52b41c42237c84707be3c1e741bc19ef, type: 2}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _skillDatas.Array.data[0]._cardSkills.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[1]._cardSkills.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}

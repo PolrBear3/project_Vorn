@@ -118,25 +118,30 @@ public class InteractionData_UpdateController : MonoBehaviour
         return null;
     }
 
-    public void Handle_StateUpdate(InteractableState updatedState)
+    public IEnumerator Handle_StateUpdate(InteractableState updatedState)
     {
         bool stateAdded = _targetData.states.Contains(updatedState);
+        Animator_Controller stateAnimator = StateUpdated_Animator(updatedState);
 
-        Animator_Controller updateAnimator = stateAdded ? Empty_StateUpdateAnimator() : StateUpdated_Animator(updatedState);
-        if (updateAnimator == null) return;
+        if (stateAdded && stateAnimator != null) yield break;
+        if (stateAdded == false && stateAnimator == null) yield break;
+
+        Animator_Controller updateAnimator = stateAdded ? Empty_StateUpdateAnimator() : stateAnimator;
+        if (updateAnimator == null) yield break;
 
         string updateStateName = InteractableState_Animation.InteractableState_AnimationName(updatedState, stateAdded);
         updateAnimator.Play_State(updateStateName);
+
+        yield return null;
+        while (updateAnimator.CurrentState_Playing()) yield return null;
     }
-    public void Handle_StateUpdate()
+    public IEnumerator Handle_StateUpdate()
     {
-        if (_targetData == null) return;
+        if (_targetData == null) yield break;
 
-        List<InteractableState> setStates = new(_targetData.states);
-
-        foreach (InteractableState state in setStates)
+        foreach (InteractableState state in Enum.GetValues(typeof(InteractableState)))
         {
-            Handle_StateUpdate(state);
+            yield return Handle_StateUpdate(state);
         }
     }
 }

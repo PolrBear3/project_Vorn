@@ -52,6 +52,42 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: -786707779, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[0]._trigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[1]._trigger
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[0]._cardSkills.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[1]._cardSkills.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[0]._cardSkills.Array.data[0]
+      value: 
+      objectReference: {fileID: 9218578942794081810}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[0]._cardSkills.Array.data[1]
+      value: 
+      objectReference: {fileID: 9218578942794081810}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[1]._cardSkills.Array.data[0]
+      value: 
+      objectReference: {fileID: 3831921599836710964}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[1]._cardSkills.Array.data[1]
+      value: 
+      objectReference: {fileID: 9218578942794081810}
     - target: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: m_Name
       value: Movie Ticket
@@ -59,5 +95,53 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9218578942794081810}
+    - targetCorrespondingSourceObject: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3831921599836710964}
   m_SourcePrefab: {fileID: 100100000, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+--- !u!1 &2020505746459240627 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+  m_PrefabInstance: {fileID: 6032422655597170347}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &9218578942794081810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020505746459240627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 933ebb576dcc043a2835b16736223f24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _triggerConditions: []
+  _duplicateTargeting: 0
+  _includeCurrentTile: 1
+  _triggerDelayTime: 0
+  _afterTriggerDelayTime: 0
+  _targetCards:
+  - {fileID: 11400000, guid: 6818cd97f417a48d19a122da45c046a7, type: 2}
+--- !u!114 &3831921599836710964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020505746459240627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d544ee0a7f27843da84da205d3ff2e3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _triggerConditions: []
+  _duplicateTargeting: 0
+  _includeCurrentTile: 0
+  _triggerDelayTime: 0
+  _afterTriggerDelayTime: 0
+  _drawAmount: 1

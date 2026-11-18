@@ -84,6 +84,8 @@ public class EdgeTile_DamageSystem : MonoBehaviour, ISubscriptionHandler
             InteractionData data = dataController.targetData;
 
             data.Update_CurrentHealth(data.currentHealth - stackDamageCount, out int modifiedValue);
+
+            yield return dataController.Handle_StateUpdate();
             yield return dataController.Handle_HealthUpdate(modifiedValue);
         }
 

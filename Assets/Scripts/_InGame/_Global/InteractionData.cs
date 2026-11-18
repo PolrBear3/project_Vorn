@@ -110,7 +110,7 @@ public class InteractionData
         if (modifiedValue == 0 && newValue > 0) return false;
 
         OnHealthModifiedUpdate?.Invoke(modifiedValue);
-        if (modifiedValue < 0 && Remove_State(InteractableState.Shield)) return false;
+        if (_currentHealth > 0 && modifiedValue < 0 && Remove_State(InteractableState.Shield)) return false;
 
         _currentHealth = newValue;
         OnHealthUpdate?.Invoke(_maxHealth, _currentHealth);

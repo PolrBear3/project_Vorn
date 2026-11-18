@@ -101,8 +101,11 @@ public class GameManager : MonoBehaviour, ISaveLoadable
 [CustomEditor(typeof(GameManager))]
 public class GameManager_Inspector : Editor
 {
-    private Card_ScrObj _cardToAdd;
-    private bool _isGenerated = true;
+    private Card_ScrObj _cardToAddToDeck;
+    private bool _deckAddGenerated = true;
+
+    private Card_ScrObj _cardToAddToHand;
+    private bool _handAddGenerated = true;
 
     public override void OnInspectorGUI()
     {
@@ -114,29 +117,46 @@ public class GameManager_Inspector : Editor
         GUILayout.Space(60);
 
         EditorGUILayout.BeginHorizontal();
-        _cardToAdd = (Card_ScrObj)EditorGUILayout.ObjectField(_cardToAdd, typeof(Card_ScrObj), false);
-        _isGenerated = GUILayout.Toggle(_isGenerated, "Generated", GUILayout.Width(85));
 
-        using (new EditorGUI.DisabledScope(!Application.isPlaying || _cardToAdd == null ||
+        _cardToAddToDeck = (Card_ScrObj)EditorGUILayout.ObjectField(_cardToAddToDeck, typeof(Card_ScrObj), false);
+        _deckAddGenerated = GUILayout.Toggle(_deckAddGenerated, "Generated", GUILayout.Width(85));
+
+        using (new EditorGUI.DisabledScope(!Application.isPlaying || _cardToAddToDeck == null ||
         controller.handInventory == null || controller.deckBuildManager == null))
         {
             if (GUILayout.Button("Add Card to Deck", GUILayout.Width(120)))
             {
                 HandInventory inventory = controller.handInventory;
-                inventory.AddCard_toDeck(new CardData(_cardToAdd, _isGenerated));
+                inventory.AddCard_toDeck(new CardData(_cardToAddToDeck, _deckAddGenerated));
 
                 DeckManager deckManager = controller.deckBuildManager.deckManager;
                 deckManager.Update_DeckCardCount_Text(inventory.deckCardDatas.Count);
                 deckManager.Load_DisplayCards();
             }
         }
-
         EditorGUILayout.EndHorizontal();
 
         if (GUILayout.Button("Draw Card"))
         {
             controller.handInventory.DrawingStateCheck_DrawCard();
         }
+
+        EditorGUILayout.BeginHorizontal();
+
+        _cardToAddToHand = (Card_ScrObj)EditorGUILayout.ObjectField(_cardToAddToHand, typeof(Card_ScrObj), false);
+        _handAddGenerated = GUILayout.Toggle(_handAddGenerated, "Generated", GUILayout.Width(85));
+
+        using (new EditorGUI.DisabledScope(!Application.isPlaying || _cardToAddToHand == null ||
+        controller.handInventory == null))
+        {
+            if (GUILayout.Button("Add Card to Hand", GUILayout.Width(120)))
+            {
+                HandInventory inventory = controller.handInventory;
+                inventory.AddCard_toHand(new CardData(_cardToAddToHand, _handAddGenerated));
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+
         if (GUILayout.Button("Damage All Enemies"))
         {
             List<Enemy> spawnedEnemies = controller.enemyManager.spawnedEnemies;

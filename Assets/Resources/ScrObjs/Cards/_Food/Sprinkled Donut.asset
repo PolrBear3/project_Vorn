@@ -15,13 +15,14 @@ MonoBehaviour:
   _cardName: Sprinkled Donut
   _cardDescription: '{healOrDamage} {healthModifyValue} to {targetSelectCount} target(s)
     within a range of {interactRange} tile(s). If hero is targeted, movement costs
-    twice as much mana next turn. Removed after use.'
+    triple times more mana next turn. Removed after use.'
   _contentSprite: {fileID: -1379354960, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
-  _placePrefab: {fileID: 8945428073879937542, guid: 7d6cd28fcf3374a829f9de59c10068e1, type: 3}
+  _placePrefab: {fileID: 7814947882170377464, guid: 9c56b07827d9f4d37b762d9f880d02f5, type: 3}
   _interactionData:
     _maxHealth: 1
     _states: 
     _healthModifyValue: 5
     _interactRange: 1
     _targetSelectCount: 1
+  _drawPrioritized: 0
   _manaCost: 0

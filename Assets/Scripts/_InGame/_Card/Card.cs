@@ -18,7 +18,10 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     public InteractionData_UpdateController interactionDataUpdater => _interactionDataUpdater;
 
     [Space(20)]
-    [SerializeField] private ActivateCondition_ScrObj[] _targetingConditions;
+    [SerializeField] private ActivateCondition_ScrObj[] _runActionConditions;
+    [SerializeField] private ActivateCondition_ScrObj[] _tileTargetingConditions;
+
+    [Space(20)]
     [SerializeField] private CardSkill_TriggerData[] _skillDatas;
 
 
@@ -197,29 +200,34 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
 
     private IEnumerator Run_TileTargeting_HealthModify()
     {
-        if (CustomData_Utility.AllConditions_ActivateAvailable(_placedTile, _targetingConditions) == false) yield break;
+        InteractionData currentdata = _interactionDataUpdater.targetData;
+        int modifyValue = currentdata.healthModifyValue;
 
         List<Tile> targetingTiles = new(_tileTargeting.targetingTiles);
 
         for (int i = 0; i < targetingTiles.Count; i++)
         {
             Tile tile = targetingTiles[i];
+            if (CustomData_Utility.AllConditions_ActivateAvailable(tile, _tileTargetingConditions) == false) continue;
+
             _runTimeAction.Update_TargetingTile(tile);
 
             yield return _preTargetingSkillBus.RunSequential_DelayBusEvents();
 
-            IInteractable tileInteractable = tile.CurrentOccupant_Interactable();
-            InteractionData_UpdateController dataController = tileInteractable?.interactionDataUpdater;
+            IInteractable targetInteractable = tile.CurrentOccupant_Interactable();
+            InteractionData_UpdateController targetInteractableController = targetInteractable?.interactionDataUpdater;
 
-            if (dataController != null)
+            if (targetInteractableController != null)
             {
-                int modifyValue = _data.currentData.Modify_OtherData_CurrentHealth(dataController.targetData);
+                InteractionData targetData = targetInteractableController.targetData;
 
-                _modifyIndicator.Toggle_ValueBox(modifyValue != 0);
-                _runTimeAction.CountUpdate_TargetingHealthModify(modifyValue != 0);
+                targetInteractableController.targetData.Update_CurrentHealth(targetData.currentHealth + modifyValue, out int modifiedValue);
+                currentdata.Track_HealthModifyHistory(modifiedValue);
 
-                yield return dataController.Handle_StateUpdate();
-                yield return dataController.Handle_HealthUpdate(modifyValue);
+                _modifyIndicator.Toggle_ValueBox(modifiedValue != 0);
+
+                yield return targetInteractableController.Handle_StateUpdate();
+                yield return targetInteractableController.Handle_HealthUpdate(modifiedValue);
             }
 
             yield return _afterTargetingSkillBus.RunSequential_DelayBusEvents();
@@ -229,21 +237,31 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     {
         if (_data.currentData.Remove_State(InteractableState.Frozen))
         {
+            yield return _interactionDataUpdater.Handle_StateUpdate();
+
             Reset_ActionDatas();
             yield break;
         }
 
-        _runTimeAction.Toggle_RunAction(true);
-
         // check death before action
         if (_data.currentData.currentHealth <= 0)
         {
+            _runTimeAction.Toggle_RunAction(true);
+
             yield return _interactionDataUpdater.Handle_StateUpdate();
             yield return _interactionDataUpdater.Handle_HealthUpdate(0);
 
             Reset_ActionDatas();
             yield break;
         }
+
+        if (CustomData_Utility.AllConditions_ActivateAvailable(_placedTile, _runActionConditions) == false)
+        {
+            Reset_ActionDatas();
+            yield break;
+        }
+
+        _runTimeAction.Toggle_RunAction(true);
 
         yield return _preUpdateSkillBus.RunSequential_DelayBusEvents();
         yield return Run_TileTargeting_HealthModify();

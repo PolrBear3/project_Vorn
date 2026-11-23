@@ -158,7 +158,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
 
 
     // Damage
-    private InteractionData_UpdateController Damageable_InteractionData(out Tile damageTargetTile)
+    private IInteractable DamageTarget_Interactable(out Tile damageTargetTile)
     {
         damageTargetTile = null;
 
@@ -177,7 +177,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
         if (tauntCardDamageable)
         {
             damageTargetTile = tauntCard.placedTile;
-            return tauntCard.interactionDataUpdater;
+            return tauntCard;
         }
         if (tauntCard != null) return null; // restrict damaging if taunt cards are not in range
 
@@ -186,7 +186,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
         if (currentHero != null && Utility.Chebyshev_Distance(currentTilePos, currentHero.movement.currentTile.data.position) <= interactRange)
         {
             damageTargetTile = currentHero.movement.currentTile;
-            return currentHero.interactionDataUpdater;
+            return currentHero;
         }
 
         // interact range card
@@ -197,16 +197,21 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
         if (distanceToCard > interactRange) return null;
 
         damageTargetTile = damageCard.placedTile;
-        return damageCard.interactionDataUpdater;
+        return damageCard;
     }
-    private int Damage_InteractionData(InteractionData damageData)
+    private int Damage_Interactable(IInteractable targetInteractable)
     {
-        if (damageData == null) return 0;
+        if (targetInteractable == null) return 0;
 
-        int damageValue = _data.currentData.Modify_OtherData_CurrentHealth(damageData);
-        _runTimeAction.CountUpdate_TargetingHealthModify(damageValue != 0);
+        InteractionData currentEnemyData = _data.currentData;
+        int damageValue = currentEnemyData.healthModifyValue;
 
-        return damageValue;
+        InteractionData targetData = targetInteractable.interactionDataUpdater.targetData;
+
+        targetData.Update_CurrentHealth(targetData.currentHealth + damageValue, out int modifiedValue);
+        currentEnemyData.Track_HealthModifyHistory(modifiedValue);
+
+        return modifiedValue;
     }
 
 
@@ -302,19 +307,20 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
             while (_movement.movementCoroutine != null) yield return null;
         }
 
-        InteractionData_UpdateController damageDataController = Damageable_InteractionData(out Tile damageTargetTile); // damaging interactable
+        IInteractable damageTarget = DamageTarget_Interactable(out Tile damageTargetTile); // damaging interactable
         _damagingTile = damageTargetTile;
 
         yield return _afterMovementSkillBus.RunSequential_DelayBusEvents();
 
-        if (damageDataController != null)
+        if (damageTarget != null)
         {
             yield return _preDamageSkillBus.RunSequential_DelayBusEvents();
+            int damageValue = Damage_Interactable(damageTarget);
 
-            int damageValue = Damage_InteractionData(damageDataController.targetData);
+            InteractionData_UpdateController damageTargetController = damageTarget.interactionDataUpdater;
 
-            yield return damageDataController.Handle_StateUpdate();
-            yield return damageDataController.Handle_HealthUpdate(damageValue);
+            yield return damageTargetController.Handle_StateUpdate();
+            yield return damageTargetController.Handle_HealthUpdate(damageValue);
 
             yield return _afterDamageSkillBus.RunSequential_DelayBusEvents();
         }

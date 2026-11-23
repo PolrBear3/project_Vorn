@@ -15,10 +15,10 @@ public class HealthUpdatedSuccess_TargetCount : ActivateCondition_ScrObj
         IInteractable interactable = activatingTile.CurrentOccupant_Interactable();
         if (interactable == null) return false;
 
-        InteractionData data = interactable.interactionDataUpdater.targetData;
-        if (data.currentHealth <= 0) return false;
+        InteractionData interactableData = interactable.interactionDataUpdater.targetData;
+        if (interactableData.currentHealth <= 0) return false;
 
-        int recentHealthModifiedValue = data.recentHealthModifiedValue;
+        int recentHealthModifiedValue = interactableData.HealthModifiedHistory_DataValue(0);
 
         if (_successValue < 0 && recentHealthModifiedValue <= _successValue) return true;
         if (_successValue > 0 && recentHealthModifiedValue >= _successValue) return true;

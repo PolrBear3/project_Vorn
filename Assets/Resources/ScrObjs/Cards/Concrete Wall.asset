@@ -21,6 +21,6 @@ MonoBehaviour:
     _states: 01000000
     _healthModifyValue: 0
     _interactRange: 1
-    _targetSelectCount: 1
+    _targetSelectCount: 0
   _drawPrioritized: 0
   _manaCost: 1

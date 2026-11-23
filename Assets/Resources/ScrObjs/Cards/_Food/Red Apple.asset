@@ -16,11 +16,12 @@ MonoBehaviour:
   _cardDescription: '{healOrDamage} {healthModifyValue} to {targetSelectCount} target(s)
     within a range of {interactRange} tile(s). Removed after use.'
   _contentSprite: {fileID: 47873748, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
-  _placePrefab: {fileID: 6583803616044884069, guid: 2242ccf52a0cc40b68c8c0724ccd066d, type: 3}
+  _placePrefab: {fileID: 3364261658592184413, guid: 8450f946ef7ad41038abbc4d165eba25, type: 3}
   _interactionData:
     _maxHealth: 1
     _states: 
     _healthModifyValue: 1
     _interactRange: 1
     _targetSelectCount: 1
+  _drawPrioritized: 0
   _manaCost: 0

@@ -66,6 +66,13 @@ public class Tile : MonoBehaviour
 
         return _currentOccupant.GetComponentInChildren<IInteractable>();
     }
+    public IRunTimeAction CurrentOccupant_RunTimeAction()
+    {
+        if (_currentOccupant == null) return null;
+        if (_currentOccupant.TryGetComponent(out IRunTimeAction runTimeAction)) return runTimeAction;
+
+        return _currentOccupant.GetComponentInChildren<IRunTimeAction>();
+    }
 
 
     // Hover

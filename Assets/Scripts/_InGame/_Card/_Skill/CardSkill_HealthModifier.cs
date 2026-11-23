@@ -12,15 +12,19 @@ public class CardSkill_HealthModifier : CardSkill
     // CardSkill
     public override IEnumerator Trigger_Skill()
     {
+        InteractionData currentCardData = card.data.currentData;
         List<IInteractable> targetInteractables = CurrentTarget_Interactables(_targetingCount);
 
         for (int i = 0; i < targetInteractables.Count; i++)
         {
-            InteractionData_UpdateController dataController = targetInteractables[i].interactionDataUpdater;
-            int modifyValue = card.data.currentData.Modify_OtherData_CurrentHealth(dataController.targetData, _healthModifyValue);
+            InteractionData_UpdateController targetController = targetInteractables[i].interactionDataUpdater;
+            InteractionData targetData = targetController.targetData;
 
-            yield return dataController.Handle_StateUpdate();
-            yield return dataController.Handle_HealthUpdate(modifyValue);
+            targetData.Update_CurrentHealth(targetData.currentHealth + _healthModifyValue, out int modifiedValue);
+            currentCardData.Track_HealthModifyHistory(modifiedValue);
+
+            yield return targetController.Handle_StateUpdate();
+            yield return targetController.Handle_HealthUpdate(modifiedValue);
         }
     }
 }

@@ -53,13 +53,49 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 31158166, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _actionConditions.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _actionConditions.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 52b41c42237c84707be3c1e741bc19ef, type: 2}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _runActionConditions.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _targetingConditions.Array.size
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[0]._target
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _runActionConditions.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 52b41c42237c84707be3c1e741bc19ef, type: 2}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[0]._trigger
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _targetingConditions.Array.data[0]
       value: 
       objectReference: {fileID: 11400000, guid: 52b41c42237c84707be3c1e741bc19ef, type: 2}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _tileTargetingConditions.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _tileTargetingConditions.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 68a47b1c62951431a9179df3089e850c, type: 2}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _targetingActivateConditions.Array.size
       value: 1
@@ -68,6 +104,10 @@ PrefabInstance:
       propertyPath: _targetingActivateConditions.Array.data[0]
       value: 
       objectReference: {fileID: 11400000, guid: 52b41c42237c84707be3c1e741bc19ef, type: 2}
+    - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: _skillDatas.Array.data[0]._cardSkills.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: m_Name
       value: Long Sword

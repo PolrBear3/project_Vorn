@@ -13,7 +13,7 @@ public class CardSkill_StateModifier : CardSkill
 
 
     // CardSkill
-    public override IEnumerator Trigger_Skill() // todo animation for state update not working
+    public override IEnumerator Trigger_Skill()
     {
         List<IInteractable> targetInteractables = CurrentTarget_Interactables(_targetingCount);
 

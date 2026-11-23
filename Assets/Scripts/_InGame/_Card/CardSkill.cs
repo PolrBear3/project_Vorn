@@ -40,14 +40,11 @@ public abstract class CardSkill : MonoBehaviour
 {
     [Space(20)]
     [SerializeField] private ActivateCondition_ScrObj[] _triggerConditions;
+    [SerializeField] private ActivateCondition_ScrObj[] _targetingFilters;
 
-    [Space(10)]
-    [SerializeField] private bool _duplicateTargeting;
+    [Space(20)]
     [SerializeField] private bool _includeCurrentTile;
-
-    [Space(10)]
-    [SerializeField] private bool _restrictFriendlyTargeting;
-    [SerializeField] private bool _restrictEnemyTargeting;
+    [SerializeField] private bool _duplicateTargeting;
 
 
     private Card _card;
@@ -188,10 +185,9 @@ public abstract class CardSkill : MonoBehaviour
         if (tile == null) return false;
 
         IInteractable interactable = tile.CurrentOccupant_Interactable();
-        if (interactable == null) return false;
 
-        if (_restrictFriendlyTargeting && (interactable is Card || interactable is Hero)) return false;
-        if (_restrictEnemyTargeting && interactable is Enemy) return false;
+        if (interactable == null) return false;
+        if (CustomData_Utility.AllConditions_ActivateAvailable(tile, _targetingFilters) == false) return false;
 
         return true;
     }

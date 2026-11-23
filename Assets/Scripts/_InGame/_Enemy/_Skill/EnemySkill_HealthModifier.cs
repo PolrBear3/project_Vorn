@@ -97,15 +97,19 @@ public class EnemySkill_HealthModifier : EnemySkill
     // EnemySkill
     public override IEnumerator Trigger_Skill()
     {
+        InteractionData currentCardData = enemy.data.currentData;
         List<IInteractable> targetInteractables = Target_Interactables();
 
         for (int i = 0; i < targetInteractables.Count; i++)
         {
-            InteractionData_UpdateController dataController = targetInteractables[i].interactionDataUpdater;
-            int modifyValue = enemy.data.currentData.Modify_OtherData_CurrentHealth(dataController.targetData, _healthModifyValue);
+            InteractionData_UpdateController targetController = targetInteractables[i].interactionDataUpdater;
+            InteractionData targetData = targetController.targetData;
 
-            yield return dataController.Handle_StateUpdate();
-            yield return dataController.Handle_HealthUpdate(modifyValue);
+            targetData.Update_CurrentHealth(targetData.currentHealth + _healthModifyValue, out int modifiedValue);
+            currentCardData.Track_HealthModifyHistory(modifiedValue);
+
+            yield return targetController.Handle_StateUpdate();
+            yield return targetController.Handle_HealthUpdate(modifiedValue);
         }
         yield break;
     }

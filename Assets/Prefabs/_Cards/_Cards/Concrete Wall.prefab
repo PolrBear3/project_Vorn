@@ -62,7 +62,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _skillDatas.Array.data[1]._target
-      value: 0
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _skillDatas.Array.data[0]._trigger
@@ -130,8 +130,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _triggerConditions: []
-  _duplicateTargeting: 0
+  _targetingFilters: []
   _includeCurrentTile: 0
+  _duplicateTargeting: 0
   _spawnCount: 10
   _spawnCards:
   - {fileID: 11400000, guid: 2d3355546a6854d1d92282a9c7cc16f1, type: 2}

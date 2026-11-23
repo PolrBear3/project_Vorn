@@ -24,8 +24,8 @@ public class InteractionData
     [ES3Serializable] private int _currentHealth;
     public int currentHealth => _currentHealth;
 
-    [ES3Serializable] private int _recentHealthModifiedValue;
-    public int recentHealthModifiedValue => _recentHealthModifiedValue;
+    [ES3Serializable] private List<int> _healthModifiedHistoryDatas = new();
+
 
     [SerializeField][ES3Serializable] private List<InteractableState> _states = new();
     public List<InteractableState> states => _states;
@@ -35,8 +35,8 @@ public class InteractionData
     [SerializeField][ES3Serializable][Range(-100, 100)] private int _healthModifyValue;
     public int healthModifyValue => _healthModifyValue;
 
-    [ES3Serializable] private int _healthModifySuccessCount;
-    public int healthModifySuccessCount => _healthModifySuccessCount;
+    [ES3Serializable] private List<int> _healthModifyHistoryDatas = new();
+    public List<int> healthModifyHistoryDatas => _healthModifyHistoryDatas;
 
 
     [Space(10)]
@@ -45,6 +45,9 @@ public class InteractionData
 
     [SerializeField][ES3Serializable][Range(0, 10)] private int _targetSelectCount;
     public int targetSelectCount => _targetSelectCount;
+
+
+    private const int _maxHistoryDataCount = 10;
 
 
     /// <summary>
@@ -66,11 +69,12 @@ public class InteractionData
     {
         _maxHealth = newData._maxHealth;
         _currentHealth = _maxHealth;
+        _healthModifiedHistoryDatas = new(newData._healthModifiedHistoryDatas);
 
         _states = new(newData.states);
 
         _healthModifyValue = newData._healthModifyValue;
-        _healthModifySuccessCount = newData._healthModifySuccessCount;
+        _healthModifyHistoryDatas = new(newData._healthModifyHistoryDatas);
 
         _interactRange = newData._interactRange;
         _targetSelectCount = newData._targetSelectCount;
@@ -91,23 +95,37 @@ public class InteractionData
     }
 
 
+    public int HealthModifiedHistory_DataValue(int dataIndex)
+    {
+        if (_healthModifiedHistoryDatas == null) return 0;
+
+        int dataCount = _healthModifiedHistoryDatas.Count;
+        if (dataCount <= 0) return 0;
+
+        int index = Mathf.Clamp(dataIndex, 0, dataCount - 1);
+        return _healthModifiedHistoryDatas[dataCount - 1 - index];
+    }
+    private void Track_HealthModifiedHistory(int modifyValue)
+    {
+        if (modifyValue == 0) return;
+        _healthModifiedHistoryDatas.Add(modifyValue);
+
+        if (_healthModifiedHistoryDatas.Count <= _maxHistoryDataCount) return;
+        _healthModifiedHistoryDatas.RemoveAt(0);
+    }
+
     public bool Update_MaxHealth(int newValue, out int modifiedValue)
     {
         newValue = Mathf.Max(_currentHealth, newValue);
         modifiedValue = newValue - _maxHealth;
 
-        if (modifiedValue == 0 && newValue > 0)
-        {
-            _recentHealthModifiedValue = 0;
-            return false;
-        }
+        if (modifiedValue == 0 && newValue > 0) return false;
 
         _maxHealth = newValue;
 
         OnHealthModifiedUpdate?.Invoke(modifiedValue);
         OnHealthUpdate?.Invoke(_maxHealth, _currentHealth);
 
-        _recentHealthModifiedValue = modifiedValue;
         return true;
     }
     public bool Update_CurrentHealth(int newValue, out int modifiedValue)
@@ -115,44 +133,41 @@ public class InteractionData
         newValue = Mathf.Min(newValue, _maxHealth);
         modifiedValue = newValue - _currentHealth;
 
-        if (modifiedValue == 0 && newValue > 0)
-        {
-            _recentHealthModifiedValue = 0;
-            return false;
-        }
-
-        OnHealthModifiedUpdate?.Invoke(modifiedValue);
+        if (modifiedValue == 0 && newValue > 0) return false;
 
         if (_currentHealth > 0 && modifiedValue < 0 && Remove_State(InteractableState.Shield))
         {
-            _recentHealthModifiedValue = 0;
+            modifiedValue = 0;
             return false;
         }
 
         _currentHealth = newValue;
+        Track_HealthModifiedHistory(modifiedValue);
+
+        OnHealthModifiedUpdate?.Invoke(modifiedValue);
         OnHealthUpdate?.Invoke(_maxHealth, _currentHealth);
 
-        _recentHealthModifiedValue = modifiedValue;
         return true;
     }
 
-    /// <returns>
-    /// other data's modified value
-    /// </returns>
-    public int Modify_OtherData_CurrentHealth(InteractionData otherData, int modifyValue)
-    {
-        if (otherData == null) return 0;
-        if (otherData.Update_CurrentHealth(otherData.currentHealth + modifyValue, out int modifiedValue) == false) return 0;
 
-        _healthModifySuccessCount++;
-        return modifiedValue;
-    }
-    /// <returns>
-    /// other data's modified value
-    /// </returns>
-    public int Modify_OtherData_CurrentHealth(InteractionData otherData)
+    public int HealthModifyHistory_DataValue(int dataIndex)
     {
-        return Modify_OtherData_CurrentHealth(otherData, _healthModifyValue);
+        if (_healthModifyHistoryDatas == null) return 0;
+
+        int dataCount = _healthModifyHistoryDatas.Count;
+        if (dataCount <= 0) return 0;
+
+        int index = Mathf.Clamp(dataIndex, 0, dataCount - 1);
+        return _healthModifyHistoryDatas[dataCount - 1 - index];
+    }
+    public void Track_HealthModifyHistory(int modifyValue)
+    {
+        if (modifyValue == 0) return;
+        _healthModifyHistoryDatas.Add(modifyValue);
+
+        if (_healthModifyHistoryDatas.Count <= _maxHistoryDataCount) return;
+        _healthModifyHistoryDatas.RemoveAt(0);
     }
 
 

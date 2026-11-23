@@ -12,10 +12,16 @@ public class CardSkill_CardRemover : CardSkill
     // data
     private List<Card> TargetTile_Cards()
     {
-        CardManager cardManager = GameManager.instance.cardManager;
-
-        List<Tile> targetTiles = CurrentTarget_Tiles();
         List<Card> targetTileCards = new();
+
+        if (_targetCards.Length <= 0)
+        {
+            targetTileCards.Add(card);
+            return targetTileCards;
+        }
+
+        CardManager cardManager = GameManager.instance.cardManager;
+        List<Tile> targetTiles = CurrentTarget_Tiles();
 
         for (int i = 0; i < targetTiles.Count; i++)
         {
@@ -25,9 +31,9 @@ public class CardSkill_CardRemover : CardSkill
             if (placedCard == null) continue;
 
             Card_ScrObj cardScrObj = placedCard.data.cardScrObj;
-            for (int j = 0; j < targetCards.Length; j++)
+            for (int j = 0; j < _targetCards.Length; j++)
             {
-                if (targetCards[j] != cardScrObj) continue;
+                if (_targetCards[j] != cardScrObj) continue;
 
                 targetTileCards.Add(placedCard);
                 break;

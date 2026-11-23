@@ -24,6 +24,9 @@ public class InteractionData
     [ES3Serializable] private int _currentHealth;
     public int currentHealth => _currentHealth;
 
+    [ES3Serializable] private int _recentHealthModifiedValue;
+    public int recentHealthModifiedValue => _recentHealthModifiedValue;
+
     [SerializeField][ES3Serializable] private List<InteractableState> _states = new();
     public List<InteractableState> states => _states;
 
@@ -93,13 +96,18 @@ public class InteractionData
         newValue = Mathf.Max(_currentHealth, newValue);
         modifiedValue = newValue - _maxHealth;
 
-        if (modifiedValue == 0 && newValue > 0) return false;
+        if (modifiedValue == 0 && newValue > 0)
+        {
+            _recentHealthModifiedValue = 0;
+            return false;
+        }
 
         _maxHealth = newValue;
 
         OnHealthModifiedUpdate?.Invoke(modifiedValue);
         OnHealthUpdate?.Invoke(_maxHealth, _currentHealth);
 
+        _recentHealthModifiedValue = modifiedValue;
         return true;
     }
     public bool Update_CurrentHealth(int newValue, out int modifiedValue)
@@ -107,14 +115,24 @@ public class InteractionData
         newValue = Mathf.Min(newValue, _maxHealth);
         modifiedValue = newValue - _currentHealth;
 
-        if (modifiedValue == 0 && newValue > 0) return false;
+        if (modifiedValue == 0 && newValue > 0)
+        {
+            _recentHealthModifiedValue = 0;
+            return false;
+        }
 
         OnHealthModifiedUpdate?.Invoke(modifiedValue);
-        if (_currentHealth > 0 && modifiedValue < 0 && Remove_State(InteractableState.Shield)) return false;
+
+        if (_currentHealth > 0 && modifiedValue < 0 && Remove_State(InteractableState.Shield))
+        {
+            _recentHealthModifiedValue = 0;
+            return false;
+        }
 
         _currentHealth = newValue;
         OnHealthUpdate?.Invoke(_maxHealth, _currentHealth);
 
+        _recentHealthModifiedValue = modifiedValue;
         return true;
     }
 

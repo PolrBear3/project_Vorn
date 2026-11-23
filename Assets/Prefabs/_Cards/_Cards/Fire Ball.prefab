@@ -135,6 +135,8 @@ MonoBehaviour:
   _triggerConditions: []
   _duplicateTargeting: 0
   _includeCurrentTile: 0
+  _restrictFriendlyTargeting: 1
+  _restrictEnemyTargeting: 0
   _targetingCount: 2
   _healthModifyValue: -1
 --- !u!114 &6349563125503032832
@@ -152,5 +154,7 @@ MonoBehaviour:
   _triggerConditions: []
   _duplicateTargeting: 1
   _includeCurrentTile: 1
+  _restrictFriendlyTargeting: 0
+  _restrictEnemyTargeting: 0
   _targetCards:
   - {fileID: 11400000, guid: 7f3bbefac230a43c5a95cc64773180d5, type: 2}

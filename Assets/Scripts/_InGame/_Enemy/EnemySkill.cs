@@ -8,6 +8,7 @@ public enum EnemySkillTrigger
     AfterMovement,
     PreDamaging,
     AfterDamaging,
+    HealthUpdate,
     Death
 }
 

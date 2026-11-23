@@ -10,7 +10,7 @@ public class HealthModifySuccess_TargetCount : ActivateCondition_ScrObj
     [SerializeField][Range(0, 100)] private int _runTimeCount;
 
 
-    // abstract
+    // ActivateCondition_ScrObj
     public override bool Activate_Available(Tile activatingTile)
     {
         IInteractable interactable = activatingTile.CurrentOccupant_Interactable();

@@ -219,6 +219,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
             case EnemySkillTrigger.AfterMovement: return _afterMovementSkillBus;
             case EnemySkillTrigger.PreDamaging: return _preDamageSkillBus;
             case EnemySkillTrigger.AfterDamaging: return _afterDamageSkillBus;
+            case EnemySkillTrigger.HealthUpdate: return _interactionDataUpdater.healthUpdateActionBus;
             case EnemySkillTrigger.Death: return _interactionDataUpdater.deathUpdateActionBus;
         }
         return null;

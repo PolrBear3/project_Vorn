@@ -12,6 +12,20 @@ public class InteractRange_ContainsTarget : ActivateCondition_ScrObj
     [SerializeField] private Enemy_ScrObj[] _containEnemies;
 
 
+    // ActivateCondition_ScrObj
+    public override bool Activate_Available(Tile activatingTile)
+    {
+        int interactRange = CurrentInteractable_InteractRange(activatingTile);
+        List<Tile> rangeTiles = GameManager.instance.tileManager.Distanced_Tiles(activatingTile, interactRange);
+
+        if (HeroContain_Check(rangeTiles) == false) return false;
+        if (CardsContain_Check(rangeTiles) == false) return false;
+        if (EnemiesContain_Check(rangeTiles) == false) return false;
+
+        return true;
+    }
+
+
     // Data
     private int CurrentInteractable_InteractRange(Tile currentTile)
     {
@@ -55,20 +69,6 @@ public class InteractRange_ContainsTarget : ActivateCondition_ScrObj
     }
     private bool EnemiesContain_Check(List<Tile> rangeTiles)
     {
-        return true;
-    }
-
-
-    // abstract
-    public override bool Activate_Available(Tile activatingTile)
-    {
-        int interactRange = CurrentInteractable_InteractRange(activatingTile);
-        List<Tile> rangeTiles = GameManager.instance.tileManager.Distanced_Tiles(activatingTile, interactRange);
-
-        if (HeroContain_Check(rangeTiles) == false) return false;
-        if (CardsContain_Check(rangeTiles) == false) return false;
-        if (EnemiesContain_Check(rangeTiles) == false) return false;
-
         return true;
     }
 }

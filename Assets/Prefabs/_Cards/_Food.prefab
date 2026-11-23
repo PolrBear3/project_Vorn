@@ -99,4 +99,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _triggerConditions:
   - {fileID: 11400000, guid: 0f03857cdc50542e28c770ec88782844, type: 2}
+  _duplicateTargeting: 0
+  _includeCurrentTile: 0
+  _restrictFriendlyTargeting: 0
+  _restrictEnemyTargeting: 0
   _targetCards: []

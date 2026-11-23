@@ -38,13 +38,16 @@ public class CardSkill_TriggerData
 
 public abstract class CardSkill : MonoBehaviour
 {
-    [Space(10)]
+    [Space(20)]
     [SerializeField] private ActivateCondition_ScrObj[] _triggerConditions;
-    public ActivateCondition_ScrObj[] triggerConditions => _triggerConditions;
 
     [Space(10)]
     [SerializeField] private bool _duplicateTargeting;
     [SerializeField] private bool _includeCurrentTile;
+
+    [Space(10)]
+    [SerializeField] private bool _restrictFriendlyTargeting;
+    [SerializeField] private bool _restrictEnemyTargeting;
 
 
     private Card _card;
@@ -179,6 +182,20 @@ public abstract class CardSkill : MonoBehaviour
         return new();
     }
 
+
+    private bool TargetInteractable_Available(Tile tile)
+    {
+        if (tile == null) return false;
+
+        IInteractable interactable = tile.CurrentOccupant_Interactable();
+        if (interactable == null) return false;
+
+        if (_restrictFriendlyTargeting && (interactable is Card || interactable is Hero)) return false;
+        if (_restrictEnemyTargeting && interactable is Enemy) return false;
+
+        return true;
+    }
+
     public List<IInteractable> CurrentTarget_Interactables()
     {
         List<IInteractable> targetInteractables = new();
@@ -186,14 +203,14 @@ public abstract class CardSkill : MonoBehaviour
         List<Tile> interactRangeTiles = InteractRange_Tiles();
         for (int i = interactRangeTiles.Count - 1; i >= 0; i--)
         {
-            if (interactRangeTiles[i].CurrentOccupant_Interactable() != null) continue;
+            if (TargetInteractable_Available(interactRangeTiles[i])) continue;
             interactRangeTiles.RemoveAt(i);
         }
 
         List<Tile> currentTargetTiles = CurrentTarget_Tiles();
         for (int i = currentTargetTiles.Count - 1; i >= 0; i--)
         {
-            if (currentTargetTiles[i].CurrentOccupant_Interactable() != null) continue;
+            if (TargetInteractable_Available(currentTargetTiles[i])) continue;
             currentTargetTiles.RemoveAt(i);
         }
 
@@ -233,14 +250,14 @@ public abstract class CardSkill : MonoBehaviour
         List<Tile> interactRangeTiles = InteractRange_Tiles();
         for (int i = interactRangeTiles.Count - 1; i >= 0; i--)
         {
-            if (interactRangeTiles[i].CurrentOccupant_Interactable() != null) continue;
+            if (TargetInteractable_Available(interactRangeTiles[i])) continue;
             interactRangeTiles.RemoveAt(i);
         }
 
         List<Tile> currentTargetTiles = CurrentTarget_Tiles();
         for (int i = currentTargetTiles.Count - 1; i >= 0; i--)
         {
-            if (currentTargetTiles[i].CurrentOccupant_Interactable() != null) continue;
+            if (TargetInteractable_Available(currentTargetTiles[i])) continue;
             currentTargetTiles.RemoveAt(i);
         }
 
@@ -301,7 +318,6 @@ public abstract class CardSkill : MonoBehaviour
     public IEnumerator Run_SkillTrigger()
     {
         if (CustomData_Utility.AllConditions_ActivateAvailable(_card.placedTile, _triggerConditions) == false) yield break;
-
         yield return Trigger_Skill();
     }
     public abstract IEnumerator Trigger_Skill();

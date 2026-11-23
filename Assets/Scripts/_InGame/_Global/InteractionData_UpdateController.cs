@@ -16,6 +16,7 @@ public class InteractionData_UpdateController : MonoBehaviour
     private InteractionData _targetData;
     public InteractionData targetData => _targetData;
 
+
     private EventBus_Controller _healthUpdateActionBus = new();
     public EventBus_Controller healthUpdateActionBus => _healthUpdateActionBus;
 

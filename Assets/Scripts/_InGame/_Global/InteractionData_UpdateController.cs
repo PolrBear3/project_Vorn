@@ -26,10 +26,6 @@ public class InteractionData_UpdateController : MonoBehaviour
     public Action OnPreDeathActionDataUpdate;
 
 
-    private bool _healthHandleUpdateRunning;
-    public bool healthHandleUpdateRunning => _healthHandleUpdateRunning;
-
-
     // Data
     public void Set_Data(InteractionData targetData)
     {
@@ -61,8 +57,6 @@ public class InteractionData_UpdateController : MonoBehaviour
     // Health
     public IEnumerator Handle_HealthUpdate(int healthModifyValue)
     {
-        _healthHandleUpdateRunning = true;
-
         int currentHealth = _targetData.currentHealth;
 
         if (currentHealth <= 0 || healthModifyValue != 0)
@@ -75,11 +69,7 @@ public class InteractionData_UpdateController : MonoBehaviour
 
         yield return _healthUpdateActionBus.RunSequential_DelayBusEvents();
 
-        if (_targetData.currentHealth > 0)
-        {
-            _healthHandleUpdateRunning = false;
-            yield break;
-        }
+        if (_targetData.currentHealth > 0) yield break;
 
         Play_AnimatorState(OccupantAnimation.Remove);
 
@@ -89,11 +79,7 @@ public class InteractionData_UpdateController : MonoBehaviour
         OnPreDeathActionDataUpdate?.Invoke();
         yield return _deathUpdateActionBus.RunSequential_DelayBusEvents();
 
-        if (_preserveAfterDeath)
-        {
-            _healthHandleUpdateRunning = false;
-            yield break;
-        }
+        if (_preserveAfterDeath) yield break;
         Destroy(gameObject);
     }
 
@@ -101,10 +87,22 @@ public class InteractionData_UpdateController : MonoBehaviour
     // State
     private Animator_Controller Empty_StateUpdateAnimator()
     {
-        int currentStateCount = _targetData.states.Count;
-        if (currentStateCount >= _stateUpdateAnimators.Length) return null;
+        foreach (Animator_Controller animator in _stateUpdateAnimators)
+        {
+            bool occupied = false;
 
-        return _stateUpdateAnimators[currentStateCount];
+            foreach (InteractableState state in Enum.GetValues(typeof(InteractableState)))
+            {
+                if (animator.currentState != InteractableState_Animation.InteractableState_AnimationName(state, true)) continue;
+
+                occupied = true;
+                break;
+            }
+
+            if (occupied == false && animator.CurrentState_Playing() == false) return animator;
+        }
+
+        return null;
     }
     private Animator_Controller StateUpdated_Animator(InteractableState updatedState)
     {
@@ -121,7 +119,7 @@ public class InteractionData_UpdateController : MonoBehaviour
 
     public IEnumerator Handle_StateUpdate(InteractableState updatedState)
     {
-        bool stateAdded = _targetData.states.Contains(updatedState);
+        bool stateAdded = _targetData.Has_State(updatedState);
         Animator_Controller stateAnimator = StateUpdated_Animator(updatedState);
 
         if (stateAdded && stateAnimator != null) yield break;
@@ -142,6 +140,13 @@ public class InteractionData_UpdateController : MonoBehaviour
 
         foreach (InteractableState state in Enum.GetValues(typeof(InteractableState)))
         {
+            if (_targetData.Has_State(state)) continue;
+            yield return Handle_StateUpdate(state);
+        }
+
+        foreach (InteractableState state in Enum.GetValues(typeof(InteractableState)))
+        {
+            if (_targetData.Has_State(state) == false) continue;
             yield return Handle_StateUpdate(state);
         }
     }

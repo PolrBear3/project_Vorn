@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTimeAction
+public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
 {
     [Space(20)]
     [SerializeField] private TileMovement_Controller _movement;
@@ -33,9 +33,6 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
 
     private Tile _damagingTile;
     public Tile damagingTile => _damagingTile;
-
-    private RunTimeAction_Data _runTimeAction = new();
-    public RunTimeAction_Data runTimeActionData => _runTimeAction;
 
 
     private EventBus_Controller _preMovementSkillBus = new();
@@ -119,7 +116,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
         {
             Card card = closestCards[i];
 
-            if (card.data.currentData.states.Contains(InteractableState.Taunt) == false) continue;
+            if (card.data.currentData.Has_State(InteractableState.Taunt) == false) continue;
             return card.placedTile;
         }
         return null;
@@ -274,18 +271,15 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
     // End Turn
     private void Reset_ActionDatas()
     {
+        _damagingTile = null;
+
         _healthBar.Toggle_ValueBox(false);
         _modifyIndicator.gameObject.SetActive(false);
-
-        _runTimeAction.Toggle_RunAction(false);
     }
-
     public IEnumerator Run_EndTurnActions()
     {
         _healthBar.Toggle_ValueBox(true);
         _modifyIndicator.gameObject.SetActive(true);
-
-        _runTimeAction.Toggle_RunAction(true);
 
         // check death before action
         if (_data.currentData.currentHealth <= 0)
@@ -325,12 +319,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable, IRunTim
             yield return _afterDamageSkillBus.RunSequential_DelayBusEvents();
         }
 
-        _damagingTile = null;
-
-        _healthBar.Toggle_ValueBox(false);
-        _modifyIndicator.gameObject.SetActive(false);
-
-        _runTimeAction.Toggle_RunAction(false);
+        Reset_ActionDatas();
         yield break;
     }
 }

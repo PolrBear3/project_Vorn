@@ -28,9 +28,6 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
     private TileTargeting_Data _tileTargeting = new();
     public TileTargeting_Data tileTargeting => _tileTargeting;
 
-    private bool _actionsRunning;
-    public bool actionsRunning => _actionsRunning;
-
 
     // ITileTargeting
     public Tile pivotTile => _movement.currentTile;
@@ -64,9 +61,29 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
 
 
     // End Turn
+    private void Reset_ActionDatas()
+    {
+        _tileTargeting.targetingTiles.Clear();
+        _tileTargeting.recentTargetingTiles.Clear();
+
+        _data.Update_RecentMovementManaCost(0);
+
+        _healthBar.Toggle_ValueBox(false);
+        _actionClock.Toggle(false);
+    }
     public IEnumerator Run_EndTurnActions()
     {
-        _actionsRunning = true;
+        int currentTurnCount = GameManager.instance.stageManager.endTurnCount;
+        InteractionData currentHeroData = _data.currentData;
+
+        if (currentHeroData.Has_State(InteractableState.Frozen, out int addedTurnCount) && addedTurnCount < currentTurnCount)
+        {
+            currentHeroData.Remove_State(InteractableState.Frozen);
+            yield return _interactionDataUpdater.Handle_StateUpdate();
+
+            Reset_ActionDatas();
+            yield break;
+        }
 
         _healthBar.Toggle_ValueBox(true);
         _actionClock.Toggle(true);
@@ -88,14 +105,6 @@ public class Hero : MonoBehaviour, IInteractable, ITileTargeting
                 while (_movement.movementCoroutine != null) yield return null;
             }
         }
-
-        _tileTargeting.targetingTiles.Clear();
-        _tileTargeting.recentTargetingTiles.Clear();
-        _data.Update_RecentMovementManaCost(0);
-
-        _healthBar.Toggle_ValueBox(false);
-        _actionClock.Toggle(false);
-
-        _actionsRunning = false;
+        Reset_ActionDatas();
     }
 }

@@ -27,8 +27,14 @@ public class InteractionData
     [ES3Serializable] private List<int> _healthModifiedHistoryDatas = new();
 
 
-    [SerializeField][ES3Serializable] private List<InteractableState> _states = new();
-    public List<InteractableState> states => _states;
+    [SerializeField] private InteractableState[] _setStates;
+
+    // todo check all scripts including this for this state data update implementation
+    /// <summary>
+    /// added state & end turn count
+    /// </summary>
+    [ES3Serializable] private Dictionary<InteractableState, int> _stateDatas = new();
+    public Dictionary<InteractableState, int> stateDatas => _stateDatas;
 
 
     [Space(10)]
@@ -71,7 +77,12 @@ public class InteractionData
         _currentHealth = _maxHealth;
         _healthModifiedHistoryDatas = new(newData._healthModifiedHistoryDatas);
 
-        _states = new(newData.states);
+        _setStates = newData._setStates;
+
+        for (int i = 0; i < _setStates.Length; i++)
+        {
+            Add_State(_setStates[i]);
+        }
 
         _healthModifyValue = newData._healthModifyValue;
         _healthModifyHistoryDatas = new(newData._healthModifyHistoryDatas);
@@ -176,9 +187,15 @@ public class InteractionData
     /// </returns>
     public bool Add_State(InteractableState stateToUpdate)
     {
-        if (_states.Contains(stateToUpdate)) return false;
+        int endTurnCount = GameManager.instance.stageManager.endTurnCount;
 
-        _states.Add(stateToUpdate);
+        if (_stateDatas.ContainsKey(stateToUpdate))
+        {
+            _stateDatas[stateToUpdate] = endTurnCount;
+            return false;
+        }
+
+        _stateDatas.Add(stateToUpdate, endTurnCount);
         OnStateUpdate?.Invoke(stateToUpdate);
 
         return true;
@@ -188,11 +205,24 @@ public class InteractionData
     /// </returns>
     public bool Remove_State(InteractableState stateToRemove)
     {
-        if (_states.Contains(stateToRemove) == false) return false;
+        if (_stateDatas.ContainsKey(stateToRemove) == false) return false;
 
-        _states.Remove(stateToRemove);
+        _stateDatas.Remove(stateToRemove);
         OnStateUpdate?.Invoke(stateToRemove);
 
+        return true;
+    }
+
+    public bool Has_State(InteractableState stateToSearch)
+    {
+        return _stateDatas.ContainsKey(stateToSearch);
+    }
+    public bool Has_State(InteractableState stateToSearch, out int addedTurnCount)
+    {
+        addedTurnCount = 0;
+        if (Has_State(stateToSearch) == false) return false;
+
+        addedTurnCount = _stateDatas[stateToSearch];
         return true;
     }
 }

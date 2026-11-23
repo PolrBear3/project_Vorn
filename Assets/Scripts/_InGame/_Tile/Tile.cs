@@ -58,20 +58,12 @@ public class Tile : MonoBehaviour
         _currentOccupant = occupantObject;
         return true;
     }
-
     public IInteractable CurrentOccupant_Interactable()
     {
         if (_currentOccupant == null) return null;
         if (_currentOccupant.TryGetComponent(out IInteractable interactable)) return interactable;
 
         return _currentOccupant.GetComponentInChildren<IInteractable>();
-    }
-    public IRunTimeAction CurrentOccupant_RunTimeAction()
-    {
-        if (_currentOccupant == null) return null;
-        if (_currentOccupant.TryGetComponent(out IRunTimeAction runTimeAction)) return runTimeAction;
-
-        return _currentOccupant.GetComponentInChildren<IRunTimeAction>();
     }
 
 

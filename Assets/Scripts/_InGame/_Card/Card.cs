@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IInteractable, IRunTimeAction
+public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IInteractable
 {
     [Space(20)]
     [SerializeField] private SpriteRenderer _baseSpriteRenderer;
@@ -37,8 +37,8 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     private TileTargeting_Data _tileTargeting = new();
     public TileTargeting_Data tileTargeting => _tileTargeting;
 
-    private RunTimeAction_Data _runTimeAction = new();
-    public RunTimeAction_Data runTimeActionData => _runTimeAction;
+    private Tile _actionTargetingTile;
+    public Tile actionTargetingTile => _actionTargetingTile;
 
 
     private EventBus_Controller _placeUpdateActionBus = new();
@@ -193,8 +193,8 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     private void Reset_ActionDatas()
     {
         _tileTargeting.targetingTiles.Clear();
+        _actionTargetingTile = null;
 
-        _runTimeAction.Toggle_RunAction(false);
         _modifyIndicator.Toggle_ValueBox(false);
     }
 
@@ -210,7 +210,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
             Tile tile = targetingTiles[i];
             if (CustomData_Utility.AllConditions_ActivateAvailable(tile, _tileTargetingConditions) == false) continue;
 
-            _runTimeAction.Update_TargetingTile(tile);
+            _actionTargetingTile = tile;
 
             yield return _preTargetingSkillBus.RunSequential_DelayBusEvents();
 
@@ -235,21 +235,24 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     }
     public IEnumerator Run_EndTurnActions()
     {
-        if (_data.currentData.Remove_State(InteractableState.Frozen))
+        InteractionData currentCardData = _data.currentData;
+
+        // check death before action
+        if (currentCardData.currentHealth <= 0)
         {
             yield return _interactionDataUpdater.Handle_StateUpdate();
+            yield return _interactionDataUpdater.Handle_HealthUpdate(0);
 
             Reset_ActionDatas();
             yield break;
         }
 
-        // check death before action
-        if (_data.currentData.currentHealth <= 0)
-        {
-            _runTimeAction.Toggle_RunAction(true);
+        int currentTurnCount = GameManager.instance.stageManager.endTurnCount;
 
+        if (currentCardData.Has_State(InteractableState.Frozen, out int addedTurnCount) && addedTurnCount < currentTurnCount)
+        {
+            currentCardData.Remove_State(InteractableState.Frozen);
             yield return _interactionDataUpdater.Handle_StateUpdate();
-            yield return _interactionDataUpdater.Handle_HealthUpdate(0);
 
             Reset_ActionDatas();
             yield break;
@@ -260,8 +263,6 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
             Reset_ActionDatas();
             yield break;
         }
-
-        _runTimeAction.Toggle_RunAction(true);
 
         yield return _preUpdateSkillBus.RunSequential_DelayBusEvents();
         yield return Run_TileTargeting_HealthModify();

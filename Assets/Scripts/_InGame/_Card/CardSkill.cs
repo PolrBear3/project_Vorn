@@ -87,7 +87,7 @@ public abstract class CardSkill : MonoBehaviour
 
             case CardSkillTarget.TargetingTile:
 
-                Tile targetingTile = _card.runTimeActionData.targetingTile;
+                Tile targetingTile = _card.actionTargetingTile;
                 if (targetingTile == null) return targetTiles;
 
                 targetTiles.Add(targetingTile);

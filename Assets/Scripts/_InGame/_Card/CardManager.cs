@@ -174,7 +174,7 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
 
         for (int i = placedCards.Count - 1; i >= 0; i--)
         {
-            if (placedCards[i].data.currentData.states.Contains(targetAbility)) continue;
+            if (placedCards[i].data.currentData.Has_State(targetAbility)) continue;
             placedCards.RemoveAt(i);
         }
         return placedCards;
@@ -198,7 +198,7 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
 
         for (int i = placedCards.Count - 1; i >= 0; i--)
         {
-            if (placedCards[i].data.currentData.states.Contains(targetAbility)) continue;
+            if (placedCards[i].data.currentData.Has_State(targetAbility)) continue;
             placedCards.RemoveAt(i);
         }
         return placedCards;
@@ -323,6 +323,28 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
     }
 
 
+    // Tile Targeting
+    private void Toggle_TileTargeting()
+    {
+        GameManager manager = GameManager.instance;
+
+        Tile selectedTile = manager.tileManager.hoveringTile;
+        if (selectedTile == null) return;
+
+        Card selectedCard = PlacedCard(selectedTile);
+
+        if (selectedCard == null) return;
+        if (selectedCard.data.currentData.Has_State(InteractableState.Frozen)) return;
+
+        bool toggled = manager.tileManager.tileTargeting.Toggle_Targeting(selectedCard);
+        if (toggled == false) return;
+
+        // Most recently toggled cards act first
+        _placedCards.Remove(selectedCard);
+        _placedCards.Insert(0, selectedCard);
+    }
+
+
     // Actions
     public bool CardPlace_ActionRunning()
     {
@@ -347,38 +369,14 @@ public class CardManager : MonoBehaviour, ISubscriptionHandler
             for (int i = 0; i < runActionCards.Count; i++)
             {
                 Card card = runActionCards[i];
-
                 if (card == null || _placedCards.Contains(card) == false) continue;
                 if (actionStartedCards.Add(card) == false) continue;
 
                 allActionsComplete = false;
 
-                StartCoroutine(card.Run_EndTurnActions());
-                while (card != null && (card.runTimeActionData.actionRunning || card.interactionDataUpdater.healthHandleUpdateRunning)) yield return null;
+                yield return card.Run_EndTurnActions();
             }
             if (allActionsComplete) yield break;
         }
-    }
-
-
-    // Tile Targeting
-    private void Toggle_TileTargeting()
-    {
-        GameManager manager = GameManager.instance;
-
-        Tile selectedTile = manager.tileManager.hoveringTile;
-        if (selectedTile == null) return;
-
-        Card selectedCard = PlacedCard(selectedTile);
-
-        if (selectedCard == null) return;
-        if (selectedCard.data.currentData.states.Contains(InteractableState.Frozen)) return;
-
-        bool toggled = manager.tileManager.tileTargeting.Toggle_Targeting(selectedCard);
-        if (toggled == false) return;
-
-        // card actions run in targeting completed order
-        _placedCards.Remove(selectedCard);
-        _placedCards.Add(selectedCard);
     }
 }

@@ -14,6 +14,9 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     [SerializeField] private Component_ToggleController[] _battleStageComponentToggles;
 
 
+    private int _endTurnCount;
+    public int endTurnCount => _endTurnCount;
+
     private EventBus_Controller _setStageEventBus = new();
     public EventBus_Controller setStageEventBus => _setStageEventBus;
 
@@ -196,6 +199,8 @@ public class StageManager : MonoBehaviour, ISubscriptionHandler
     }
     private IEnumerator Run_ContinueEvents()
     {
+        _endTurnCount++;
+
         _endTurnEventBus.RunSequential_BusEvents();
         StartCoroutine(_endTurnEventBus.RunSequential_DelayBusEvents());
 

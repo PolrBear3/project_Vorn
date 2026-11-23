@@ -266,10 +266,12 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
     private void Toggle_TileMovementTargeting()
     {
         GameManager manager = GameManager.instance;
-        Tile selectedTile = manager.tileManager.hoveringTile;
 
+        Tile selectedTile = manager.tileManager.hoveringTile;
         if (selectedTile == null) return;
+
         if (_spawnedHero == null || _spawnedHero.movement.currentTile != selectedTile) return;
+        if (_spawnedHero.data.currentData.Has_State(InteractableState.Frozen)) return;
 
         if (manager.tileManager.tileTargeting.Toggle_Targeting(_spawnedHero) == false) return;
 
@@ -437,11 +439,7 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
     private IEnumerator Run_HeroActions()
     {
         if (_spawnedHero == null || _spawnedHero.data.currentData.currentHealth <= 0) yield break;
-
-        StartCoroutine(_spawnedHero.Run_EndTurnActions());
-        while (_spawnedHero.actionsRunning) yield return null;
-
-        yield break;
+        yield return _spawnedHero.Run_EndTurnActions();
     }
     private IEnumerator Refill_CurrentManaCount()
     {

@@ -209,7 +209,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
         for (int i = 0; i < targetingTiles.Count; i++)
         {
             Tile tile = targetingTiles[i];
-            if (CustomData_Utility.AllConditions_ActivateAvailable(tile, _eachTargetingTileConditions) == false) continue;
+            if (CustomData_Utility.Conditions_ActivateAvailable(tile, _eachTargetingTileConditions) == false) continue;
 
             _actionTargetingTile = tile;
 
@@ -227,7 +227,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
 
                 _modifyIndicator.Toggle_ValueBox(modifiedValue != 0);
 
-                yield return targetInteractableController.Handle_StateUpdate();
+                yield return targetInteractableController.Handle_StateUpdate(); // for shield remove animation
                 yield return targetInteractableController.Handle_HealthUpdate(modifiedValue);
             }
 
@@ -259,7 +259,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
             yield break;
         }
 
-        if (CustomData_Utility.AllConditions_ActivateAvailable(_placedTile, _currentTileConditions) == false)
+        if (CustomData_Utility.Conditions_ActivateAvailable(_placedTile, _currentTileConditions) == false)
         {
             Reset_ActionDatas();
             yield break;

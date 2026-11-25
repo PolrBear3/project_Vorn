@@ -29,7 +29,6 @@ public class InteractionData
 
     [SerializeField] private InteractableState[] _setStates;
 
-    // todo check all scripts including this for this state data update implementation
     /// <summary>
     /// added state & end turn count
     /// </summary>

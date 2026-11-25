@@ -35,6 +35,9 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
     public Tile damagingTile => _damagingTile;
 
 
+    private EventBus_Controller _spawnSkillBus = new();
+    public EventBus_Controller spawnSkillBus => _spawnSkillBus;
+
     private EventBus_Controller _preMovementSkillBus = new();
     public EventBus_Controller preMovementSkillBus => _preMovementSkillBus;
 
@@ -65,6 +68,8 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
     public void Subscribe_All()
     {
         _data.currentData.OnHealthUpdate += _healthBar.Update_Fill;
+        _spawnSkillBus.Register(0, _interactionDataUpdater.Handle_StateUpdate);
+
         _interactionDataUpdater.OnPreDeathActionDataUpdate += Remove_Data;
     }
 
@@ -73,6 +78,8 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
         UnRegister_SkillDatas();
 
         _data.currentData.OnHealthUpdate += _healthBar.Update_Fill;
+        _spawnSkillBus.UnRegister(_interactionDataUpdater.Handle_StateUpdate);
+
         _interactionDataUpdater.OnPreDeathActionDataUpdate -= Remove_Data;
     }
 
@@ -217,6 +224,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
     {
         switch (trigger)
         {
+            case EnemySkillTrigger.Spawn: return _preMovementSkillBus;
             case EnemySkillTrigger.PreMovement: return _preMovementSkillBus;
             case EnemySkillTrigger.AfterMovement: return _afterMovementSkillBus;
             case EnemySkillTrigger.PreDamaging: return _preDamageSkillBus;
@@ -281,8 +289,11 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
         _healthBar.Toggle_ValueBox(true);
         _modifyIndicator.gameObject.SetActive(true);
 
+        InteractionData enemyInteractionData = _data.currentData;
+
+
         // check death before action
-        if (_data.currentData.currentHealth <= 0)
+        if (enemyInteractionData.currentHealth <= 0)
         {
             yield return _interactionDataUpdater.Handle_StateUpdate();
             yield return _interactionDataUpdater.Handle_HealthUpdate(0);
@@ -290,6 +301,23 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
             Reset_ActionDatas();
             yield break;
         }
+
+
+        // frozen state update
+        int currentTurnCount = GameManager.instance.stageManager.endTurnCount;
+
+        if (enemyInteractionData.Has_State(InteractableState.Frozen, out int addedTurnCount))
+        {
+            if (currentTurnCount <= 1 || addedTurnCount >= currentTurnCount)
+            {
+                Reset_ActionDatas();
+                yield break;
+            }
+
+            enemyInteractionData.Remove_State(InteractableState.Frozen);
+            yield return _interactionDataUpdater.Handle_StateUpdate();
+        }
+
 
         // movement
         yield return _preMovementSkillBus.RunSequential_DelayBusEvents();
@@ -313,11 +341,12 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
 
             InteractionData_UpdateController damageTargetController = damageTarget.interactionDataUpdater;
 
-            yield return damageTargetController.Handle_StateUpdate();
+            yield return damageTargetController.Handle_StateUpdate();  // for shield remove animation
             yield return damageTargetController.Handle_HealthUpdate(damageValue);
 
             yield return _afterDamageSkillBus.RunSequential_DelayBusEvents();
         }
+
 
         Reset_ActionDatas();
         yield break;

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public enum EnemySkillTrigger
 {
+    Spawn,
     PreMovement,
     AfterMovement,
     PreDamaging,
@@ -188,7 +189,7 @@ public abstract class EnemySkill : MonoBehaviour
 
         for (int i = 0; i < repeatCount; i++)
         {
-            if (CustomData_Utility.AllConditions_ActivateAvailable(_enemy.movement.currentTile, _triggerConditions) == false) yield break;
+            if (CustomData_Utility.Conditions_ActivateAvailable(_enemy.movement.currentTile, _triggerConditions) == false) yield break;
             yield return Trigger_Skill();
         }
     }

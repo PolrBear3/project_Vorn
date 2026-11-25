@@ -58,7 +58,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _skillDatas.Array.data[0]._trigger
-      value: 4
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _skillDatas.Array.data[0]._cardSkills.Array.size
@@ -102,7 +102,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _currentTileConditions:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: d544867cf6a3b46b38cf828d0e4dcdf1, type: 2}
   _candidateTargetTileConditions: []
   _includeCurrentTile: 1
   _duplicateTargeting: 0

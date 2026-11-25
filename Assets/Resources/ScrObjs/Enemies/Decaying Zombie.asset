@@ -19,7 +19,7 @@ MonoBehaviour:
   _spawnOffset: {x: 0, y: 0.625}
   _interactionData:
     _maxHealth: 2
-    _states: 
+    _setStates: 
     _healthModifyValue: -1
     _interactRange: 1
     _targetSelectCount: 0

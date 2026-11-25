@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "New ScriptableObject/New Activate Condition/Health Updated Success")]
+[CreateAssetMenu(menuName = "New ScriptableObject/New Activate Condition/Health Modified Success Count")]
 public class HealthModified_SuccessCount : ActivateCondition_ScrObj
 {
     [Space(20)]

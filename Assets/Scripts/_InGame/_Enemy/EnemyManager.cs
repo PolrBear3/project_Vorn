@@ -94,10 +94,6 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         }
         return null;
     }
-    public List<Enemy> Spawned_Enemies()
-    {
-        return null;
-    }
 
     public bool StageEnemies_NotCleared()
     {
@@ -141,6 +137,8 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
 
         yield return null;
         while (enemy.animator.CurrentState_Playing()) yield return null;
+
+        yield return enemy.spawnSkillBus.RunSequential_DelayBusEvents();
     }
 
     private IEnumerator Sequential_DelaySpawn(Enemy_SpawnData spawnData)
@@ -283,6 +281,7 @@ public class EnemyManager : MonoBehaviour, ISubscriptionHandler
         if (currentHero != null && currentHero.data.currentData.currentHealth <= 0) yield break;
 
         List<Enemy> actionEnemies = new(_spawnedEnemies);
+
         for (int i = actionEnemies.Count - 1; i >= 0; i--)
         {
             Enemy enemy = actionEnemies[i];

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "New ScriptableObject/New Activate Condition/Interact Range Contains Target")]
-public class InteractRange_ContainsTarget : ActivateCondition_ScrObj
+public class Interactable_inRange : ActivateCondition_ScrObj
 {
     [Space(20)]
     [SerializeField] private bool _containHero;

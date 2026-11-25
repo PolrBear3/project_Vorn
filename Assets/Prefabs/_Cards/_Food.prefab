@@ -67,7 +67,11 @@ PrefabInstance:
     - target: {fileID: 4373037325833083918, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: _skillDatas.Array.data[0]._cardSkills.Array.data[0]
       value: 
-      objectReference: {fileID: -2725206963072578643}
+      objectReference: {fileID: 751511234116676946}
+    - target: {fileID: 5232107891757779490, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
+      propertyPath: m_Name
+      value: Remove After Eat
+      objectReference: {fileID: 0}
     - target: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       propertyPath: m_Name
       value: _Food
@@ -78,14 +82,14 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -2725206963072578643}
+      addedObject: {fileID: 751511234116676946}
   m_SourcePrefab: {fileID: 100100000, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
 --- !u!1 &3364261658592184413 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5745818195482502680, guid: cae35370ec70f430d831db32732cc2b6, type: 3}
   m_PrefabInstance: {fileID: 6993383319726419525}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &-2725206963072578643
+--- !u!114 &751511234116676946
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -97,11 +101,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 933ebb576dcc043a2835b16736223f24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _triggerConditions:
-  - {fileID: 11400000, guid: 0f03857cdc50542e28c770ec88782844, type: 2}
-  _targetingFilters: []
-  _duplicateTargeting: 0
+  _currentTileConditions:
+  - {fileID: 0}
+  _candidateTargetTileConditions: []
   _includeCurrentTile: 1
-  _restrictFriendlyTargeting: 0
-  _restrictEnemyTargeting: 0
+  _duplicateTargeting: 0
   _targetCards: []

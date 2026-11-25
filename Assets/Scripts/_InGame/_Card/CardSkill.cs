@@ -39,8 +39,12 @@ public class CardSkill_TriggerData
 public abstract class CardSkill : MonoBehaviour
 {
     [Space(20)]
-    [SerializeField] private ActivateCondition_ScrObj[] _triggerConditions;
-    [SerializeField] private ActivateCondition_ScrObj[] _targetingFilters;
+    [SerializeReference]
+    [Tooltip("Condition for triggering the skill.")]
+    [SerializeField] private ActivateCondition_ScrObj[] _currentTileConditions;
+    [SerializeReference]
+    [Tooltip("Condition for filtering skill trigger tiles.")]
+    [SerializeField] private ActivateCondition_ScrObj[] _candidateTargetTileConditions;
 
     [Space(20)]
     [SerializeField] private bool _includeCurrentTile;
@@ -187,7 +191,7 @@ public abstract class CardSkill : MonoBehaviour
         IInteractable interactable = tile.CurrentOccupant_Interactable();
 
         if (interactable == null) return false;
-        if (CustomData_Utility.AllConditions_ActivateAvailable(tile, _targetingFilters) == false) return false;
+        if (CustomData_Utility.AllConditions_ActivateAvailable(tile, _candidateTargetTileConditions) == false) return false;
 
         return true;
     }
@@ -313,7 +317,7 @@ public abstract class CardSkill : MonoBehaviour
 
     public IEnumerator Run_SkillTrigger()
     {
-        if (CustomData_Utility.AllConditions_ActivateAvailable(_card.placedTile, _triggerConditions) == false) yield break;
+        if (CustomData_Utility.AllConditions_ActivateAvailable(_card.placedTile, _currentTileConditions) == false) yield break;
         yield return Trigger_Skill();
     }
     public abstract IEnumerator Trigger_Skill();

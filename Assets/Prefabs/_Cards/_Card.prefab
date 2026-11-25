@@ -428,9 +428,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _baseSpriteRenderer: {fileID: 2336701234444246454}
   _contentSpriteRenderer: {fileID: 2496871960968193111}
-  _modifyIndicator: {fileID: 5384801785166209642}
   _interactionDataUpdater: {fileID: 1441753937466206074}
-  _targetingConditions: []
+  _modifyIndicator: {fileID: 5384801785166209642}
+  _runActionConditions: []
+  _tileTargetingConditions: []
+  _currentTileConditions: []
+  _eachTargetingTileConditions: []
   _skillDatas: []
 --- !u!1 &6331263511724789781
 GameObject:

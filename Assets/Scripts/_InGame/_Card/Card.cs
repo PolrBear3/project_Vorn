@@ -9,17 +9,18 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     [SerializeField] private SpriteRenderer _baseSpriteRenderer;
     [SerializeField] private SpriteRenderer _contentSpriteRenderer;
 
-    [Space(10)]
-    [SerializeField] private HealthModify_Indicator _modifyIndicator;
-    public HealthModify_Indicator modifyIndicator => _modifyIndicator;
-
     [Space(20)]
     [SerializeField] private InteractionData_UpdateController _interactionDataUpdater;
     public InteractionData_UpdateController interactionDataUpdater => _interactionDataUpdater;
 
+    [SerializeField] private HealthModify_Indicator _modifyIndicator;
+    public HealthModify_Indicator modifyIndicator => _modifyIndicator;
+
     [Space(20)]
-    [SerializeField] private ActivateCondition_ScrObj[] _runActionConditions;
-    [SerializeField] private ActivateCondition_ScrObj[] _tileTargetingConditions;
+    [Tooltip("Condition for starting the action.")]
+    [SerializeField] private ActivateCondition_ScrObj[] _currentTileConditions;
+    [Tooltip("Condition for target selected tiles.")]
+    [SerializeField] private ActivateCondition_ScrObj[] _eachTargetingTileConditions;
 
     [Space(20)]
     [SerializeField] private CardSkill_TriggerData[] _skillDatas;
@@ -208,7 +209,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
         for (int i = 0; i < targetingTiles.Count; i++)
         {
             Tile tile = targetingTiles[i];
-            if (CustomData_Utility.AllConditions_ActivateAvailable(tile, _tileTargetingConditions) == false) continue;
+            if (CustomData_Utility.AllConditions_ActivateAvailable(tile, _eachTargetingTileConditions) == false) continue;
 
             _actionTargetingTile = tile;
 
@@ -258,7 +259,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
             yield break;
         }
 
-        if (CustomData_Utility.AllConditions_ActivateAvailable(_placedTile, _runActionConditions) == false)
+        if (CustomData_Utility.AllConditions_ActivateAvailable(_placedTile, _currentTileConditions) == false)
         {
             Reset_ActionDatas();
             yield break;

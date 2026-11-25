@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "New ScriptableObject/New Activate Condition/Health Modify Success Target Count")]
-public class HealthModifySuccess_TargetCount : ActivateCondition_ScrObj
+public class HealthModify_SuccessCount : ActivateCondition_ScrObj
 {
     [Space(20)]
     [SerializeField][Range(0, 100)] private int _successCount;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "New ScriptableObject/New Activate Condition/Interactable Type")]
-public class InteractableType_Condition : ActivateCondition_ScrObj
+public class Allow_InteractableType : ActivateCondition_ScrObj
 {
     [Space(20)]
     [SerializeField] private bool _allowFriendly;

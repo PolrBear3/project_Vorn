@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fba5bb81bb36470ba9199f8fe74e2e2, type: 3}
+  m_Name: Food in Range
+  m_EditorClassIdentifier: 
+  _containHero: 0
+  _containCards:
+  - {fileID: 11400000, guid: 32de44626aad44d65a1e78d3bbd6da60, type: 2}
+  - {fileID: 11400000, guid: 39522a68d8fff406cb68f0285b22564b, type: 2}
+  _containEnemies: []

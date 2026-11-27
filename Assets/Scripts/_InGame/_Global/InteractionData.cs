@@ -18,6 +18,12 @@ public interface IInteractable
 [System.Serializable]
 public class InteractionData
 {
+    // End Turn Count
+    [ES3Serializable] private int _turnCount;
+    public int turnCount => _turnCount;
+
+
+    // Health
     [SerializeField][ES3Serializable][Range(0, 100)] private int _maxHealth;
     public int maxHealth => _maxHealth;
 
@@ -27,6 +33,7 @@ public class InteractionData
     [ES3Serializable] private List<int> _healthModifiedHistoryDatas = new();
 
 
+    // States
     [SerializeField] private InteractableState[] _setStates;
 
     /// <summary>
@@ -36,6 +43,7 @@ public class InteractionData
     public Dictionary<InteractableState, int> stateDatas => _stateDatas;
 
 
+    // Health Modify
     [Space(10)]
     [SerializeField][ES3Serializable][Range(-100, 100)] private int _healthModifyValue;
     public int healthModifyValue => _healthModifyValue;
@@ -44,6 +52,7 @@ public class InteractionData
     public List<int> healthModifyHistoryDatas => _healthModifyHistoryDatas;
 
 
+    // Interaction
     [Space(10)]
     [SerializeField][ES3Serializable][Range(0, 10)] private int _interactRange;
     public int interactRange => _interactRange;
@@ -72,8 +81,11 @@ public class InteractionData
     // New
     public InteractionData(InteractionData newData)
     {
+        _turnCount = newData._turnCount;
+
         _maxHealth = newData._maxHealth;
         _currentHealth = _maxHealth;
+
         _healthModifiedHistoryDatas = new(newData._healthModifiedHistoryDatas);
 
         _setStates = newData._setStates;
@@ -102,6 +114,12 @@ public class InteractionData
             { "targetSelectCount", _targetSelectCount }
         };
         return datas;
+    }
+
+
+    public void Track_TurnCount()
+    {
+        _turnCount++;
     }
 
 

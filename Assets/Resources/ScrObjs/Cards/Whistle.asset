@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ab6d7b62706f44cf85f91250d6d2ee0, type: 3}
+  m_Name: Whistle
+  m_EditorClassIdentifier: 
+  _cardName: Whistle
+  _cardDescription: Taunt gets removed next turn.
+  _contentSprite: {fileID: -2085386432, guid: 9c318aef96e4541adb575bbae3e2530f, type: 3}
+  _placePrefab: {fileID: 5872119147447841748, guid: 3ba263455eacf4b97a0da3fcc24800a8, type: 3}
+  _interactionData:
+    _maxHealth: 1
+    _setStates: 00000000
+    _healthModifyValue: 0
+    _interactRange: 0
+    _targetSelectCount: 0
+  _drawPrioritized: 0
+  _manaCost: 1

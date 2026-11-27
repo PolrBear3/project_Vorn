@@ -112,9 +112,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 933ebb576dcc043a2835b16736223f24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _triggerConditions: []
-  _duplicateTargeting: 0
+  _configurationData:
+    _maxActivationCount: 0
+    _activationDelayTurnCount: 0
+    _includeCurrentTile: 1
+    _duplicateTargeting: 0
+  _currentTileConditions: []
+  _candidateTargetTileConditions: []
   _includeCurrentTile: 1
+  _duplicateTargeting: 0
   _targetCards:
   - {fileID: 11400000, guid: 985b99e3b79f84187bcb119b55878706, type: 2}
   - {fileID: 11400000, guid: 3315c924a82ca49358b3067216bbf7d7, type: 2}
@@ -130,6 +136,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec362369e9fee4048a96235849abe1d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _triggerConditions: []
-  _duplicateTargeting: 0
+  _configurationData:
+    _maxActivationCount: 0
+    _activationDelayTurnCount: 0
+    _includeCurrentTile: 1
+    _duplicateTargeting: 0
+  _currentTileConditions: []
+  _candidateTargetTileConditions: []
   _includeCurrentTile: 1
+  _duplicateTargeting: 0

@@ -16,9 +16,11 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     [SerializeField] private HealthModify_Indicator _modifyIndicator;
     public HealthModify_Indicator modifyIndicator => _modifyIndicator;
 
+
     [Space(20)]
     [Tooltip("Condition for starting the action.")]
     [SerializeField] private ActivateCondition_ScrObj[] _currentTileConditions;
+
     [Tooltip("Condition for target selected tiles.")]
     [SerializeField] private ActivateCondition_ScrObj[] _eachTargetingTileConditions;
 
@@ -28,9 +30,6 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
 
     private CardData _data;
     public CardData data => _data;
-
-    public Action OnSetData;
-
 
     private Tile _placedTile;
     public Tile placedTile => _placedTile;
@@ -88,6 +87,8 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
     {
         _placeUpdateActionBus.Register(0, _interactionDataUpdater.Handle_StateUpdate);
         _interactionDataUpdater.OnPreDeathActionDataUpdate += Remove_Data;
+
+        GameManager.instance.stageManager.endTurnEventBus.Register(0, _data.currentData.Track_TurnCount);
     }
 
     public void UnSubscribe_All()
@@ -96,6 +97,8 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
 
         _placeUpdateActionBus.UnRegister(_interactionDataUpdater.Handle_StateUpdate);
         _interactionDataUpdater.OnPreDeathActionDataUpdate -= Remove_Data;
+
+        GameManager.instance.stageManager.endTurnEventBus.UnRegister(_data.currentData.Track_TurnCount);
     }
 
 
@@ -116,8 +119,6 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
 
         Subscribe_All();
         Register_SkillDatas();
-
-        OnSetData?.Invoke();
 
         _modifyIndicator.Update_ModifyValue(_data.currentData.healthModifyValue);
         _modifyIndicator.Toggle_ValueBox(false);
@@ -164,7 +165,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
                 CardSkill skill = triggerSkills[j];
                 if (skill == null) continue;
 
-                triggerBus.Register(j, skill.Run_SkillTrigger);
+                triggerBus.Register(j, skill.Trigger_Skill);
                 skill.Set_Data(this, data.trigger, data.target);
             }
         }
@@ -184,7 +185,7 @@ public class Card : MonoBehaviour, ISubscriptionHandler, ITileTargeting, IIntera
                 CardSkill skill = triggerSkills[j];
                 if (skill == null) continue;
 
-                triggerBus.UnRegister(skill.Run_SkillTrigger);
+                triggerBus.UnRegister(skill.Trigger_Skill);
             }
         }
     }

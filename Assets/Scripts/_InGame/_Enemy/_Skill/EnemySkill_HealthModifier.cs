@@ -95,7 +95,7 @@ public class EnemySkill_HealthModifier : EnemySkill
 
 
     // EnemySkill
-    public override IEnumerator Trigger_Skill()
+    public override IEnumerator Activate_Skill()
     {
         InteractionData currentCardData = enemy.data.currentData;
         List<IInteractable> targetInteractables = Target_Interactables();

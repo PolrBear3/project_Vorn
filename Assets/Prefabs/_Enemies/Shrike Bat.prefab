@@ -17,6 +17,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 955546610830207206, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
+      propertyPath: _targetTileConditions.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 955546610830207206, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
       propertyPath: _skillDatas.Array.data[0]._target
       value: 0
       objectReference: {fileID: 0}
@@ -24,6 +28,10 @@ PrefabInstance:
       propertyPath: _skillDatas.Array.data[0]._trigger
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 955546610830207206, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
+      propertyPath: _targetTileConditions.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 9aa13f2de669e4833b1af9eb68a8fb60, type: 2}
     - target: {fileID: 955546610830207206, guid: b5539ac9bf8d24baabecdc4848927d01, type: 3}
       propertyPath: _skillDatas.Array.data[0]._enemySkills.Array.size
       value: 1
@@ -132,6 +140,7 @@ MonoBehaviour:
   _triggerCoolTime: 0
   _triggerRepeatCount: 0
   _triggerConditions: []
+  _candidateTargetTileConditions: []
   _spawnCount: 1
   _spawnCards:
   - {fileID: 11400000, guid: 32de44626aad44d65a1e78d3bbd6da60, type: 2}

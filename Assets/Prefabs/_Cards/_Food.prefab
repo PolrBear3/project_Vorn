@@ -101,6 +101,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 933ebb576dcc043a2835b16736223f24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _configurationData:
+    _maxActivationCount: 0
+    _activationDelayTurnCount: 0
+    _includeCurrentTile: 1
+    _duplicateTargeting: 0
   _currentTileConditions:
   - {fileID: 11400000, guid: d544867cf6a3b46b38cf828d0e4dcdf1, type: 2}
   _candidateTargetTileConditions: []

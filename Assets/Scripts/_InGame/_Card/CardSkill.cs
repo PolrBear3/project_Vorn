@@ -36,23 +36,35 @@ public class CardSkill_TriggerData
     public CardSkill[] cardSkills => _cardSkills;
 }
 
+[System.Serializable]
+public class CardSkill_ConfigurationData : Skill_ConfigurationData
+{
+    [Space(10)]
+    [SerializeField] private bool _includeCurrentTile;
+    public bool includeCurrentTile => _includeCurrentTile;
+
+    [SerializeField] private bool _duplicateTargeting;
+    public bool duplicateTargeting => _duplicateTargeting;
+}
+
 public abstract class CardSkill : MonoBehaviour
 {
-    [Space(20)]
-    [SerializeReference]
-    [Tooltip("Condition for triggering the skill.")]
-    [SerializeField] private ActivateCondition_ScrObj[] _currentTileConditions;
-    [SerializeReference]
-    [Tooltip("Condition for filtering skill trigger tiles.")]
-    [SerializeField] private ActivateCondition_ScrObj[] _candidateTargetTileConditions;
+    [Space(10)]
+    [SerializeField] private CardSkill_ConfigurationData _configurationData;
 
     [Space(20)]
-    [SerializeField] private bool _includeCurrentTile;
-    [SerializeField] private bool _duplicateTargeting;
+    [Tooltip("Condition for triggering the skill.")]
+    [SerializeField] private ActivateCondition_ScrObj[] _currentTileConditions;
+
+    [Tooltip("Condition for filtering skill trigger tiles.")]
+    [SerializeField] private ActivateCondition_ScrObj[] _candidateTargetTileConditions;
 
 
     private Card _card;
     public Card card => _card;
+
+    private CardSkill_RunTimeData _runTimeData = new();
+    public CardSkill_RunTimeData runTimeData => _runTimeData;
 
     private CardSkillTrigger _currentTrigger;
     public CardSkillTrigger currentTrigger => _currentTrigger;
@@ -67,7 +79,7 @@ public abstract class CardSkill : MonoBehaviour
         List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(_card.placedTile, _card.data.currentData.interactRange);
         interactRangeTiles = CustomData_Utility.Conditions_ActivateAvailableTiles(interactRangeTiles, _candidateTargetTileConditions);
 
-        if (_includeCurrentTile) return interactRangeTiles;
+        if (_configurationData.includeCurrentTile) return interactRangeTiles;
         interactRangeTiles.Remove(_card.placedTile);
 
         return interactRangeTiles;
@@ -83,7 +95,7 @@ public abstract class CardSkill : MonoBehaviour
         {
             case CardSkillTarget.CurrentTile:
 
-                if (_includeCurrentTile == false) break;
+                if (_configurationData.includeCurrentTile == false) break;
                 if (CustomData_Utility.Conditions_ActivateAvailable(placedTile, _candidateTargetTileConditions) == false) break;
 
                 targetTiles.Add(placedTile);
@@ -286,7 +298,7 @@ public abstract class CardSkill : MonoBehaviour
                     int randIndex = Random.Range(0, interactRangeTiles.Count);
                     targetInteractables.Add(interactRangeTiles[randIndex].CurrentOccupant_Interactable());
 
-                    if (_duplicateTargeting) continue;
+                    if (_configurationData.duplicateTargeting) continue;
                     interactRangeTiles.RemoveAt(randIndex);
                 }
                 return targetInteractables;
@@ -310,10 +322,15 @@ public abstract class CardSkill : MonoBehaviour
         _currentTarget = setTarget;
     }
 
-    public IEnumerator Run_SkillTrigger()
+    public IEnumerator Trigger_Skill()
     {
+        if (_configurationData.On_ActivationDelay(_card.data.currentData.turnCount)) yield break;
+        if (_configurationData.MaxCount_Activated(_runTimeData.activationCount)) yield break;
+
         if (CustomData_Utility.Conditions_ActivateAvailable(_card.placedTile, _currentTileConditions) == false) yield break;
-        yield return Trigger_Skill();
+
+        _runTimeData.Track_ActivationCount();
+        yield return Activate_Skill();
     }
-    public abstract IEnumerator Trigger_Skill();
+    public abstract IEnumerator Activate_Skill();
 }

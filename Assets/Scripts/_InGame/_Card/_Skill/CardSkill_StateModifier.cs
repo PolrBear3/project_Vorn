@@ -13,7 +13,7 @@ public class CardSkill_StateModifier : CardSkill
 
 
     // CardSkill
-    public override IEnumerator Trigger_Skill()
+    public override IEnumerator Activate_Skill()
     {
         List<IInteractable> targetInteractables = CurrentTarget_Interactables(_targetingCount);
 

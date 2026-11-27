@@ -10,7 +10,7 @@ public class CardSkill_HealthModifier : CardSkill
 
 
     // CardSkill
-    public override IEnumerator Trigger_Skill()
+    public override IEnumerator Activate_Skill()
     {
         InteractionData currentCardData = card.data.currentData;
         List<IInteractable> targetInteractables = CurrentTarget_Interactables(_targetingCount);

@@ -9,7 +9,7 @@ public class CardSkill_DeckDraw : CardSkill
 
 
     // CardSkill
-    public override IEnumerator Trigger_Skill()
+    public override IEnumerator Activate_Skill()
     {
         HandInventory handInventory = GameManager.instance.handInventory;
         yield return handInventory.DrawCard();

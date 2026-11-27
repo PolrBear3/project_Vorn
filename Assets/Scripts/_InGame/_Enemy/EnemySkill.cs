@@ -35,22 +35,32 @@ public class EnemySkill_TriggerData
     public EnemySkill[] enemySkills => _enemySkills;
 }
 
+[System.Serializable]
+public class EnemySkill_ConfigurationData : Skill_ConfigurationData
+{
+    [Space(10)]
+    [SerializeField][Range(0, 10)] private int _activationCoolTime;
+    public int activationCoolTime => _activationCoolTime;
+}
+
 public abstract class EnemySkill : MonoBehaviour
 {
-    [Space(20)]
-    [SerializeField][Range(0, 10)] private int _triggerCoolTime;
-    [SerializeField][Range(0, 10)] private int _triggerRepeatCount;
+    [Space(10)]
+    [SerializeField] private EnemySkill_ConfigurationData _configurationData;
 
+    [Space(20)]
+    [Tooltip("Condition for triggering the skill.")]
     [SerializeField] private ActivateCondition_ScrObj[] _triggerConditions;
-    public ActivateCondition_ScrObj[] triggerConditions => _triggerConditions;
+
+    [Tooltip("Condition for filtering skill trigger tiles.")]
+    [SerializeField] private ActivateCondition_ScrObj[] _candidateTargetTileConditions;
 
 
     private Enemy _enemy;
     public Enemy enemy => _enemy;
 
-
-    private int _currentTriggerCoolTime;
-    public int currentTriggerCoolTime => _currentTriggerCoolTime;
+    private EnemySkill_RunTimeData _runTimeData = new();
+    public EnemySkill_RunTimeData runTimeData => _runTimeData;
 
     private EnemySkillTrigger _currentTrigger;
     public EnemySkillTrigger currentTrigger => _currentTrigger;
@@ -66,6 +76,8 @@ public abstract class EnemySkill : MonoBehaviour
         int interactRange = _enemy.data.currentData.interactRange;
 
         List<Tile> interactRangeTiles = GameManager.instance.tileManager.Distanced_Tiles(currentTile, interactRange);
+        interactRangeTiles = CustomData_Utility.Conditions_ActivateAvailableTiles(interactRangeTiles, _candidateTargetTileConditions);
+
         return interactRangeTiles;
     }
 
@@ -79,6 +91,8 @@ public abstract class EnemySkill : MonoBehaviour
         {
             case EnemySkillTarget.CurrentTile:
 
+                if (CustomData_Utility.Conditions_ActivateAvailable(currentTile, _candidateTargetTileConditions) == false) break;
+
                 targetTiles.Add(currentTile);
                 break;
 
@@ -86,7 +100,9 @@ public abstract class EnemySkill : MonoBehaviour
             case EnemySkillTarget.DamagingTargetTile:
 
                 Tile damagingTile = _enemy.damagingTile;
+
                 if (damagingTile == null) break;
+                if (CustomData_Utility.Conditions_ActivateAvailable(damagingTile, _candidateTargetTileConditions) == false) break;
 
                 targetTiles.Add(damagingTile);
                 break;
@@ -109,16 +125,14 @@ public abstract class EnemySkill : MonoBehaviour
     }
     public List<Tile> SpawnTarget_Tiles(int spawnCount)
     {
-        List<Tile> targetTiles = new();
+        List<Tile> currentTargetTiles = CurrentTarget_Tiles();
+        for (int i = currentTargetTiles.Count - 1; i >= 0; i--)
+        {
+            if (currentTargetTiles[i].currentOccupant == null) continue;
+            currentTargetTiles.RemoveAt(i);
+        }
 
-        Tile enemyCurrentTile = enemy.movement.currentTile;
-        int interactRange = enemy.data.currentData.interactRange;
-
-        TileManager tileManager = GameManager.instance.tileManager;
-
-        List<Tile> interactRangeTiles = tileManager.Distanced_Tiles(enemyCurrentTile, interactRange);
-        if (currentTrigger != EnemySkillTrigger.Death) interactRangeTiles.Remove(enemyCurrentTile);
-
+        List<Tile> interactRangeTiles = InteractRange_Tiles();
         for (int i = interactRangeTiles.Count - 1; i >= 0; i--)
         {
             if (interactRangeTiles[i].currentOccupant == null) continue;
@@ -130,25 +144,24 @@ public abstract class EnemySkill : MonoBehaviour
         {
             case EnemySkillTarget.CurrentTile:
 
-                targetTiles.Add(enemyCurrentTile);
-                return targetTiles;
+                if (currentTrigger == EnemySkillTrigger.Death) return currentTargetTiles;
+
+                currentTargetTiles.Remove(enemy.movement.currentTile);
+                return currentTargetTiles;
 
 
-            case EnemySkillTarget.DamagingTargetTile:
-
-                Tile damagingTile = enemy.damagingTile;
-                if (damagingTile == null) return targetTiles;
-
-                targetTiles.Add(damagingTile);
-                return targetTiles;
+            case EnemySkillTarget.DamagingTargetTile: return currentTargetTiles;
 
 
             case EnemySkillTarget.InteractRangeTile:
 
-                if (interactRangeTiles.Count <= 0) return targetTiles;
+                if (interactRangeTiles.Count <= 0) return interactRangeTiles;
 
-                targetTiles.Add(interactRangeTiles[UnityEngine.Random.Range(0, interactRangeTiles.Count)]);
-                return targetTiles;
+                List<Tile> interactRangeTile = new()
+                {
+                    interactRangeTiles[UnityEngine.Random.Range(0, interactRangeTiles.Count)]
+                };
+                return interactRangeTile;
 
 
             case EnemySkillTarget.InteractRangeTiles:
@@ -158,13 +171,12 @@ public abstract class EnemySkill : MonoBehaviour
                 for (int i = 0; i < maxSpawnCount; i++)
                 {
                     int randIndex = UnityEngine.Random.Range(0, interactRangeTiles.Count);
-
-                    targetTiles.Add(interactRangeTiles[randIndex]);
                     interactRangeTiles.RemoveAt(randIndex);
                 }
-                return targetTiles;
+                return interactRangeTiles;
         }
-        return targetTiles;
+
+        return new();
     }
 
 
@@ -172,26 +184,24 @@ public abstract class EnemySkill : MonoBehaviour
     public void Set_Data(Enemy enemy, EnemySkillTrigger setTrigger, EnemySkillTarget setTarget)
     {
         _enemy = enemy;
+
         _currentTrigger = setTrigger;
         _currentTarget = setTarget;
+
+        _runTimeData.Update_ActivationCoolTime(_configurationData.activationCoolTime);
     }
 
-    public IEnumerator Run_SkillTrigger()
+    public IEnumerator Trigger_Skill()
     {
-        if (_currentTriggerCoolTime > 0)
-        {
-            _currentTriggerCoolTime--;
-            yield break;
-        }
-        _currentTriggerCoolTime = _triggerCoolTime;
+        if (_configurationData.On_ActivationDelay(_enemy.data.currentData.turnCount)) yield break;
+        if (_configurationData.MaxCount_Activated(_runTimeData.activationCount)) yield break;
 
-        int repeatCount = Mathf.Max(1, _triggerRepeatCount);
+        if (CustomData_Utility.Conditions_ActivateAvailable(_enemy.movement.currentTile, _triggerConditions) == false) yield break;
 
-        for (int i = 0; i < repeatCount; i++)
-        {
-            if (CustomData_Utility.Conditions_ActivateAvailable(_enemy.movement.currentTile, _triggerConditions) == false) yield break;
-            yield return Trigger_Skill();
-        }
+        if (_runTimeData.On_ActivationCoolTime(_configurationData.activationCoolTime)) yield break;
+        _runTimeData.Track_ActivationCount();
+
+        yield return Activate_Skill();
     }
-    public abstract IEnumerator Trigger_Skill();
+    public abstract IEnumerator Activate_Skill();
 }

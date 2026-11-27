@@ -22,7 +22,7 @@ public class CardSkill_Spawner : CardSkill
 
 
     // CardSkill
-    public override IEnumerator Trigger_Skill()
+    public override IEnumerator Activate_Skill()
     {
         CardManager cardManager = GameManager.instance.cardManager;
         List<Tile> spawnTiles = SpawnTarget_Tiles(_spawnCount);

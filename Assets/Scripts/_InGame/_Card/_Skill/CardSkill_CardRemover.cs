@@ -44,7 +44,7 @@ public class CardSkill_CardRemover : CardSkill
 
 
     // CardSkill
-    public override IEnumerator Trigger_Skill()
+    public override IEnumerator Activate_Skill()
     {
         List<Card> removeCards = TargetTile_Cards();
 

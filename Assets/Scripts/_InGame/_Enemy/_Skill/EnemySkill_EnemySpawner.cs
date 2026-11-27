@@ -20,7 +20,7 @@ public class EnemySkill_EnemySpawner : EnemySkill
 
 
     // EnemySkill
-    public override IEnumerator Trigger_Skill()
+    public override IEnumerator Activate_Skill()
     {
         EnemyManager enemyManager = GameManager.instance.enemyManager;
         List<Tile> spawnTiles = SpawnTarget_Tiles(_spawnCount);

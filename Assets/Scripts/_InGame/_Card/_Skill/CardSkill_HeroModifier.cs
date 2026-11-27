@@ -13,7 +13,7 @@ public class CardSkill_HeroModifier : CardSkill
 
 
     // CardSkill
-    public override IEnumerator Trigger_Skill()
+    public override IEnumerator Activate_Skill()
     {
         List<IInteractable> currentTargetInteractables = CurrentTarget_Interactables();
 

@@ -125,10 +125,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea3e38496eac34819b96e564eecdb90d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _triggerCoolTime: 0
-  _triggerRepeatCount: 0
+  _configurationData:
+    _maxActivationCount: 0
+    _activationDelayTurnCount: 0
+    _activationCoolTime: 0
   _triggerConditions:
   - {fileID: 11400000, guid: 84de90008af884614a485fece6e20eb4, type: 2}
+  _candidateTargetTileConditions: []
   _spawnCount: 1
   _spawnEnemies:
   - {fileID: 11400000, guid: a5db033677c404e5fb8aa966827e80c0, type: 2}

@@ -171,6 +171,8 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
         data.OnHealthUpdate -= _healthPanel.Update_ValueText;
         data.OnHealthUpdate -= _spawnedHero.healthBar.Update_Fill;
         _spawnedHero.data.OnManaUpdate -= _manaPanel.Update_ValueText;
+
+        GameManager.instance.stageManager.endTurnEventBus.UnRegister(data.Track_TurnCount);
     }
 
 
@@ -233,6 +235,8 @@ public class HeroManager : MonoBehaviour, ISaveLoadable, ISubscriptionHandler
 
         Update_HealthPanel();
         Update_ManaPanel();
+
+        GameManager.instance.stageManager.endTurnEventBus.Register(0, data.Track_TurnCount);
     }
 
 

@@ -23,6 +23,14 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
     [SerializeField] private HealthModify_Indicator _modifyIndicator;
     public HealthModify_Indicator modifyIndicator => _modifyIndicator;
 
+
+    [Space(20)]
+    [Tooltip("Condition for starting the action.")]
+    [SerializeField] private ActivateCondition_ScrObj[] _currentTileConditions;
+
+    [Tooltip("Condition for target tile to move to when there are no taunt cards placed.")]
+    [SerializeField] private ActivateCondition_ScrObj[] _targetTileConditions;
+
     [Space(20)]
     [SerializeField] private EnemySkill_TriggerData[] _skillDatas;
     public EnemySkill_TriggerData[] skillDatas => _skillDatas;
@@ -71,6 +79,8 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
         _spawnSkillBus.Register(0, _interactionDataUpdater.Handle_StateUpdate);
 
         _interactionDataUpdater.OnPreDeathActionDataUpdate += Remove_Data;
+
+        GameManager.instance.stageManager.endTurnEventBus.Register(0, _data.currentData.Track_TurnCount);
     }
 
     public void UnSubscribe_All()
@@ -81,6 +91,8 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
         _spawnSkillBus.UnRegister(_interactionDataUpdater.Handle_StateUpdate);
 
         _interactionDataUpdater.OnPreDeathActionDataUpdate -= Remove_Data;
+
+        GameManager.instance.stageManager.endTurnEventBus.UnRegister(_data.currentData.Track_TurnCount);
     }
 
 
@@ -128,6 +140,21 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
         }
         return null;
     }
+    private Tile Condition_TargetTile()
+    {
+        if (_targetTileConditions.Length <= 0) return null;
+
+        List<Tile> targetTiles = GameManager.instance.tileManager.CloseSorted_Tiles(_movement.currentTile);
+
+        for (int i = 0; i < targetTiles.Count; i++)
+        {
+            Tile targetTile = targetTiles[i];
+
+            if (CustomData_Utility.Conditions_ActivateAvailable(targetTile, _targetTileConditions) == false) continue;
+            return targetTile;
+        }
+        return null;
+    }
     private Tile Hero_TargetTile()
     {
         GameManager manager = GameManager.instance;
@@ -140,7 +167,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
 
     public Tile TargetTile()
     {
-        return TauntCard_TargetTile() ?? Hero_TargetTile();
+        return TauntCard_TargetTile() ?? Condition_TargetTile() ?? Hero_TargetTile();
     }
     private void Moveto_TargetTile()
     {
@@ -165,6 +192,9 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
     private IInteractable DamageTarget_Interactable(out Tile damageTargetTile)
     {
         damageTargetTile = null;
+
+        // condition target tile check
+        if (Condition_TargetTile() != null) return null;
 
         GameManager manager = GameManager.instance;
         CardManager cardManager = manager.cardManager;
@@ -250,7 +280,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
                 EnemySkill skill = triggerSkills[j];
                 if (skill == null) continue;
 
-                triggerBus.Register(j, skill.Run_SkillTrigger);
+                triggerBus.Register(j, skill.Trigger_Skill);
                 skill.Set_Data(this, data.trigger, data.target);
             }
         }
@@ -270,7 +300,7 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
                 EnemySkill skill = triggerSkills[j];
                 if (skill == null) continue;
 
-                triggerBus.UnRegister(skill.Run_SkillTrigger);
+                triggerBus.UnRegister(skill.Trigger_Skill);
             }
         }
     }
@@ -316,6 +346,14 @@ public class Enemy : MonoBehaviour, ISubscriptionHandler, IInteractable
 
             enemyInteractionData.Remove_State(InteractableState.Frozen);
             yield return _interactionDataUpdater.Handle_StateUpdate();
+        }
+
+
+        // action start condition check
+        if (CustomData_Utility.Conditions_ActivateAvailable(_movement.currentTile, _currentTileConditions) == false)
+        {
+            Reset_ActionDatas();
+            yield break;
         }
 
 
